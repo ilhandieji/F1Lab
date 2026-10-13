@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/prisma";
 
+export const instant = false;
+
 async function driver() {
   return prisma.driver.findMany({
     select: {
