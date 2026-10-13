@@ -78,8 +78,8 @@
 
 .grid-subtitle {
   margin: 1.1rem 0 0;
-  color: #a4a4a9;
-  font-size: 0.95rem;
+  color: #dbdfd1;
+  font-size: 1.1rem;
 }
 
 .grid-header-rule {
@@ -116,7 +116,7 @@
   display: grid;
   grid-template-columns: 5.3rem minmax(0, 1fr) auto;
   align-items: center;
-  min-height: 6.4rem;
+  min-height: 7.5rem;
   overflow: hidden;
   border: 1px solid #29292d;
   border-radius: 0.35rem;
@@ -153,6 +153,8 @@
   align-items: center;
   justify-content: center;
   align-self: stretch;
+  gap: 0.25rem;
+  padding: 0.55rem 0.2rem;
   border-right: 1px solid #29292d;
 }
 
@@ -162,7 +164,7 @@
 }
 
 .grid-position-number {
-  margin-top: 0.15rem;
+  margin-top: 0.1rem;
   color: #f1f1f2;
   font-size: 1.8rem;
   font-weight: 800;
@@ -170,6 +172,36 @@
   line-height: 1;
 }
 
+/* Team logo container */
+.grid-team-logo {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  width: 4.1rem;
+  height: 1.5rem;
+  max-width: 100%;
+  margin-top: 0.25rem;
+
+  overflow: hidden;
+}
+
+.grid-team-logo-image {
+  position: absolute;
+  top: 50%;
+  right: 0;
+
+  display: block;
+  width: 220%;
+  max-width: none;
+  height: auto;
+
+  transform: translateY(-50%);
+}
+
+/* Driver information */
 .grid-driver-info {
   min-width: 0;
   padding: 1rem 1.35rem;
@@ -211,6 +243,7 @@
   background: linear-gradient(90deg, #b30f18, var(--grid-scarlet));
 }
 
+/* Points */
 .grid-score {
   display: flex;
   align-items: baseline;
@@ -233,6 +266,7 @@
   font-size: 0.58rem;
 }
 
+/* Footer */
 .grid-footer {
   display: flex;
   justify-content: space-between;
@@ -252,6 +286,7 @@
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Mobile */
 @media (max-width: 540px) {
   .grid-content {
     width: min(100% - 1.5rem, 66rem);
@@ -266,7 +301,16 @@
 
   .grid-driver-card {
     grid-template-columns: 3.8rem minmax(0, 1fr) auto;
-    min-height: 6rem;
+    min-height: 7rem;
+  }
+
+  .grid-position {
+    gap: 0.2rem;
+    padding: 0.45rem 0.1rem;
+  }
+
+  .grid-position-number {
+    font-size: 1.65rem;
   }
 
   .grid-driver-info {
