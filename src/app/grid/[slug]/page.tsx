@@ -9,6 +9,20 @@ type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
+const teamLogoPaths: Record<string, string> = {
+  alpine: "/assets/teamAlpine/logo.svg",
+  "aston-martin": "/assets/teamAstonMartin/logo.svg",
+  audi: "/assets/teamAudi/logo.svg",
+  cadillac: "/assets/teamCadillac/logo.svg",
+  ferrari: "/assets/teamFerrari/logo.svg",
+  haas: "/assets/teamHaas/logo.svg",
+  mclaren: "/assets/teamMcLaren/logo.svg",
+  mercedes: "/assets/teamMercedes/logo.svg",
+  "racing-bulls": "/assets/teamRacingBulls/logo.svg",
+  "red-bull": "/assets/teamRedbull/logo.svg",
+  williams: "/assets/teamWiliams/logo.svg",
+};
+
 async function DriverStandings({ year }: { year: number }) {
   await connection();
 
@@ -41,19 +55,22 @@ async function DriverStandings({ year }: { year: number }) {
     },
   });
 
-  // ارتباط شناسهٔ راننده با نام تیم
-  const constructorsByDriver = new Map<string, string[]>();
+  const constructorsByDriver = new Map<
+    string,
+    { id: string; name: string }[]
+  >();
 
   for (const entry of seasonEntries) {
-    const constructorName = entry.constructor.name;
+    const constructor = Reflect.get(entry, "constructor") as {
+      id: string;
+      name: string;
+    };
+    const existingConstructors =
+      constructorsByDriver.get(entry.driver_id) ?? [];
 
-    if (!constructorName) continue;
-
-    const existingNames = constructorsByDriver.get(entry.driver_id) ?? [];
-
-    if (!existingNames.includes(constructorName)) {
-      existingNames.push(constructorName);
-      constructorsByDriver.set(entry.driver_id, existingNames);
+    if (!existingConstructors.some(({ id }) => id === constructor.id)) {
+      existingConstructors.push(constructor);
+      constructorsByDriver.set(entry.driver_id, existingConstructors);
     }
   }
 
@@ -101,8 +118,7 @@ async function DriverStandings({ year }: { year: number }) {
               const numericPoints = Number(points);
               const progress = (numericPoints / highestPoints) * 100;
 
-              const constructorNames =
-                constructorsByDriver.get(driver.id) ?? [];
+              const constructors = constructorsByDriver.get(driver.id) ?? [];
 
               return (
                 <article
@@ -115,33 +131,54 @@ async function DriverStandings({ year }: { year: number }) {
                     <span className="grid-position-number">
                       {position_text}
                     </span>
-
-                    <div className="grid-team-logo">
-                      <Image
-                        src="/assets/teamRedbull/logo.svg"
-                        alt="Red Bull Racing"
-                        width={20}
-                        height={20}
-                        className="grid-team-logo-image"
-                      />
-                    </div>
                   </div>
 
                   <div className="grid-driver-info">
-                    <span className="grid-driver-first-name">
-                      {driver.first_name}
-                    </span>
+                    <div className="grid-driver-identity">
+                      <div className="grid-team-logos">
+                        {constructors.map(({ id, name }) => {
+                          const logoPath = teamLogoPaths[id];
 
-                    <h2 className="grid-driver-last-name">
-                      {driver.last_name}
-                    </h2>
+                          return logoPath ? (
+                            <div className="grid-team-logo" key={id}>
+                              <Image
+                                src={logoPath}
+                                alt={`${name} logo`}
+                                width={64}
+                                height={48}
+                                className={`grid-team-logo-image${
+                                  [
+                                    "alpine",
+                                    "aston-martin",
+                                    "mercedes",
+                                    "williams",
+                                  ].includes(id)
+                                    ? " grid-team-logo-image--light"
+                                    : ""
+                                }`}
+                              />
+                            </div>
+                          ) : null;
+                        })}
+                      </div>
 
-                    <p>
-                      Team:{" "}
-                      {constructorNames.length > 0
-                        ? constructorNames.join(" / ")
-                        : "Unknown"}
-                    </p>
+                      <div className="grid-driver-details">
+                        <span className="grid-driver-first-name">
+                          {driver.first_name}
+                        </span>
+
+                        <h2 className="grid-driver-last-name">
+                          {driver.last_name}
+                        </h2>
+
+                        <p>
+                          Team:{" "}
+                          {constructors.length > 0
+                            ? constructors.map(({ name }) => name).join(" / ")
+                            : "Unknown"}
+                        </p>
+                      </div>
+                    </div>
 
                     <div
                       className="grid-progress-track"

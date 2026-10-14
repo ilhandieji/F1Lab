@@ -172,37 +172,47 @@
   line-height: 1;
 }
 
-/* Team logo container */
-.grid-team-logo {
-  position: relative;
+.grid-driver-identity {
   display: flex;
   align-items: center;
+  gap: 0.85rem;
+  min-width: 0;
+}
+
+.grid-team-logos {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.grid-team-logo {
+  display: flex;
+  flex: 0 0 3.2rem;
+  align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-
-  width: 4.1rem;
-  height: 1.5rem;
-  max-width: 100%;
-  margin-top: 0.25rem;
-
-  overflow: hidden;
+  width: 3.2rem;
+  height: 2.5rem;
 }
 
 .grid-team-logo-image {
-  position: absolute;
-  top: 50%;
-  right: 0;
-
   display: block;
-  width: 240%;
-  max-width: none;
-  height: auto;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
 
-  transform: translateY(-50%);
+.grid-team-logo-image--light {
+  filter: brightness(0) invert(1);
+}
+
+.grid-driver-details {
+  min-width: 0;
 }
 
 /* Driver information */
 .grid-driver-info {
+  display: grid;
   min-width: 0;
   padding: 1rem 1.35rem;
 }
@@ -231,6 +241,7 @@
 }
 
 .grid-progress-track {
+  grid-column: 1 / -1;
   height: 2px;
   margin-top: 0.85rem;
   overflow: hidden;
@@ -315,6 +326,20 @@
 
   .grid-driver-info {
     padding: 0.85rem;
+  }
+
+  .grid-driver-identity {
+    gap: 0.55rem;
+  }
+
+  .grid-team-logos {
+    gap: 0.2rem;
+  }
+
+  .grid-team-logo {
+    flex-basis: 2.45rem;
+    width: 2.45rem;
+    height: 2.2rem;
   }
 
   .grid-score {
