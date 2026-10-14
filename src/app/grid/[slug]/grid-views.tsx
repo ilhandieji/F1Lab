@@ -20,6 +20,12 @@ export type GridDriver = {
   team: TeamInfo;
 };
 
+export type ConstructorStanding = {
+  team: TeamInfo;
+  position: string;
+  points: number;
+};
+
 export type ActivityDriver = {
   id: string;
   name: string;
@@ -50,6 +56,9 @@ type GridViewsProps = {
   year: number;
   startingDrivers: GridDriver[];
   highestPoints: number;
+  constructorStandings: ConstructorStanding[];
+  constructorStandingsNote: string | null;
+  constructorStandingsEmptyMessage: string | null;
   activity: {
     summary: {
       uniqueRaceDrivers: number;
@@ -70,7 +79,15 @@ const activityLabels = {
 } as const;
 
 function TeamLogo({ team }: { team: TeamInfo }) {
-  if (!team.logoPath) return null;
+  if (!team.logoPath) {
+    return (
+      <span
+        className="grid-team-logo-missing"
+        role="img"
+        aria-label={`${team.name} logo unavailable`}
+      />
+    );
+  }
 
   return (
     <Image
@@ -386,14 +403,82 @@ function ActivityView({ activity }: { activity: GridViewsProps["activity"] }) {
   );
 }
 
+function ConstructorsStandings({
+  year,
+  standings,
+  note,
+  emptyMessage,
+}: {
+  year: number;
+  standings: ConstructorStanding[];
+  note: string | null;
+  emptyMessage: string | null;
+}) {
+  return (
+    <section
+      id="grid-constructors-panel"
+      className="grid-view-panel constructors-view"
+      role="tabpanel"
+      aria-labelledby="grid-constructors-tab"
+      tabIndex={0}
+    >
+      {standings.length > 0 ? (
+        <>
+          <div className="constructor-table-heading" aria-hidden="true">
+            <span>POS</span>
+            <span>CONSTRUCTOR</span>
+            <span>POINTS</span>
+          </div>
+          <ol
+            className="constructor-standings-list"
+            aria-label={`${year} Constructors' Championship standings`}
+          >
+            {standings.map(({ team, position, points }) => (
+              <li className="constructor-standing-row" key={team.id}>
+                <div className="constructor-position">
+                  <span className="grid-position-label">POS</span>
+                  <span className="grid-position-number">{position}</span>
+                </div>
+                <div className="constructor-identity">
+                  <div className="constructor-logo">
+                    <TeamLogo team={team} />
+                  </div>
+                  <h2>{team.name}</h2>
+                </div>
+                <div className="constructor-score">
+                  <span className="grid-score-value">
+                    {points.toLocaleString("en-US", {
+                      maximumFractionDigits: 2,
+                    })}
+                  </span>
+                  <span className="grid-score-label">PTS</span>
+                </div>
+              </li>
+            ))}
+          </ol>
+          {note && <p className="activity-data-note">{note}</p>}
+        </>
+      ) : (
+        <p className="activity-empty">
+          {emptyMessage ?? `No constructor standings are available for ${year}.`}
+        </p>
+      )}
+    </section>
+  );
+}
+
 export default function GridViews({
   year,
   startingDrivers,
   highestPoints,
   activity,
+  constructorStandings,
+  constructorStandingsNote,
+  constructorStandingsEmptyMessage,
 }: GridViewsProps) {
   const [activeTab, setActiveTab] = useState(0);
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const tabCount = 3;
 
   const handleTabKeyDown = (
     event: KeyboardEvent<HTMLButtonElement>,
@@ -401,10 +486,12 @@ export default function GridViews({
   ) => {
     let nextIndex = currentIndex;
 
-    if (event.key === "ArrowRight") nextIndex = (currentIndex + 1) % 2;
-    else if (event.key === "ArrowLeft") nextIndex = (currentIndex + 1) % 2;
-    else if (event.key === "Home") nextIndex = 0;
-    else if (event.key === "End") nextIndex = 1;
+    if (event.key === "ArrowRight") {
+      nextIndex = (currentIndex + 1) % tabCount;
+    } else if (event.key === "ArrowLeft") {
+      nextIndex = (currentIndex - 1 + tabCount) % tabCount;
+    } else if (event.key === "Home") nextIndex = 0;
+    else if (event.key === "End") nextIndex = tabCount - 1;
     else return;
 
     event.preventDefault();
@@ -451,6 +538,22 @@ export default function GridViews({
         >
           Season activity
         </button>
+        <button
+          ref={(node) => {
+            tabRefs.current[2] = node;
+          }}
+          id="grid-constructors-tab"
+          className="grid-tab"
+          type="button"
+          role="tab"
+          aria-selected={activeTab === 2}
+          aria-controls="grid-constructors-panel"
+          tabIndex={activeTab === 2 ? 0 : -1}
+          onClick={() => setActiveTab(2)}
+          onKeyDown={(event) => handleTabKeyDown(event, 2)}
+        >
+          Constructors&apos; standings
+        </button>
       </div>
 
       <div hidden={activeTab !== 0}>
@@ -462,6 +565,14 @@ export default function GridViews({
       </div>
       <div hidden={activeTab !== 1}>
         <ActivityView activity={activity} />
+      </div>
+      <div hidden={activeTab !== 2}>
+        <ConstructorsStandings
+          year={year}
+          standings={constructorStandings}
+          note={constructorStandingsNote}
+          emptyMessage={constructorStandingsEmptyMessage}
+        />
       </div>
     </>
   );

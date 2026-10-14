@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import GridViews, {
   type ActivityDriver,
   type ActivityEvent,
+  type ConstructorStanding,
   type GridDriver,
   type TeamInfo,
   type TestDriver,
@@ -32,26 +33,71 @@ const teamLogoPaths: Record<string, { src: string; light: boolean }> = {
   williams: { src: "/assets/teamWiliams/logo.svg", light: true },
 };
 
+function pointsToNumber(points: unknown): number {
+  let value: unknown = points;
+
+  if (points !== null && typeof points === "object") {
+    const decimalValue = Reflect.get(points, "value");
+    const decimalType = Reflect.get(points, "$type");
+    const toNumber = Reflect.get(points, "toNumber");
+
+    if (decimalType === "Decimal" && typeof decimalValue === "string") {
+      value = decimalValue;
+    } else if (typeof toNumber === "function") {
+      value = toNumber.call(points);
+    }
+  }
+
+  const numericValue =
+    typeof value === "number" ? value : typeof value === "string" ? Number(value) : NaN;
+  if (!Number.isFinite(numericValue)) {
+    throw new Error("Invalid points value in constructor standings data.");
+  }
+
+  return numericValue;
+}
+
 async function DriverStandings({ year }: { year: number }) {
   await connection();
 
-  const driverStandings = await prisma.season_driver_standing.findMany({
-    where: { year },
-    select: {
-      year: true,
-      position_display_order: true,
-      position_text: true,
-      points: true,
-      driver: {
+  const [driverStandings, officialConstructorStandings, seasonConstructors] =
+    await Promise.all([
+      prisma.season_driver_standing.findMany({
+        where: { year },
         select: {
-          id: true,
-          first_name: true,
-          last_name: true,
+          year: true,
+          position_display_order: true,
+          position_text: true,
+          points: true,
+          driver: {
+            select: {
+              id: true,
+              first_name: true,
+              last_name: true,
+            },
+          },
         },
-      },
-    },
-    orderBy: [{ position_display_order: "asc" }],
-  });
+        orderBy: [{ position_display_order: "asc" }],
+      }),
+      prisma.season_constructor_standing.findMany({
+        where: { year },
+        select: {
+          constructor_id: true,
+          position_display_order: true,
+          position_text: true,
+          points: true,
+          constructor: true,
+        },
+        orderBy: [{ position_display_order: "asc" }],
+      }),
+      prisma.season_constructor.findMany({
+        where: { year },
+        select: {
+          total_points: true,
+          constructor: true,
+        },
+      }),
+    ]);
 
   const [seasonEntries, raceResults] = await Promise.all([
     prisma.season_entrant_driver.findMany({
@@ -80,7 +126,8 @@ async function DriverStandings({ year }: { year: number }) {
         position_display_order: true,
         driver_id: true,
         constructor_id: true,
-        constructor: false,
+        race_points: true,
+        constructor: true,
         driver: {
           select: {
             id: true,
@@ -97,6 +144,197 @@ async function DriverStandings({ year }: { year: number }) {
       },
     }),
   ]);
+
+  const makeTeamInfo = (constructor: { id: string; name: string }) => {
+    const logo = teamLogoPaths[constructor.id];
+
+    return {
+      id: constructor.id,
+      name: constructor.name,
+      logoPath: logo?.src ?? null,
+      lightLogo: logo?.light ?? false,
+    };
+  };
+
+  const constructorsById = new Map<string, TeamInfo>();
+  for (const entry of seasonConstructors) {
+    const constructor = Reflect.get(entry, "constructor") as {
+      id: string;
+      name: string;
+    };
+    constructorsById.set(constructor.id, makeTeamInfo(constructor));
+  }
+  for (const result of raceResults) {
+    const constructor = Reflect.get(result, "constructor") as {
+      id: string;
+      name: string;
+    };
+    constructorsById.set(
+      constructor.id,
+      makeTeamInfo(constructor),
+    );
+  }
+
+  const officialByConstructor = new Map<
+    string,
+    {
+      team: TeamInfo;
+      points: number;
+      positionOrder: number;
+      position: string;
+      records: number;
+    }
+  >();
+  for (const standing of officialConstructorStandings) {
+    const existing = officialByConstructor.get(standing.constructor_id);
+    const constructor = Reflect.get(standing, "constructor") as {
+      id: string;
+      name: string;
+    };
+    officialByConstructor.set(standing.constructor_id, {
+      team: makeTeamInfo(constructor),
+      points: (existing?.points ?? 0) + pointsToNumber(standing.points),
+      positionOrder: Math.min(
+        existing?.positionOrder ?? standing.position_display_order,
+        standing.position_display_order,
+      ),
+      position: existing?.position ?? standing.position_text,
+      records: (existing?.records ?? 0) + 1,
+    });
+  }
+
+  let constructorStandings: ConstructorStanding[] = [];
+  let constructorStandingsNote: string | null = null;
+  let constructorStandingsEmptyMessage: string | null = null;
+
+  const hasOneOfficialRowPerTeam = [...officialByConstructor.values()].every(
+    ({ records }) => records === 1,
+  );
+
+  if (officialByConstructor.size > 0) {
+    const additionalZeroPointTeams = seasonConstructors.flatMap((entry) => {
+      if (pointsToNumber(entry.total_points) !== 0) return [];
+      const constructor = Reflect.get(entry, "constructor") as {
+        id: string;
+        name: string;
+      };
+      if (officialByConstructor.has(constructor.id)) return [];
+
+      return [makeTeamInfo(constructor)];
+    });
+    const combinedByConstructor = new Map(officialByConstructor);
+    for (const team of additionalZeroPointTeams) {
+      combinedByConstructor.set(team.id, {
+        team,
+        points: 0,
+        positionOrder: Number.MAX_SAFE_INTEGER,
+        position: "",
+        records: 0,
+      });
+    }
+    const canUseOfficialPositions = hasOneOfficialRowPerTeam;
+
+    if (canUseOfficialPositions && additionalZeroPointTeams.length === 0) {
+      constructorStandings = [...combinedByConstructor.values()]
+        .sort(
+          (left, right) =>
+            left.positionOrder - right.positionOrder ||
+            left.team.id.localeCompare(right.team.id),
+        )
+        .map(({ team, points, position }) => ({ team, points, position }));
+    } else {
+      constructorStandings = [...combinedByConstructor.values()]
+        .sort(
+          (left, right) =>
+            right.points - left.points ||
+            left.positionOrder - right.positionOrder ||
+            left.team.name.localeCompare(right.team.name) ||
+            left.team.id.localeCompare(right.team.id),
+        )
+        .map(({ team, points, position }, index) => ({
+          team,
+          points,
+          position:
+            canUseOfficialPositions && position !== ""
+              ? position
+              : String(index + 1),
+        }));
+      constructorStandingsNote =
+        additionalZeroPointTeams.length > 0 && !hasOneOfficialRowPerTeam
+          ? "Official points are consolidated by constructor, with additional zero-point season entrants listed afterward."
+          : additionalZeroPointTeams.length > 0
+            ? "Official standings are followed by constructors recorded for the season with zero points."
+            : "Official points are consolidated by constructor. Equal totals follow recorded standings order, then team name.";
+    }
+  } else {
+    const sprintResults = await prisma.race_data.findMany({
+      where: {
+        type: "SPRINT_RACE_RESULT",
+        race: { year },
+      },
+      select: {
+        constructor_id: true,
+        race_points: true,
+        constructor: true,
+      },
+    });
+    const eventPointsByConstructor = new Map<string, number>();
+    let hasScoredResults = false;
+
+    const addEventPoints = (
+      constructorId: string,
+      points: unknown,
+    ) => {
+      if (points === null) return;
+      hasScoredResults = true;
+      const numericPoints = pointsToNumber(points);
+      eventPointsByConstructor.set(
+        constructorId,
+        (eventPointsByConstructor.get(constructorId) ?? 0) + numericPoints,
+      );
+    };
+
+    for (const result of raceResults) {
+      addEventPoints(result.constructor_id, result.race_points);
+    }
+    for (const result of sprintResults) {
+      const constructor = Reflect.get(result, "constructor") as {
+        id: string;
+        name: string;
+      };
+      constructorsById.set(
+        constructor.id,
+        makeTeamInfo(constructor),
+      );
+      addEventPoints(result.constructor_id, result.race_points);
+    }
+
+    if (!hasScoredResults) {
+      constructorStandingsEmptyMessage =
+        constructorsById.size > 0
+          ? `Constructors are recorded for ${year}, but no race or sprint points are available yet.`
+          : `No constructor data is recorded for ${year}.`;
+    } else {
+      constructorStandings = [...constructorsById]
+        .map(([constructorId, team]) => ({
+          team,
+          points: eventPointsByConstructor.get(constructorId) ?? 0,
+        }))
+        .sort(
+          (left, right) =>
+            right.points - left.points ||
+            left.team.name.localeCompare(right.team.name) ||
+            left.team.id.localeCompare(right.team.id),
+        )
+        .map(({ team, points }, index) => ({
+          team,
+          points,
+          position: String(index + 1),
+        }));
+      constructorStandingsNote =
+        "Calculated from recorded Grand Prix and sprint result points. Ties use a stable team-name order.";
+    }
+  }
 
   raceResults.sort(
     (left, right) =>
@@ -117,13 +355,7 @@ async function DriverStandings({ year }: { year: number }) {
       id: string;
       name: string;
     };
-    const logo = teamLogoPaths[constructor.id];
-    const team: TeamInfo = {
-      id: constructor.id,
-      name: constructor.name,
-      logoPath: logo?.src ?? null,
-      lightLogo: logo?.light ?? false,
-    };
+    const team = makeTeamInfo(constructor);
 
     teamsById.set(team.id, team);
 
@@ -439,6 +671,9 @@ async function DriverStandings({ year }: { year: number }) {
             drivers: activityDrivers,
             testDrivers,
           }}
+          constructorStandings={constructorStandings}
+          constructorStandingsNote={constructorStandingsNote}
+          constructorStandingsEmptyMessage={constructorStandingsEmptyMessage}
         />
       </div>
     </main>
