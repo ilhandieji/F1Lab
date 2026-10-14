@@ -206,6 +206,14 @@
   filter: brightness(0) invert(1);
 }
 
+.grid-team-logo-missing {
+  display: block;
+  width: 75%;
+  height: 65%;
+  border: 1px dashed #55555b;
+  border-radius: 0.2rem;
+}
+
 .grid-driver-details {
   min-width: 0;
 }
@@ -299,6 +307,7 @@
 
 .grid-tabs {
   display: flex;
+  overflow-x: auto;
   gap: 1.4rem;
   margin: 1.5rem 0 1.1rem;
   border-bottom: 1px solid #313135;
@@ -306,6 +315,7 @@
 
 .grid-tab {
   position: relative;
+  flex: 0 0 auto;
   min-height: 2.8rem;
   padding: 0.5rem 0.1rem 0.75rem;
   border: 0;
@@ -316,6 +326,7 @@
   font-size: 0.78rem;
   font-weight: 800;
   text-transform: uppercase;
+  white-space: nowrap;
   transition: color 160ms ease;
 }
 
@@ -344,6 +355,115 @@
 .grid-view-panel:focus-visible {
   outline: 2px solid var(--grid-scarlet);
   outline-offset: 3px;
+}
+
+.constructor-table-heading {
+  display: grid;
+  grid-template-columns: 5.3rem minmax(0, 1fr) auto;
+  padding: 1.1rem 1.4rem 0.7rem;
+  color: #77777d;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+}
+
+.constructor-table-heading span:last-child {
+  text-align: right;
+}
+
+.constructor-standings-list {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.constructor-standing-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 5.3rem minmax(0, 1fr) auto;
+  align-items: center;
+  min-height: 5.6rem;
+  overflow: hidden;
+  border: 1px solid #29292d;
+  border-radius: 0.35rem;
+  background: linear-gradient(105deg, #1c1c1f, #141416 75%);
+  transition:
+    border-color 160ms ease,
+    transform 160ms ease,
+    background-color 160ms ease;
+}
+
+.constructor-standing-row::before {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--grid-scarlet);
+  content: "";
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+
+.constructor-standing-row:hover {
+  transform: translateX(3px);
+  border-color: #555055;
+  background-color: #202023;
+}
+
+.constructor-standing-row:hover::before {
+  opacity: 1;
+}
+
+.constructor-position {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  gap: 0.25rem;
+  padding: 0.55rem 0.2rem;
+  border-right: 1px solid #29292d;
+}
+
+.constructor-identity {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  min-width: 0;
+  padding: 0.75rem 1.35rem;
+}
+
+.constructor-logo {
+  display: flex;
+  flex: 0 0 3.2rem;
+  align-items: center;
+  justify-content: center;
+  width: 3.2rem;
+  height: 2.5rem;
+}
+
+.constructor-identity h2 {
+  overflow: hidden;
+  margin: 0;
+  color: #f2f2f3;
+  font-size: clamp(1rem, 3vw, 1.35rem);
+  font-weight: 850;
+  letter-spacing: -0.04em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.constructor-score {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0 1.5rem;
+}
+
+.constructor-score .grid-score-value {
+  min-width: 3.5ch;
 }
 
 .activity-view {
@@ -755,6 +875,37 @@
     font-size: 0.67rem;
   }
 
+  .constructor-table-heading {
+    grid-template-columns: 3.8rem minmax(0, 1fr) auto;
+    padding-right: 0.9rem;
+    padding-left: 0.9rem;
+  }
+
+  .constructor-standing-row {
+    grid-template-columns: 3.8rem minmax(0, 1fr) auto;
+    min-height: 5rem;
+  }
+
+  .constructor-identity {
+    gap: 0.55rem;
+    padding: 0.65rem 0.75rem;
+  }
+
+  .constructor-logo {
+    flex-basis: 2.45rem;
+    width: 2.45rem;
+    height: 2.2rem;
+  }
+
+  .constructor-identity h2 {
+    font-size: 0.85rem;
+  }
+
+  .constructor-score {
+    gap: 0.3rem;
+    padding: 0 0.85rem 0 0.35rem;
+  }
+
   .activity-section-heading {
     align-items: start;
     flex-direction: column;
@@ -801,7 +952,9 @@
 @media (prefers-reduced-motion: reduce) {
 
   .grid-driver-card,
+  .constructor-standing-row,
   .grid-driver-card::before,
+  .constructor-standing-row::before,
   .grid-tab,
   .grid-tab::after {
     transition: none;
