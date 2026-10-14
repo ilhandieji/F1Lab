@@ -2,25 +2,34 @@ import { Suspense } from "react";
 import { connection } from "next/server";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import Image from "next/image";
+import GridViews, {
+  type ActivityDriver,
+  type ActivityEvent,
+  type GridDriver,
+  type TeamInfo,
+  type TestDriver,
+} from "./grid-views";
 import "../grid.css";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
-const teamLogoPaths: Record<string, string> = {
-  alpine: "/assets/teamAlpine/logo.svg",
-  "aston-martin": "/assets/teamAstonMartin/logo.svg",
-  audi: "/assets/teamAudi/logo.svg",
-  cadillac: "/assets/teamCadillac/logo.svg",
-  ferrari: "/assets/teamFerrari/logo.svg",
-  haas: "/assets/teamHaas/logo.svg",
-  mclaren: "/assets/teamMcLaren/logo.svg",
-  mercedes: "/assets/teamMercedes/logo.svg",
-  "racing-bulls": "/assets/teamRacingBulls/logo.svg",
-  "red-bull": "/assets/teamRedbull/logo.svg",
-  williams: "/assets/teamWiliams/logo.svg",
+const teamLogoPaths: Record<string, { src: string; light: boolean }> = {
+  alpine: { src: "/assets/teamAlpine/logo.svg", light: true },
+  "aston-martin": {
+    src: "/assets/teamAstonMartin/logo.svg",
+    light: true,
+  },
+  audi: { src: "/assets/teamAudi/logo.svg", light: false },
+  cadillac: { src: "/assets/teamCadillac/logo.svg", light: false },
+  ferrari: { src: "/assets/teamFerrari/logo.svg", light: false },
+  haas: { src: "/assets/teamHaas/logo.svg", light: false },
+  mclaren: { src: "/assets/teamMcLaren/logo.svg", light: false },
+  mercedes: { src: "/assets/teamMercedes/logo.svg", light: true },
+  "racing-bulls": { src: "/assets/teamRacingBulls/logo.svg", light: false },
+  "red-bull": { src: "/assets/teamRedbull/logo.svg", light: false },
+  williams: { src: "/assets/teamWiliams/logo.svg", light: true },
 };
 
 async function DriverStandings({ year }: { year: number }) {
@@ -44,20 +53,63 @@ async function DriverStandings({ year }: { year: number }) {
     orderBy: [{ position_display_order: "asc" }],
   });
 
-  const seasonEntries = await prisma.season_entrant_driver.findMany({
-    where: {
-      year,
-      test_driver: false,
-    },
-    select: {
-      driver_id: true,
-      constructor: true,
-    },
-  });
+  const [seasonEntries, raceResults] = await Promise.all([
+    prisma.season_entrant_driver.findMany({
+      where: { year },
+      select: {
+        driver_id: true,
+        constructor_id: true,
+        rounds: true,
+        test_driver: true,
+        constructor: true,
+        driver: {
+          select: {
+            id: true,
+            first_name: true,
+            last_name: true,
+          },
+        },
+      },
+    }),
+    prisma.race_data.findMany({
+      where: {
+        type: "RACE_RESULT",
+        race: { year },
+      },
+      select: {
+        position_display_order: true,
+        driver_id: true,
+        constructor_id: true,
+        constructor: false,
+        driver: {
+          select: {
+            id: true,
+            first_name: true,
+            last_name: true,
+          },
+        },
+        race: {
+          select: {
+            round: true,
+            official_name: true,
+          },
+        },
+      },
+    }),
+  ]);
 
-  const constructorsByDriver = new Map<
+  raceResults.sort(
+    (left, right) =>
+      left.race.round - right.race.round ||
+      left.position_display_order - right.position_display_order ||
+      left.driver_id.localeCompare(right.driver_id),
+  );
+
+  const teamsById = new Map<string, TeamInfo>();
+  const openingTeamByDriver = new Map<string, string>();
+  const testDriversById = new Map<
     string,
-    { id: string; name: string }[]
+    { id: string; name: string; teams: Map<string, TeamInfo> }
   >();
 
   for (const entry of seasonEntries) {
@@ -65,19 +117,293 @@ async function DriverStandings({ year }: { year: number }) {
       id: string;
       name: string;
     };
-    const existingConstructors =
-      constructorsByDriver.get(entry.driver_id) ?? [];
+    const logo = teamLogoPaths[constructor.id];
+    const team: TeamInfo = {
+      id: constructor.id,
+      name: constructor.name,
+      logoPath: logo?.src ?? null,
+      lightLogo: logo?.light ?? false,
+    };
 
-    if (!existingConstructors.some(({ id }) => id === constructor.id)) {
-      existingConstructors.push(constructor);
-      constructorsByDriver.set(entry.driver_id, existingConstructors);
+    teamsById.set(team.id, team);
+
+    if (entry.test_driver) {
+      const testDriver = testDriversById.get(entry.driver.id) ?? {
+        id: entry.driver.id,
+        name: `${entry.driver.first_name} ${entry.driver.last_name}`,
+        teams: new Map<string, TeamInfo>(),
+      };
+
+      testDriver.teams.set(team.id, team);
+      testDriversById.set(testDriver.id, testDriver);
     }
   }
 
-  const highestPoints = Math.max(
-    ...driverStandings.map(({ points }) => Number(points)),
-    1,
+  const raceRounds = [
+    ...new Set(raceResults.map(({ race }) => race.round)),
+  ].sort((left, right) => left - right);
+  const openingRound = raceRounds[0];
+  const openingTeamsByDriver = new Map<string, Set<string>>();
+  const openingResultTeamsByDriver = new Map<string, Set<string>>();
+
+  for (const entry of seasonEntries) {
+    if (
+      !entry.test_driver &&
+      openingRound !== undefined &&
+      entry.rounds?.split(";").some((round) => Number(round) === openingRound)
+    ) {
+      const teamIds = openingTeamsByDriver.get(entry.driver_id) ?? new Set();
+      teamIds.add(entry.constructor_id);
+      openingTeamsByDriver.set(entry.driver_id, teamIds);
+    }
+  }
+
+  for (const result of raceResults) {
+    if (result.race.round !== openingRound) continue;
+
+    const teamIds =
+      openingResultTeamsByDriver.get(result.driver_id) ?? new Set();
+    teamIds.add(result.constructor_id);
+    openingResultTeamsByDriver.set(result.driver_id, teamIds);
+  }
+
+  for (const [driverId, teamIds] of openingTeamsByDriver) {
+    const candidates = [...teamIds].sort();
+    const matchingRaceTeams = candidates.filter((teamId) =>
+      openingResultTeamsByDriver.get(driverId)?.has(teamId),
+    );
+    const openingTeamId =
+      matchingRaceTeams.length === 1
+        ? matchingRaceTeams[0]
+        : candidates.length === 1
+          ? candidates[0]
+          : undefined;
+
+    if (openingTeamId) {
+      openingTeamByDriver.set(driverId, openingTeamId);
+    }
+  }
+
+  const lineupsByRound = new Map<number, Map<string, Set<string>>>();
+  const raceRoundsByTeamDriver = new Map<string, Map<string, Set<number>>>();
+  const raceRoundsByDriver = new Map<string, Set<number>>();
+  const teamsByDriver = new Map<string, Set<string>>();
+  const namesByDriver = new Map<string, string>();
+  const eventInfoByRound = new Map<number, { name: string }>();
+
+  for (const result of raceResults) {
+    const { round, official_name } = result.race;
+    const { driver_id, constructor_id } = result;
+    const teamLineups =
+      lineupsByRound.get(round) ?? new Map<string, Set<string>>();
+    const teamDrivers = teamLineups.get(constructor_id) ?? new Set<string>();
+    teamDrivers.add(driver_id);
+    teamLineups.set(constructor_id, teamDrivers);
+    lineupsByRound.set(round, teamLineups);
+
+    const teamAppearances =
+      raceRoundsByTeamDriver.get(constructor_id) ??
+      new Map<string, Set<number>>();
+    const driverTeamRounds =
+      teamAppearances.get(driver_id) ?? new Set<number>();
+    driverTeamRounds.add(round);
+    teamAppearances.set(driver_id, driverTeamRounds);
+    raceRoundsByTeamDriver.set(constructor_id, teamAppearances);
+
+    const driverRounds = raceRoundsByDriver.get(driver_id) ?? new Set<number>();
+    driverRounds.add(round);
+    raceRoundsByDriver.set(driver_id, driverRounds);
+
+    const driverTeams = teamsByDriver.get(driver_id) ?? new Set<string>();
+    driverTeams.add(constructor_id);
+    teamsByDriver.set(driver_id, driverTeams);
+
+    namesByDriver.set(
+      driver_id,
+      `${result.driver.first_name} ${result.driver.last_name}`,
+    );
+    eventInfoByRound.set(round, { name: official_name });
+  }
+
+  const rawChanges: {
+    round: number;
+    team: TeamInfo;
+    outgoing: string[];
+    incoming: string[];
+  }[] = [];
+
+  for (let index = 1; index < raceRounds.length; index += 1) {
+    const previousRound = raceRounds[index - 1];
+    const round = raceRounds[index];
+    const previousLineups =
+      lineupsByRound.get(previousRound) ?? new Map<string, Set<string>>();
+    const currentLineups =
+      lineupsByRound.get(round) ?? new Map<string, Set<string>>();
+    const teamIds = new Set([
+      ...previousLineups.keys(),
+      ...currentLineups.keys(),
+    ]);
+
+    for (const teamId of [...teamIds].sort()) {
+      const previousDrivers = previousLineups.get(teamId) ?? new Set<string>();
+      const currentDrivers = currentLineups.get(teamId) ?? new Set<string>();
+      const outgoing = [...previousDrivers]
+        .filter((driverId) => !currentDrivers.has(driverId))
+        .sort();
+      const incoming = [...currentDrivers]
+        .filter((driverId) => !previousDrivers.has(driverId))
+        .sort();
+
+      if (outgoing.length === 0 && incoming.length === 0) continue;
+
+      const team = teamsById.get(teamId);
+      if (team) rawChanges.push({ round, team, outgoing, incoming });
+    }
+  }
+
+  const activityEventsByRound = new Map<number, ActivityEvent>();
+
+  for (const change of rawChanges) {
+    const eventInfo = eventInfoByRound.get(change.round);
+    if (!eventInfo) continue;
+
+    const activityEvent = activityEventsByRound.get(change.round) ?? {
+      round: change.round,
+      name: eventInfo.name,
+      changes: [],
+    };
+    const incomingId = change.incoming[0];
+    const hasMovedFromAnotherTeam =
+      incomingId !== undefined &&
+      rawChanges.some(
+        (otherChange) =>
+          otherChange.round === change.round &&
+          otherChange.team.id !== change.team.id &&
+          otherChange.outgoing.includes(incomingId),
+      );
+    const hasPreviouslyRacedForTeam =
+      incomingId !== undefined &&
+      raceRounds.some(
+        (round) =>
+          round < change.round &&
+          lineupsByRound.get(round)?.get(change.team.id)?.has(incomingId),
+      );
+    const hasOriginalDriverReturned = raceRounds.some(
+      (round) =>
+        round > change.round &&
+        change.outgoing.some((driverId) =>
+          lineupsByRound.get(round)?.get(change.team.id)?.has(driverId),
+        ),
+    );
+    const kind = hasMovedFromAnotherTeam
+      ? "transfer"
+      : hasPreviouslyRacedForTeam
+        ? "return"
+        : hasOriginalDriverReturned
+          ? "substitution"
+          : "lineup-change";
+    const assignedRounds = incomingId
+      ? [...(raceRoundsByTeamDriver.get(change.team.id)?.get(incomingId) ?? [])]
+          .filter((round) => round >= change.round)
+          .sort((left, right) => left - right)
+      : [];
+    const stintRounds: number[] = [];
+
+    for (const round of assignedRounds) {
+      if (
+        stintRounds.length > 0 &&
+        round !== stintRounds[stintRounds.length - 1] + 1
+      ) {
+        break;
+      }
+      stintRounds.push(round);
+    }
+
+    activityEvent.changes.push({
+      team: change.team,
+      outgoing: change.outgoing.map((id) => ({
+        id,
+        name: namesByDriver.get(id) ?? id,
+      })),
+      incoming: change.incoming.map((id) => ({
+        id,
+        name: namesByDriver.get(id) ?? id,
+      })),
+      kind,
+      stint: {
+        startRound: stintRounds[0] ?? change.round,
+        endRound: stintRounds.at(-1) ?? change.round,
+        weekends: stintRounds.length,
+      },
+    });
+    activityEventsByRound.set(change.round, activityEvent);
+  }
+
+  const seenStartingDrivers = new Set<string>();
+  const gridDrivers: GridDriver[] = driverStandings.flatMap(
+    ({ position_display_order, position_text, points, driver }) => {
+      const teamId = openingTeamByDriver.get(driver.id);
+      const team = teamId ? teamsById.get(teamId) : undefined;
+
+      if (!team || seenStartingDrivers.has(driver.id)) return [];
+
+      seenStartingDrivers.add(driver.id);
+      return team
+        ? [
+            {
+              id: driver.id,
+              firstName: driver.first_name,
+              lastName: driver.last_name,
+              position: position_text,
+              positionOrder: position_display_order,
+              points: Number(points),
+              team,
+            },
+          ]
+        : [];
+    },
   );
+  const highestPoints = Math.max(...gridDrivers.map(({ points }) => points), 1);
+  const activityDrivers: ActivityDriver[] = [...raceRoundsByDriver]
+    .map(([id, rounds]) => ({
+      id,
+      name: namesByDriver.get(id) ?? id,
+      weekends: rounds.size,
+      teams: [...(teamsByDriver.get(id) ?? [])]
+        .map((teamId) => teamsById.get(teamId))
+        .filter((team): team is TeamInfo => team !== undefined)
+        .sort((left, right) => left.name.localeCompare(right.name)),
+      openedSeason: openingTeamByDriver.has(id),
+    }))
+    .sort((left, right) => left.name.localeCompare(right.name));
+  const testDrivers: TestDriver[] = [...testDriversById.values()]
+    .map(({ id, name, teams }) => ({
+      id,
+      name,
+      teams: [...teams.values()].sort((left, right) =>
+        left.name.localeCompare(right.name),
+      ),
+    }))
+    .sort((left, right) => left.name.localeCompare(right.name));
+  const activityEvents = [...activityEventsByRound.values()]
+    .map((event) => ({
+      ...event,
+      changes: event.changes.sort((left, right) =>
+        left.team.name.localeCompare(right.team.name),
+      ),
+    }))
+    .sort((left, right) => left.round - right.round);
+  const activitySummary = {
+    uniqueRaceDrivers: activityDrivers.length,
+    substitutions: activityEvents
+      .flatMap(({ changes }) => changes)
+      .filter(({ kind }) => kind === "substitution").length,
+    changedTeams: new Set(
+      activityEvents.flatMap(({ changes }) =>
+        changes.map(({ team }) => team.id),
+      ),
+    ).size,
+  };
 
   return (
     <main className="grid-page">
@@ -101,112 +427,19 @@ async function DriverStandings({ year }: { year: number }) {
           <div className="grid-header-rule">
             <span />
           </div>
-
-          <div className="grid-table-heading" aria-hidden="true">
-            <span>POS</span>
-            <span>DRIVER</span>
-            <span>POINTS</span>
-          </div>
         </header>
 
-        <section
-          className="grid-standings"
-          aria-label={`${year} driver standings`}
-        >
-          {driverStandings.map(
-            ({ position_display_order, position_text, points, driver }) => {
-              const numericPoints = Number(points);
-              const progress = (numericPoints / highestPoints) * 100;
-
-              const constructors = constructorsByDriver.get(driver.id) ?? [];
-
-              return (
-                <article
-                  className="grid-driver-card"
-                  key={position_display_order}
-                >
-                  <div className="grid-position">
-                    <span className="grid-position-label">POS</span>
-
-                    <span className="grid-position-number">
-                      {position_text}
-                    </span>
-                  </div>
-
-                  <div className="grid-driver-info">
-                    <div className="grid-driver-identity">
-                      <div className="grid-team-logos">
-                        {constructors.map(({ id, name }) => {
-                          const logoPath = teamLogoPaths[id];
-
-                          return logoPath ? (
-                            <div className="grid-team-logo" key={id}>
-                              <Image
-                                src={logoPath}
-                                alt={`${name} logo`}
-                                width={64}
-                                height={48}
-                                className={`grid-team-logo-image${
-                                  [
-                                    "alpine",
-                                    "aston-martin",
-                                    "mercedes",
-                                    "williams",
-                                  ].includes(id)
-                                    ? " grid-team-logo-image--light"
-                                    : ""
-                                }`}
-                              />
-                            </div>
-                          ) : null;
-                        })}
-                      </div>
-
-                      <div className="grid-driver-details">
-                        <span className="grid-driver-first-name">
-                          {driver.first_name}
-                        </span>
-
-                        <h2 className="grid-driver-last-name">
-                          {driver.last_name}
-                        </h2>
-
-                        <p>
-                          Team:{" "}
-                          {constructors.length > 0
-                            ? constructors.map(({ name }) => name).join(" / ")
-                            : "Unknown"}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div
-                      className="grid-progress-track"
-                      role="progressbar"
-                      aria-label={`${driver.first_name} ${driver.last_name} points`}
-                      aria-valuenow={numericPoints}
-                      aria-valuemin={0}
-                      aria-valuemax={highestPoints}
-                    >
-                      <span style={{ width: `${progress}%` }} />
-                    </div>
-                  </div>
-
-                  <div className="grid-score">
-                    <span className="grid-score-value">{numericPoints}</span>
-                    <span className="grid-score-label">PTS</span>
-                  </div>
-                </article>
-              );
-            },
-          )}
-        </section>
-
-        <footer className="grid-footer">
-          <span>STANDINGS</span>
-          <span>AFTER ALL ROUNDS</span>
-          <span>{driverStandings.length} DRIVERS</span>
-        </footer>
+        <GridViews
+          year={year}
+          startingDrivers={gridDrivers}
+          highestPoints={highestPoints}
+          activity={{
+            summary: activitySummary,
+            events: activityEvents,
+            drivers: activityDrivers,
+            testDrivers,
+          }}
+        />
       </div>
     </main>
   );
