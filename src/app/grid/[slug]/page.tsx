@@ -118,9 +118,9 @@ async function DriverStandings({ year }: { year: number }) {
 
                     <div className="grid-team-logo">
                       <Image
-                        src="/assets/teamRedbull/oracle-red-bull-racing-logo-brandlogos.net_l1rigy4u2.svg"
+                        src="/assets/teamRedbull/logo.svg"
                         alt="Red Bull Racing"
-                        width={60}
+                        width={20}
                         height={20}
                         className="grid-team-logo-image"
                       />
