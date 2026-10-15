@@ -1,7 +1,9 @@
 "use client";
 
-import { useRef, useState, type KeyboardEvent } from "react";
+import { useRef, type KeyboardEvent } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
+import { gridStyles } from "@/components/grid/styles";
 
 export type TeamInfo = {
   id: string;
@@ -78,11 +80,30 @@ const activityLabels = {
   "lineup-change": "LINEUP CHANGE",
 } as const;
 
+const activityKindStyles = {
+  transfer: gridStyles.activityKindTransfer,
+  return: gridStyles.activityKindReturn,
+  substitution: gridStyles.activityKindSubstitution,
+  "lineup-change": "",
+} as const;
+
+const gridTabs = [
+  { id: "drivers", label: "Season-start grid" },
+  { id: "activity", label: "Season activity" },
+  { id: "constructors", label: "Constructors' standings" },
+] as const;
+
+type GridTabId = (typeof gridTabs)[number]["id"];
+
+function isGridTabId(value: string | null): value is GridTabId {
+  return gridTabs.some((tab) => tab.id === value);
+}
+
 function TeamLogo({ team }: { team: TeamInfo }) {
   if (!team.logoPath) {
     return (
       <span
-        className="grid-team-logo-missing"
+        className={gridStyles.teamLogoMissing}
         role="img"
         aria-label={`${team.name} logo unavailable`}
       />
@@ -95,8 +116,8 @@ function TeamLogo({ team }: { team: TeamInfo }) {
       alt={`${team.name} logo`}
       width={64}
       height={48}
-      className={`grid-team-logo-image${
-        team.lightLogo ? " grid-team-logo-image--light" : ""
+      className={`${gridStyles.teamLogoImage} ${
+        team.lightLogo ? gridStyles.teamLogoLight : ""
       }`}
     />
   );
@@ -113,71 +134,78 @@ function StartingGrid({
 }) {
   return (
     <section
-      id="grid-start-panel"
-      className="grid-view-panel"
+      id="grid-drivers-panel"
+      className={gridStyles.panel}
       role="tabpanel"
-      aria-labelledby="grid-start-tab"
+      aria-labelledby="grid-drivers-tab"
       tabIndex={0}
     >
-      <div className="grid-table-heading" aria-hidden="true">
+      <div className={gridStyles.tableHeading} aria-hidden="true">
         <span>POS</span>
         <span>DRIVER</span>
-        <span>POINTS</span>
+        <span className={gridStyles.tableHeadingLast}>POINTS</span>
       </div>
 
       <section
-        className="grid-standings"
+        className={gridStyles.standings}
         aria-label={`${year} season-start driver grid`}
       >
         {drivers.map((driver) => {
           const progress = (driver.points / highestPoints) * 100;
 
           return (
-            <article className="grid-driver-card" key={driver.id}>
-              <div className="grid-position">
-                <span className="grid-position-label">POS</span>
-                <span className="grid-position-number">{driver.position}</span>
+            <article className={gridStyles.driverCard} key={driver.id}>
+              <div className={gridStyles.position}>
+                <span className={gridStyles.positionLabel}>POS</span>
+                <span className={gridStyles.positionNumber}>
+                  {driver.position}
+                </span>
               </div>
 
-              <div className="grid-driver-info">
-                <div className="grid-driver-identity">
-                  <div className="grid-team-logos">
-                    <div className="grid-team-logo">
+              <div className={gridStyles.driverInfo}>
+                <div className={gridStyles.driverIdentity}>
+                  <div className={gridStyles.teamLogos}>
+                    <div className={gridStyles.teamLogo}>
                       <TeamLogo team={driver.team} />
                     </div>
                   </div>
 
-                  <div className="grid-driver-details">
-                    <span className="grid-driver-first-name">
+                  <div className={gridStyles.driverDetails}>
+                    <span className={gridStyles.driverFirstName}>
                       {driver.firstName}
                     </span>
-                    <h2 className="grid-driver-last-name">{driver.lastName}</h2>
+                    <h2 className={gridStyles.driverLastName}>
+                      {driver.lastName}
+                    </h2>
                     <p>Team: {driver.team.name}</p>
                   </div>
                 </div>
 
                 <div
-                  className="grid-progress-track"
+                  className={gridStyles.progressTrack}
                   role="progressbar"
                   aria-label={`${driver.firstName} ${driver.lastName} points`}
                   aria-valuenow={driver.points}
                   aria-valuemin={0}
                   aria-valuemax={highestPoints}
                 >
-                  <span style={{ width: `${progress}%` }} />
+                  <span
+                    className={gridStyles.progressValue}
+                    style={{ width: `${progress}%` }}
+                  />
                 </div>
               </div>
 
-              <div className="grid-score">
-                <span className="grid-score-value">{driver.points}</span>
-                <span className="grid-score-label">PTS</span>
+              <div className={gridStyles.score}>
+                <span className={gridStyles.scoreValue}>{driver.points}</span>
+                <span className={gridStyles.scoreLabel}>PTS</span>
               </div>
             </article>
           );
         })}
       </section>
 
-      <footer className="grid-footer">
+      <footer className={gridStyles.footer}>
         <span>SEASON START</span>
         <span>{drivers.length} DRIVERS</span>
         <span>{year}</span>
@@ -189,60 +217,70 @@ function StartingGrid({
 function ActivityTimeline({ events }: { events: ActivityEvent[] }) {
   if (events.length === 0) {
     return (
-      <p className="activity-empty">
+      <p className={gridStyles.activityEmpty}>
         No race-driver lineup changes are recorded for this season.
       </p>
     );
   }
 
   return (
-    <ol className="activity-timeline" aria-label="Chronological driver changes">
+    <ol
+      className={gridStyles.activityTimeline}
+      aria-label="Chronological driver changes"
+    >
       {events.map((event) => (
-        <li className="activity-event" key={event.round}>
-          <div className="activity-round-marker" aria-hidden="true">
+        <li className={gridStyles.activityEvent} key={event.round}>
+          <div className={gridStyles.activityRound} aria-hidden="true">
             R{event.round}
           </div>
 
-          <div className="activity-event-content">
-            <header className="activity-event-heading">
+          <div>
+            <header className={gridStyles.activityEventHeading}>
               <div>
-                <h3>{event.name}</h3>
+                <h3 className={gridStyles.activityEventTitle}>{event.name}</h3>
               </div>
-              <span>{event.changes.length} TEAM SEAT CHANGES</span>
+              <span className={gridStyles.activityEventCount}>
+                {event.changes.length} TEAM SEAT CHANGES
+              </span>
             </header>
 
-            <div className="activity-change-list">
+            <div className={gridStyles.activityChangeList}>
               {event.changes.map((change) => (
                 <article
-                  className="activity-change"
+                  className={gridStyles.activityChange}
                   key={`${event.round}-${change.team.id}`}
                 >
-                  <div className="activity-team-heading">
-                    <div className="activity-team-logo">
+                  <div className={gridStyles.activityTeamHeading}>
+                    <div className={gridStyles.activityTeamLogo}>
                       <TeamLogo team={change.team} />
                     </div>
-                    <h4>{change.team.name}</h4>
+                    <h4 className={gridStyles.activityTeamName}>
+                      {change.team.name}
+                    </h4>
                     <span
-                      className={`activity-kind activity-kind--${change.kind}`}
+                      className={`${gridStyles.activityKind} ${activityKindStyles[change.kind]}`}
                     >
                       {activityLabels[change.kind]}
                     </span>
                   </div>
 
-                  <div className="activity-seat-change">
-                    <div>
-                      <span>OUT</span>
-                      <strong>
+                  <div className={gridStyles.activitySeatChange}>
+                    <div className={gridStyles.activitySeat}>
+                      <span className={gridStyles.activitySeatLabel}>OUT</span>
+                      <strong className={gridStyles.activitySeatValue}>
                         {change.outgoing.map(({ name }) => name).join(" / ") ||
                           "No prior race seat"}
                       </strong>
                     </div>
-                    <span className="activity-change-arrow" aria-hidden="true">
+                    <span
+                      className={gridStyles.activityArrow}
+                      aria-hidden="true"
+                    >
                       TO
                     </span>
-                    <div>
-                      <span>IN</span>
-                      <strong>
+                    <div className={gridStyles.activitySeat}>
+                      <span className={gridStyles.activitySeatLabel}>IN</span>
+                      <strong className={gridStyles.activitySeatValue}>
                         {change.incoming.map(({ name }) => name).join(" / ") ||
                           "Seat vacant"}
                       </strong>
@@ -250,7 +288,7 @@ function ActivityTimeline({ events }: { events: ActivityEvent[] }) {
                   </div>
 
                   {change.incoming.length > 0 && (
-                    <p className="activity-stint">
+                    <p className={gridStyles.activityStint}>
                       Raced rounds {change.stint.startRound}
                       {change.stint.endRound !== change.stint.startRound &&
                         `-${change.stint.endRound}`}{" "}
@@ -272,77 +310,116 @@ function ActivityView({ activity }: { activity: GridViewsProps["activity"] }) {
   return (
     <section
       id="grid-activity-panel"
-      className="grid-view-panel activity-view"
+      className={`${gridStyles.panel} ${gridStyles.activityView}`}
       role="tabpanel"
       aria-labelledby="grid-activity-tab"
       tabIndex={0}
     >
-      <section className="activity-overview" aria-labelledby="activity-title">
-        <div className="activity-section-heading">
+      <section
+        className={gridStyles.activitySection}
+        aria-labelledby="activity-title"
+      >
+        <div className={gridStyles.activitySectionHeading}>
           <div>
-            <span className="activity-kicker">SEASON OVERVIEW</span>
-            <h2 id="activity-title">The moving grid</h2>
+            <span className={gridStyles.activityKicker}>SEASON OVERVIEW</span>
+            <h2 id="activity-title" className={gridStyles.activitySectionTitle}>
+              The moving grid
+            </h2>
           </div>
-          <p>Race-result entries, ordered by Grand Prix round.</p>
+          <p className={gridStyles.activitySectionDescription}>
+            Race-result entries, ordered by Grand Prix round.
+          </p>
         </div>
 
-        <div className="activity-stats">
-          <article className="activity-stat">
-            <span>UNIQUE RACE DRIVERS</span>
-            <strong>{activity.summary.uniqueRaceDrivers}</strong>
+        <div className={gridStyles.activityStats}>
+          <article className={gridStyles.activityStat}>
+            <span className={gridStyles.activityStatLabel}>
+              UNIQUE RACE DRIVERS
+            </span>
+            <strong className={gridStyles.activityStatValue}>
+              {activity.summary.uniqueRaceDrivers}
+            </strong>
           </article>
-          <article className="activity-stat">
-            <span>SUBSTITUTION STINTS</span>
-            <strong>{activity.summary.substitutions}</strong>
+          <article
+            className={`${gridStyles.activityStat} ${gridStyles.activityStatDivider}`}
+          >
+            <span className={gridStyles.activityStatLabel}>
+              SUBSTITUTION STINTS
+            </span>
+            <strong className={gridStyles.activityStatValue}>
+              {activity.summary.substitutions}
+            </strong>
           </article>
-          <article className="activity-stat">
-            <span>TEAMS WITH CHANGES</span>
-            <strong>{activity.summary.changedTeams}</strong>
+          <article
+            className={`${gridStyles.activityStat} ${gridStyles.activityStatDivider}`}
+          >
+            <span className={gridStyles.activityStatLabel}>
+              TEAMS WITH CHANGES
+            </span>
+            <strong className={gridStyles.activityStatValue}>
+              {activity.summary.changedTeams}
+            </strong>
           </article>
         </div>
-        <p className="activity-stat-note">
+        <p className={gridStyles.activityNote}>
           A substitution is counted when a new driver fills a seat and the
           previous race driver later returns. Cross-team moves and returns are
           shown separately.
         </p>
       </section>
 
-      <section className="activity-section" aria-labelledby="changes-title">
-        <div className="activity-section-heading">
+      <section
+        className={gridStyles.activitySection}
+        aria-labelledby="changes-title"
+      >
+        <div className={gridStyles.activitySectionHeading}>
           <div>
-            <span className="activity-kicker">CHRONOLOGY</span>
-            <h2 id="changes-title">Driver changes</h2>
+            <span className={gridStyles.activityKicker}>CHRONOLOGY</span>
+            <h2 id="changes-title" className={gridStyles.activitySectionTitle}>
+              Driver changes
+            </h2>
           </div>
-          <p>Outgoing and incoming race drivers at each affected team.</p>
+          <p className={gridStyles.activitySectionDescription}>
+            Outgoing and incoming race drivers at each affected team.
+          </p>
         </div>
         <ActivityTimeline events={activity.events} />
       </section>
 
       <section
-        className="activity-section"
+        className={gridStyles.activitySection}
         aria-labelledby="race-drivers-title"
       >
-        <div className="activity-section-heading">
+        <div className={gridStyles.activitySectionHeading}>
           <div>
-            <span className="activity-kicker">RACE RESULTS</span>
-            <h2 id="race-drivers-title">Race-driver appearances</h2>
+            <span className={gridStyles.activityKicker}>RACE RESULTS</span>
+            <h2
+              id="race-drivers-title"
+              className={gridStyles.activitySectionTitle}
+            >
+              Race-driver appearances
+            </h2>
           </div>
-          <p>Distinct Grand Prix weekends with a race-result entry.</p>
+          <p className={gridStyles.activitySectionDescription}>
+            Distinct Grand Prix weekends with a race-result entry.
+          </p>
         </div>
 
-        <ul className="activity-driver-list">
+        <ul className={gridStyles.activityList}>
           {activity.drivers.map((driver) => (
-            <li className="activity-driver" key={driver.id}>
-              <div className="activity-driver-logos">
+            <li className={gridStyles.activityDriver} key={driver.id}>
+              <div className={gridStyles.activityDriverLogos}>
                 {driver.teams.map((team) => (
-                  <div className="activity-driver-logo" key={team.id}>
+                  <div className={gridStyles.activityDriverLogo} key={team.id}>
                     <TeamLogo team={team} />
                   </div>
                 ))}
               </div>
-              <div className="activity-driver-info">
-                <strong>{driver.name}</strong>
-                <span>
+              <div className={gridStyles.activityDriverInfo}>
+                <strong className={gridStyles.activityDriverName}>
+                  {driver.name}
+                </strong>
+                <span className={gridStyles.activityDriverDescription}>
                   {driver.openedSeason
                     ? "Opening driver"
                     : "Joined during season"}
@@ -350,7 +427,7 @@ function ActivityView({ activity }: { activity: GridViewsProps["activity"] }) {
                     ` · ${driver.teams.map(({ name }) => name).join(" / ")}`}
                 </span>
               </div>
-              <span className="activity-weekend-count">
+              <span className={gridStyles.activityWeekendCount}>
                 {driver.weekends} GP{" "}
                 {driver.weekends === 1 ? "weekend" : "weekends"}
               </span>
@@ -360,26 +437,37 @@ function ActivityView({ activity }: { activity: GridViewsProps["activity"] }) {
       </section>
 
       <section
-        className="activity-section"
+        className={gridStyles.activitySection}
         aria-labelledby="test-drivers-title"
       >
-        <div className="activity-section-heading">
+        <div className={gridStyles.activitySectionHeading}>
           <div>
-            <span className="activity-kicker">EXPLICIT SEASON ASSIGNMENTS</span>
-            <h2 id="test-drivers-title">Test drivers</h2>
+            <span className={gridStyles.activityKicker}>
+              EXPLICIT SEASON ASSIGNMENTS
+            </span>
+            <h2
+              id="test-drivers-title"
+              className={gridStyles.activitySectionTitle}
+            >
+              Test drivers
+            </h2>
           </div>
-          <p>Designations from the season entrant records.</p>
+          <p className={gridStyles.activitySectionDescription}>
+            Designations from the season entrant records.
+          </p>
         </div>
 
         {activity.testDrivers.length > 0 ? (
-          <ul className="activity-test-list">
+          <ul className={gridStyles.activityList}>
             {activity.testDrivers.map((driver) => (
-              <li className="activity-test-driver" key={driver.id}>
-                <strong>{driver.name}</strong>
-                <div className="activity-test-teams">
+              <li className={gridStyles.activityTestDriver} key={driver.id}>
+                <strong className={gridStyles.activityDriverName}>
+                  {driver.name}
+                </strong>
+                <div className={gridStyles.activityTestTeams}>
                   {driver.teams.map((team) => (
-                    <span key={team.id}>
-                      <span className="activity-test-logo">
+                    <span className={gridStyles.activityTestTeam} key={team.id}>
+                      <span className={gridStyles.activityTestLogo}>
                         <TeamLogo team={team} />
                       </span>
                       {team.name}
@@ -390,11 +478,11 @@ function ActivityView({ activity }: { activity: GridViewsProps["activity"] }) {
             ))}
           </ul>
         ) : (
-          <p className="activity-empty">
+          <p className={gridStyles.activityEmpty}>
             No test-driver designations are recorded for this season.
           </p>
         )}
-        <p className="activity-data-note">
+        <p className={gridStyles.activityNote}>
           Reserve-driver roles and test-session appearances are not recorded in
           this dataset.
         </p>
@@ -417,49 +505,53 @@ function ConstructorsStandings({
   return (
     <section
       id="grid-constructors-panel"
-      className="grid-view-panel constructors-view"
+      className={gridStyles.panel}
       role="tabpanel"
       aria-labelledby="grid-constructors-tab"
       tabIndex={0}
     >
       {standings.length > 0 ? (
         <>
-          <div className="constructor-table-heading" aria-hidden="true">
+          <div className={gridStyles.constructorHeading} aria-hidden="true">
             <span>POS</span>
             <span>CONSTRUCTOR</span>
-            <span>POINTS</span>
+            <span className={gridStyles.tableHeadingLast}>POINTS</span>
           </div>
           <ol
-            className="constructor-standings-list"
+            className={gridStyles.constructorList}
             aria-label={`${year} Constructors' Championship standings`}
           >
             {standings.map(({ team, position, points }) => (
-              <li className="constructor-standing-row" key={team.id}>
-                <div className="constructor-position">
-                  <span className="grid-position-label">POS</span>
-                  <span className="grid-position-number">{position}</span>
+              <li className={gridStyles.constructorRow} key={team.id}>
+                <div className={gridStyles.constructorPosition}>
+                  <span className={gridStyles.positionLabel}>POS</span>
+                  <span className={gridStyles.positionNumber}>
+                    {position}
+                  </span>
                 </div>
-                <div className="constructor-identity">
-                  <div className="constructor-logo">
+                <div className={gridStyles.constructorIdentity}>
+                  <div className={gridStyles.constructorLogo}>
                     <TeamLogo team={team} />
                   </div>
-                  <h2>{team.name}</h2>
+                  <h2 className={gridStyles.constructorName}>{team.name}</h2>
                 </div>
-                <div className="constructor-score">
-                  <span className="grid-score-value">
+                <div className={gridStyles.constructorScore}>
+                  <span
+                    className={`${gridStyles.scoreValue} ${gridStyles.scoreValueWide}`}
+                  >
                     {points.toLocaleString("en-US", {
                       maximumFractionDigits: 2,
                     })}
                   </span>
-                  <span className="grid-score-label">PTS</span>
+                  <span className={gridStyles.scoreLabel}>PTS</span>
                 </div>
               </li>
             ))}
           </ol>
-          {note && <p className="activity-data-note">{note}</p>}
+          {note && <p className={gridStyles.activityNote}>{note}</p>}
         </>
       ) : (
-        <p className="activity-empty">
+        <p className={gridStyles.activityEmpty}>
           {emptyMessage ?? `No constructor standings are available for ${year}.`}
         </p>
       )}
@@ -476,9 +568,22 @@ export default function GridViews({
   constructorStandingsNote,
   constructorStandingsEmptyMessage,
 }: GridViewsProps) {
-  const [activeTab, setActiveTab] = useState(0);
+  const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const requestedTab = searchParams.get("tab");
+  const activeTab: GridTabId = isGridTabId(requestedTab)
+    ? requestedTab
+    : "drivers";
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
-  const tabCount = 3;
+
+  const selectTab = (tab: GridTabId) => {
+    const nextSearchParams = new URLSearchParams(searchParams.toString());
+    nextSearchParams.set("tab", tab);
+    router.push(`${pathname}?${nextSearchParams.toString()}`, {
+      scroll: false,
+    });
+  };
 
   const handleTabKeyDown = (
     event: KeyboardEvent<HTMLButtonElement>,
@@ -487,86 +592,57 @@ export default function GridViews({
     let nextIndex = currentIndex;
 
     if (event.key === "ArrowRight") {
-      nextIndex = (currentIndex + 1) % tabCount;
+      nextIndex = (currentIndex + 1) % gridTabs.length;
     } else if (event.key === "ArrowLeft") {
-      nextIndex = (currentIndex - 1 + tabCount) % tabCount;
+      nextIndex = (currentIndex - 1 + gridTabs.length) % gridTabs.length;
     } else if (event.key === "Home") nextIndex = 0;
-    else if (event.key === "End") nextIndex = tabCount - 1;
+    else if (event.key === "End") nextIndex = gridTabs.length - 1;
     else return;
 
     event.preventDefault();
-    setActiveTab(nextIndex);
+    selectTab(gridTabs[nextIndex].id);
     tabRefs.current[nextIndex]?.focus();
   };
 
   return (
     <>
       <div
-        className="grid-tabs"
+        className={gridStyles.tabs}
         role="tablist"
         aria-label={`${year} season views`}
       >
-        <button
-          ref={(node) => {
-            tabRefs.current[0] = node;
-          }}
-          id="grid-start-tab"
-          className="grid-tab"
-          type="button"
-          role="tab"
-          aria-selected={activeTab === 0}
-          aria-controls="grid-start-panel"
-          tabIndex={activeTab === 0 ? 0 : -1}
-          onClick={() => setActiveTab(0)}
-          onKeyDown={(event) => handleTabKeyDown(event, 0)}
-        >
-          Season-start grid
-        </button>
-        <button
-          ref={(node) => {
-            tabRefs.current[1] = node;
-          }}
-          id="grid-activity-tab"
-          className="grid-tab"
-          type="button"
-          role="tab"
-          aria-selected={activeTab === 1}
-          aria-controls="grid-activity-panel"
-          tabIndex={activeTab === 1 ? 0 : -1}
-          onClick={() => setActiveTab(1)}
-          onKeyDown={(event) => handleTabKeyDown(event, 1)}
-        >
-          Season activity
-        </button>
-        <button
-          ref={(node) => {
-            tabRefs.current[2] = node;
-          }}
-          id="grid-constructors-tab"
-          className="grid-tab"
-          type="button"
-          role="tab"
-          aria-selected={activeTab === 2}
-          aria-controls="grid-constructors-panel"
-          tabIndex={activeTab === 2 ? 0 : -1}
-          onClick={() => setActiveTab(2)}
-          onKeyDown={(event) => handleTabKeyDown(event, 2)}
-        >
-          Constructors&apos; standings
-        </button>
+        {gridTabs.map((tab, index) => (
+          <button
+            ref={(node) => {
+              tabRefs.current[index] = node;
+            }}
+            id={`grid-${tab.id}-tab`}
+            className={gridStyles.tab}
+            key={tab.id}
+            type="button"
+            role="tab"
+            aria-selected={activeTab === tab.id}
+            aria-controls={`grid-${tab.id}-panel`}
+            tabIndex={activeTab === tab.id ? 0 : -1}
+            onClick={() => selectTab(tab.id)}
+            onKeyDown={(event) => handleTabKeyDown(event, index)}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
 
-      <div hidden={activeTab !== 0}>
+      <div hidden={activeTab !== "drivers"}>
         <StartingGrid
           year={year}
           drivers={startingDrivers}
           highestPoints={highestPoints}
         />
       </div>
-      <div hidden={activeTab !== 1}>
+      <div hidden={activeTab !== "activity"}>
         <ActivityView activity={activity} />
       </div>
-      <div hidden={activeTab !== 2}>
+      <div hidden={activeTab !== "constructors"}>
         <ConstructorsStandings
           year={year}
           standings={constructorStandings}

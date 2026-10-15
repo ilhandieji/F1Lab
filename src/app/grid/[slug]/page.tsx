@@ -2,6 +2,8 @@ import { Suspense } from "react";
 import { connection } from "next/server";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import YearNavigation from "@/components/grid/year-navigation";
+import { gridStyles } from "@/components/grid/styles";
 import GridViews, {
   type ActivityDriver,
   type ActivityEvent,
@@ -10,7 +12,6 @@ import GridViews, {
   type TeamInfo,
   type TestDriver,
 } from "./grid-views";
-import "../grid.css";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -638,26 +639,28 @@ async function DriverStandings({ year }: { year: number }) {
   };
 
   return (
-    <main className="grid-page">
-      <div className="grid-ambient" aria-hidden="true" />
+    <main className={gridStyles.page}>
+      <div className={gridStyles.ambient} aria-hidden="true" />
 
-      <div className="grid-content">
-        <header className="grid-header">
-          <div className="grid-eyebrow">
-            <span className="grid-live-dot" />
+      <div className={gridStyles.content}>
+        <YearNavigation year={year} />
+
+        <header className={gridStyles.header}>
+          <div className={gridStyles.eyebrow}>
+            <span className={gridStyles.liveDot} />
             {year} SEASON
           </div>
 
-          <h1 className="grid-title">
-            Drivers <span>Championship</span>
+          <h1 className={gridStyles.title}>
+            Drivers <span className={gridStyles.titleAccent}>Championship</span>
           </h1>
 
-          <p className="grid-subtitle">
+          <p className={gridStyles.subtitle}>
             The battle for the top spot, from lights out to the final flag.
           </p>
 
-          <div className="grid-header-rule">
-            <span />
+          <div className={gridStyles.headerRule}>
+            <span className={gridStyles.headerRuleAccent} />
           </div>
         </header>
 
@@ -687,6 +690,7 @@ async function GridPage({ params }: PageProps) {
   if (!match) notFound();
 
   const year = Number(match[1]);
+  if (year < 1950 || year > 2026) notFound();
 
   return <DriverStandings year={year} />;
 }
@@ -694,7 +698,7 @@ async function GridPage({ params }: PageProps) {
 export default function Page({ params }: PageProps) {
   return (
     <Suspense
-      fallback={<main className="grid-loading">Loading standings...</main>}
+      fallback={<main className={gridStyles.loading}>Loading standings...</main>}
     >
       <GridPage params={params} />
     </Suspense>
