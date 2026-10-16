@@ -1,8 +1,10 @@
 import { Suspense } from "react";
+import { prisma } from "@/lib/prisma";
 import { connection } from "next/server";
 import { notFound } from "next/navigation";
-import { prisma } from "@/lib/prisma";
+import { teamLogoPaths } from "@/lib/team-logos";
 import YearNavigation from "@/components/grid/year-navigation";
+import { pointsToNumber } from "@/lib/decimal";
 import { gridStyles } from "@/components/grid/styles";
 import GridViews, {
   type ActivityDriver,
@@ -16,136 +18,6 @@ import GridViews, {
 type PageProps = {
   params: Promise<{ slug: string }>;
 };
-
-// TODO make this Module in lib for later
-type TeamLogoOptions = {
-  light?: boolean;
-  folderName?: string;
-  format?: "svg" | "webp";
-};
-
-type TeamLogo = {
-  src: string;
-  light: boolean;
-};
-
-type TeamLogoPaths<T extends Record<string, TeamLogoOptions>> = {
-  [K in keyof T]: TeamLogo;
-};
-
-// E.G: Converts "aston-martin" to "teamAstonMartin"
-function toFolderName(slug: string): string {
-  return `team${slug
-    .split("-")
-    .map((part) => part[0].toUpperCase() + part.slice(1))
-    .join("")}`;
-}
-
-function defineTeamLogoPaths<const T extends Record<string, TeamLogoOptions>>(
-  teams: T,
-): TeamLogoPaths<T> {
-  return Object.fromEntries(
-    Object.entries(teams).map(([slug, options]) => [
-      slug,
-      {
-        src: `/assets/${options.folderName ?? toFolderName(slug)}/logo.${options.format ?? "svg"}`,
-        light: options.light ?? false,
-      },
-    ]),
-  ) as TeamLogoPaths<T>;
-}
-
-const teamLogoPaths: Record<string, TeamLogo> = defineTeamLogoPaths({
-  alpine: { light: true },
-  "aston-martin": { light: true },
-  audi: {},
-  cadillac: {},
-  ferrari: {},
-  haas: {},
-  mclaren: { folderName: "teamMcLaren" },
-  mercedes: { light: true },
-  "racing-bulls": { light: true },
-  "red-bull": { folderName: "teamRedbull" },
-  williams: { folderName: "teamWiliams", light: true },
-  "kick-sauber": {},
-  rb: { light: true },
-  alphatauri: { folderName: "teamRb", light: true },
-  "alfa-romeo": {},
-  "racing-point": {},
-  renault: { light: true },
-  "toro-rosso": { light: true },
-  "force-india": {},
-  sauber: {},
-  manor: { format: "webp" },
-  "lotus-f1": {},
-  marussia: { format: "webp" },
-  caterham: {},
-  hrt: {},
-  "lotus-racing": {},
-  virgin: { light: true },
-  brawn: {},
-  toyota: {},
-  "bmw-sauber": {},
-  honda: {},
-  "super-aguri": { format: "webp" },
-  spyker: { format: "webp", light: true },
-  midland: { format: "webp" },
-  bar: {},
-  jordan: { format: "webp" },
-  minardi: {},
-  jaguar: {},
-  arrows: { format: "webp" },
-  benetton: {},
-  prost: {},
-  stewart: { format: "webp" },
-  tyrrell: {},
-  lola: {},
-  footwork: { format: "webp" },
-  ligier: { format: "webp" },
-  forti: { format: "webp" },
-  larrousse: { format: "webp" },
-  simtek: { format: "webp" },
-  lotus: {},
-  march: { format: "webp" },
-  dallara: {},
-  venturi: {},
-  "andrea-moda": { format: "webp" },
-  brabham: { format: "webp" },
-  fondmetal: {},
-  "leyton-house": { format: "webp" },
-  ags: { format: "webp" },
-  coloni: {},
-  modena: { light: true },
-});
-// TODO
-
-function pointsToNumber(points: unknown): number {
-  let value: unknown = points;
-
-  if (points !== null && typeof points === "object") {
-    const decimalValue = Reflect.get(points, "value");
-    const decimalType = Reflect.get(points, "$type");
-    const toNumber = Reflect.get(points, "toNumber");
-
-    if (decimalType === "Decimal" && typeof decimalValue === "string") {
-      value = decimalValue;
-    } else if (typeof toNumber === "function") {
-      value = toNumber.call(points);
-    }
-  }
-
-  const numericValue =
-    typeof value === "number"
-      ? value
-      : typeof value === "string"
-        ? Number(value)
-        : NaN;
-  if (!Number.isFinite(numericValue)) {
-    throw new Error("Invalid points value in constructor standings data.");
-  }
-
-  return numericValue;
-}
 
 async function DriverStandings({ year }: { year: number }) {
   await connection();
@@ -763,26 +635,25 @@ async function DriverStandings({ year }: { year: number }) {
   );
 }
 
-async function GridPage({ params }: PageProps) {
+export default async function Page({ params }: PageProps) {
   const { slug } = await params;
-  const match = /^(\d{4})$/.exec(slug);
+  const year = Number(slug);
 
-  if (!match) notFound();
-
-  const year = Number(match[1]);
-  if (year < 1950 || year > 2026) notFound();
-
-  return <DriverStandings year={year} />;
-}
-
-export default function Page({ params }: PageProps) {
+  if (
+    !Number.isInteger(year) ||
+    String(year) !== slug ||
+    year < 1950 ||
+    year > 2026
+  ) {
+    notFound();
+  }
   return (
     <Suspense
       fallback={
         <main className={gridStyles.loading}>Loading standings...</main>
       }
     >
-      <GridPage params={params} />
+      <DriverStandings year={year} />
     </Suspense>
   );
 }
