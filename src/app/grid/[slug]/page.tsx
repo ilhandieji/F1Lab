@@ -17,22 +17,107 @@ type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
-const teamLogoPaths: Record<string, { src: string; light: boolean }> = {
-  alpine: { src: "/assets/teamAlpine/logo.svg", light: true },
-  "aston-martin": {
-    src: "/assets/teamAstonMartin/logo.svg",
-    light: true,
-  },
-  audi: { src: "/assets/teamAudi/logo.svg", light: false },
-  cadillac: { src: "/assets/teamCadillac/logo.svg", light: false },
-  ferrari: { src: "/assets/teamFerrari/logo.svg", light: false },
-  haas: { src: "/assets/teamHaas/logo.svg", light: false },
-  mclaren: { src: "/assets/teamMcLaren/logo.svg", light: false },
-  mercedes: { src: "/assets/teamMercedes/logo.svg", light: true },
-  "racing-bulls": { src: "/assets/teamRacingBulls/logo.svg", light: false },
-  "red-bull": { src: "/assets/teamRedbull/logo.svg", light: false },
-  williams: { src: "/assets/teamWiliams/logo.svg", light: true },
+// TODO make this Module in lib for later
+type TeamLogoOptions = {
+  light?: boolean;
+  folderName?: string;
+  format?: "svg" | "webp";
 };
+
+type TeamLogo = {
+  src: string;
+  light: boolean;
+};
+
+type TeamLogoPaths<T extends Record<string, TeamLogoOptions>> = {
+  [K in keyof T]: TeamLogo;
+};
+
+// E.G: Converts "aston-martin" to "teamAstonMartin"
+function toFolderName(slug: string): string {
+  return `team${slug
+    .split("-")
+    .map((part) => part[0].toUpperCase() + part.slice(1))
+    .join("")}`;
+}
+
+function defineTeamLogoPaths<const T extends Record<string, TeamLogoOptions>>(
+  teams: T,
+): TeamLogoPaths<T> {
+  return Object.fromEntries(
+    Object.entries(teams).map(([slug, options]) => [
+      slug,
+      {
+        src: `/assets/${options.folderName ?? toFolderName(slug)}/logo.${options.format ?? "svg"}`,
+        light: options.light ?? false,
+      },
+    ]),
+  ) as TeamLogoPaths<T>;
+}
+
+const teamLogoPaths: Record<string, TeamLogo> = defineTeamLogoPaths({
+  alpine: { light: true },
+  "aston-martin": { light: true },
+  audi: {},
+  cadillac: {},
+  ferrari: {},
+  haas: {},
+  mclaren: { folderName: "teamMcLaren" },
+  mercedes: { light: true },
+  "racing-bulls": { light: true },
+  "red-bull": { folderName: "teamRedbull" },
+  williams: { folderName: "teamWiliams", light: true },
+  "kick-sauber": {},
+  rb: { light: true },
+  alphatauri: { folderName: "teamRb", light: true },
+  "alfa-romeo": {},
+  "racing-point": {},
+  renault: { light: true },
+  "toro-rosso": { light: true },
+  "force-india": {},
+  sauber: {},
+  manor: { format: "webp" },
+  "lotus-f1": {},
+  marussia: { format: "webp" },
+  caterham: {},
+  hrt: {},
+  "lotus-racing": {},
+  virgin: { light: true },
+  brawn: {},
+  toyota: {},
+  "bmw-sauber": {},
+  honda: {},
+  "super-aguri": { format: "webp" },
+  spyker: { format: "webp", light: true },
+  midland: { format: "webp" },
+  bar: {},
+  jordan: { format: "webp" },
+  minardi: {},
+  jaguar: {},
+  arrows: { format: "webp" },
+  benetton: {},
+  prost: {},
+  stewart: { format: "webp" },
+  tyrrell: {},
+  lola: {},
+  footwork: { format: "webp" },
+  ligier: { format: "webp" },
+  forti: { format: "webp" },
+  larrousse: { format: "webp" },
+  simtek: { format: "webp" },
+  lotus: {},
+  march: { format: "webp" },
+  dallara: {},
+  venturi: {},
+  "andrea-moda": { format: "webp" },
+  brabham: { format: "webp" },
+  fondmetal: {},
+  "leyton-house": { format: "webp" },
+  ags: { format: "webp" },
+  coloni: {},
+  modena: { light: true },
+});
+// TODO
 
 function pointsToNumber(points: unknown): number {
   let value: unknown = points;
@@ -50,7 +135,11 @@ function pointsToNumber(points: unknown): number {
   }
 
   const numericValue =
-    typeof value === "number" ? value : typeof value === "string" ? Number(value) : NaN;
+    typeof value === "number"
+      ? value
+      : typeof value === "string"
+        ? Number(value)
+        : NaN;
   if (!Number.isFinite(numericValue)) {
     throw new Error("Invalid points value in constructor standings data.");
   }
@@ -170,10 +259,7 @@ async function DriverStandings({ year }: { year: number }) {
       id: string;
       name: string;
     };
-    constructorsById.set(
-      constructor.id,
-      makeTeamInfo(constructor),
-    );
+    constructorsById.set(constructor.id, makeTeamInfo(constructor));
   }
 
   const officialByConstructor = new Map<
@@ -282,10 +368,7 @@ async function DriverStandings({ year }: { year: number }) {
     const eventPointsByConstructor = new Map<string, number>();
     let hasScoredResults = false;
 
-    const addEventPoints = (
-      constructorId: string,
-      points: unknown,
-    ) => {
+    const addEventPoints = (constructorId: string, points: unknown) => {
       if (points === null) return;
       hasScoredResults = true;
       const numericPoints = pointsToNumber(points);
@@ -303,10 +386,7 @@ async function DriverStandings({ year }: { year: number }) {
         id: string;
         name: string;
       };
-      constructorsById.set(
-        constructor.id,
-        makeTeamInfo(constructor),
-      );
+      constructorsById.set(constructor.id, makeTeamInfo(constructor));
       addEventPoints(result.constructor_id, result.race_points);
     }
 
@@ -698,7 +778,9 @@ async function GridPage({ params }: PageProps) {
 export default function Page({ params }: PageProps) {
   return (
     <Suspense
-      fallback={<main className={gridStyles.loading}>Loading standings...</main>}
+      fallback={
+        <main className={gridStyles.loading}>Loading standings...</main>
+      }
     >
       <GridPage params={params} />
     </Suspense>
