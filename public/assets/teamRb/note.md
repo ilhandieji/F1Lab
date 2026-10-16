@@ -1,0 +1,1 @@
+This logo is both valid for **alphatauri** and also **racingbulls**
