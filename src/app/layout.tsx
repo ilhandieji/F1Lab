@@ -16,8 +16,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "F1Lab",
-  description: "A deep Formula1 data inspection and playground in development",
+  title: {
+    default: "F1Lab — Championship archive",
+    template: "%s · F1Lab",
+  },
+  description:
+    "Explore Formula 1 seasons from 1950 onward with opening grids, constructor standings, and the driver movements that changed each championship.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -34,7 +38,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         inter.variable,
       )}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full bg-[#07080c] text-white">{children}</body>
     </html>
   );
 }
