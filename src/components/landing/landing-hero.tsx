@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { DriverSearchLazy } from "@/components/landing/driver-search-lazy";
+import { FEATURED_DRIVER_ID } from "@/lib/driver/constants";
+import { driverHref } from "@/lib/driver/routes";
 import { FEATURED_SEASON } from "@/lib/grid/seasons";
 
 const paths = [
@@ -6,7 +9,7 @@ const paths = [
     href: `/grid/${FEATURED_SEASON}?tab=drivers`,
     kicker: "01",
     title: "Opening grid",
-    copy: "See the first lap, the starting order, and each team’s launch shape.",
+    copy: "See the first lap, the starting order, and each team's launch shape.",
   },
   {
     href: `/grid/${FEATURED_SEASON}?tab=activity`,
@@ -19,6 +22,12 @@ const paths = [
     kicker: "03",
     title: "Constructors",
     copy: "Follow the championship table as the season unfolded across the year.",
+  },
+  {
+    href: driverHref(FEATURED_DRIVER_ID, FEATURED_SEASON),
+    kicker: "04",
+    title: "Driver profiles",
+    copy: "Career totals, family links, and season-by-season results from debut to today.",
   },
 ] as const;
 
@@ -69,9 +78,11 @@ export function LandingHero() {
 
           <p className="mt-5 max-w-2xl text-base leading-7 text-white/70 md:text-lg">
             F1Lab is the archive for championship storylines: opening lineups, mid-season
-            driver moves, constructor battles, and the key changes that shaped each year.
-            Start with {FEATURED_SEASON} or jump anywhere from 1950 onward.
+            driver moves, constructor battles, driver career records, and the key changes
+            that shaped each year. Start with {FEATURED_SEASON} or jump anywhere from 1950 onward.
           </p>
+
+          <DriverSearchLazy />
 
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
@@ -83,7 +94,7 @@ export function LandingHero() {
           </div>
         </section>
 
-        <nav className="grid gap-3 md:grid-cols-3" aria-label="Ways into the grid">
+        <nav className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label="Ways into the grid">
           {paths.map((path) => (
             <Link
               key={path.href}

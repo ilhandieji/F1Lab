@@ -1,0 +1,8 @@
+#!/bin/sh
+# Optional local hook: strips Cursor co-author so GitHub does not list cursoragent as a contributor.
+# Install once per clone:
+#   cp scripts/git-hooks/commit-msg .git/hooks/commit-msg && chmod +x .git/hooks/commit-msg
+msg_file="${1:?}"
+tmp="$(mktemp)"
+grep -v '^Co-authored-by: Cursor <cursoragent@cursor.com>$' "$msg_file" >"$tmp"
+mv "$tmp" "$msg_file"

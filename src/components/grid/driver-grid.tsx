@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { driverHref } from "@/lib/driver/routes";
 import type { GridDriver } from "@/lib/grid/types";
 import { TeamLogo } from "./team-logo";
 
@@ -43,10 +45,11 @@ export function DriverGrid({ year, drivers, highestPoints }: DriverGridProps) {
             {drivers.map((driver) => {
               const progress = Math.min((driver.points / highestPoints) * 100, 100);
               return (
-                <li
-                  className="group relative grid min-h-[5.7rem] grid-cols-[3.5rem_minmax(0,_1fr)_auto] items-center overflow-hidden rounded-xl border border-white/10 bg-[linear-gradient(105deg,rgba(28,28,31,0.94),rgba(20,20,22,0.94)_75%)] transition hover:border-white/25 md:min-h-[6.7rem] md:grid-cols-[5.3rem_minmax(0,_1fr)_auto]"
-                  key={driver.id}
-                >
+                <li key={driver.id}>
+                  <Link
+                    href={driverHref(driver.id, year)}
+                    className="group relative grid min-h-[5.7rem] grid-cols-[3.5rem_minmax(0,_1fr)_auto] items-center overflow-hidden rounded-xl border border-white/10 bg-[linear-gradient(105deg,rgba(28,28,31,0.94),rgba(20,20,22,0.94)_75%)] transition hover:border-white/25 md:min-h-[6.7rem] md:grid-cols-[5.3rem_minmax(0,_1fr)_auto]"
+                  >
                   <span
                     className="absolute inset-y-0 left-0 w-[3px] bg-red-500 opacity-0 transition group-hover:opacity-100"
                     aria-hidden="true"
@@ -91,6 +94,7 @@ export function DriverGrid({ year, drivers, highestPoints }: DriverGridProps) {
                       Pts
                     </span>
                   </div>
+                  </Link>
                 </li>
               );
             })}

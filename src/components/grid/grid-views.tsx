@@ -14,7 +14,7 @@ export function GridViews({ data, activeTab }: { data: SeasonGrid; activeTab: Gr
         />
       </div>
       <div hidden={activeTab !== "activity"}>
-        <ActivityView activity={data.activity} />
+        <ActivityView activity={data.activity} year={data.year} />
       </div>
       <div hidden={activeTab !== "constructors"}>
         <ConstructorStandings

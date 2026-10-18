@@ -1,4 +1,7 @@
+import Link from "next/link";
+import { driverHref } from "@/lib/driver/routes";
 import type { ActivityChangeKind, ActivityEvent } from "@/lib/grid/types";
+import { DriverNameList } from "./driver-name-link";
 import { TeamLogo } from "./team-logo";
 
 const changeLabel: Record<ActivityChangeKind, string> = {
@@ -15,7 +18,7 @@ const changeColor: Record<ActivityChangeKind, string> = {
   "lineup-change": "",
 };
 
-export function ActivityTimeline({ events }: { events: ActivityEvent[] }) {
+export function ActivityTimeline({ events, year }: { events: ActivityEvent[]; year: number }) {
   if (events.length === 0) {
     return (
       <p className="rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm leading-6 text-white/60">
@@ -70,9 +73,11 @@ export function ActivityTimeline({ events }: { events: ActivityEvent[] }) {
                       Out
                     </span>
                     <strong className="break-words text-[11px] leading-5 text-white/80">
-                      {change.outgoing
-                        .map((driver) => driver.name)
-                        .join(" / ") || "No prior race seat"}
+                      {change.outgoing.length > 0 ? (
+                        <DriverNameList drivers={change.outgoing} year={year} />
+                      ) : (
+                        "No prior race seat"
+                      )}
                     </strong>
                   </div>
                   <span
@@ -86,9 +91,11 @@ export function ActivityTimeline({ events }: { events: ActivityEvent[] }) {
                       In
                     </span>
                     <strong className="break-words text-[11px] leading-5 text-white/80">
-                      {change.incoming
-                        .map((driver) => driver.name)
-                        .join(" / ") || "Seat vacant"}
+                      {change.incoming.length > 0 ? (
+                        <DriverNameList drivers={change.incoming} year={year} />
+                      ) : (
+                        "Seat vacant"
+                      )}
                     </strong>
                   </div>
                 </div>
@@ -102,9 +109,12 @@ export function ActivityTimeline({ events }: { events: ActivityEvent[] }) {
 
                       return (
                         <p key={stint.driverId}>
-                          <span className="font-semibold text-white/60">
+                          <Link
+                            href={driverHref(stint.driverId, year)}
+                            className="font-semibold text-white/60 underline decoration-white/15 underline-offset-2 hover:text-red-300"
+                          >
                             {driverName}:
-                          </span>{" "}
+                          </Link>{" "}
                           Raced rounds {stint.startRound}
                           {stint.endRound !== stint.startRound
                             ? `–${stint.endRound}`

@@ -89,9 +89,9 @@ export type SeasonGrid = {
 };
 
 export const GRID_TABS = [
-  { id: "drivers", label: "Opening grid" },
+  { id: "drivers", label: "Drivers Standing" },
   { id: "activity", label: "Season activity" },
-  { id: "constructors", label: "Constructors" },
+  { id: "constructors", label: "Constructors standing" },
 ] as const;
 
 export type GridTabId = (typeof GRID_TABS)[number]["id"];

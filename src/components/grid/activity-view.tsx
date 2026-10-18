@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { driverHref } from "@/lib/driver/routes";
 import type { SeasonActivity, TeamInfo } from "@/lib/grid/types";
 import { ActivityTimeline } from "./activity-timeline";
 import { TeamLogo } from "./team-logo";
@@ -35,7 +37,7 @@ function CompactTeam({ team }: { team: TeamInfo }) {
   );
 }
 
-export function ActivityView({ activity }: { activity: SeasonActivity }) {
+export function ActivityView({ activity, year }: { activity: SeasonActivity; year: number }) {
   return (
     <section
       id="grid-activity-panel"
@@ -79,7 +81,7 @@ export function ActivityView({ activity }: { activity: SeasonActivity }) {
           title="Driver changes"
           description="Outgoing and incoming race drivers, weekend by weekend."
         />
-        <ActivityTimeline events={activity.events} />
+        <ActivityTimeline events={activity.events} year={year} />
       </section>
 
       <section className="space-y-4" aria-labelledby="race-drivers-title">
@@ -95,7 +97,12 @@ export function ActivityView({ activity }: { activity: SeasonActivity }) {
               <li className="flex min-w-0 items-center gap-2.5 rounded-xl border border-white/10 bg-white/[0.03] p-3" key={driver.id}>
                 {driver.teams[0] ? <TeamLogo team={driver.teams[0]} size="tiny" /> : null}
                 <div className="grid min-w-0 flex-1 gap-0.5">
-                  <strong className="truncate text-xs font-bold text-white/85">{driver.name}</strong>
+                  <Link
+                    href={driverHref(driver.id, year)}
+                    className="truncate text-xs font-bold text-white/85 transition hover:text-red-300"
+                  >
+                    {driver.name}
+                  </Link>
                   <span className="truncate text-[10px] leading-4 text-white/45">
                     {driver.openedSeason ? "Opening driver" : "Joined during season"}
                     {driver.teams.length > 0
@@ -123,7 +130,12 @@ export function ActivityView({ activity }: { activity: SeasonActivity }) {
           <ul className="grid gap-2 sm:grid-cols-2">
             {activity.testDrivers.map((driver) => (
               <li className="flex min-w-0 flex-col items-start gap-2 rounded-xl border border-white/10 bg-white/[0.03] p-3" key={driver.id}>
-                <strong className="truncate text-xs font-bold text-white/85">{driver.name}</strong>
+                <Link
+                  href={driverHref(driver.id, year)}
+                  className="truncate text-xs font-bold text-white/85 transition hover:text-red-300"
+                >
+                  {driver.name}
+                </Link>
                 <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-white/55">
                   {driver.teams.map((team) => (
                     <CompactTeam team={team} key={team.id} />
