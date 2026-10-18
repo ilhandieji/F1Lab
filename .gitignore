@@ -43,5 +43,7 @@ next-env.d.ts
 /generated/prisma
 .idea/
 
-.cursor
+.cursor/*
+!.cursor/rules/
+!.cursor/rules/**
 qodana.yaml
