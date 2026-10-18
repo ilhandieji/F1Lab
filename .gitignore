@@ -43,7 +43,10 @@ next-env.d.ts
 /generated/prisma
 .idea/
 
-.cursor/*
-!.cursor/rules/
-!.cursor/rules/**
+# Local Cursor / agent tooling (never commit)
+.cursor/
+.cursorignore
+AGENTS.md
+CLAUDE.md
+
 qodana.yaml
