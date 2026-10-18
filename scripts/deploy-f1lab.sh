@@ -80,15 +80,32 @@ for attempt in {1..60}; do
   sleep 1
 done
 
-echo "=== Checking application health ==="
-for attempt in {1..45}; do
-  if curl -fsS --max-time 3 http://127.0.0.1:3000/ -o /dev/null; then
-    DEPLOYMENT_ACTIVE=0
-    echo "DEPLOY SUCCESSFUL"
-    exit 0
-  fi
-  sleep 1
-done
+wait_for_http() {
+  local attempts="$1"
+  local attempt
+  for attempt in $(seq 1 "$attempts"); do
+    if curl -fsS --max-time 5 http://127.0.0.1:3000/ -o /dev/null; then
+      return 0
+    fi
+    sleep 2
+  done
+  return 1
+}
 
-echo "ERROR: F1Lab did not respond within 45 seconds."
+echo "=== Checking application health ==="
+if wait_for_http 60; then
+  DEPLOYMENT_ACTIVE=0
+  echo "DEPLOY SUCCESSFUL"
+  exit 0
+fi
+
+echo "WARN: Health check timed out; rechecking after brief pause..."
+sleep 5
+if sudo systemctl is-active --quiet "$SERVICE" && wait_for_http 15; then
+  DEPLOYMENT_ACTIVE=0
+  echo "DEPLOY SUCCESSFUL (late readiness)"
+  exit 0
+fi
+
+echo "ERROR: F1Lab did not respond after health checks."
 exit 1

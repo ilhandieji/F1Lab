@@ -55,7 +55,7 @@ jobs:
   deploy:
     name: Deploy F1Lab
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     needs: quality
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
 
@@ -109,17 +109,24 @@ jobs:
           VPS_USER: ${{ secrets.VPS_USER }}
         run: |
           set -euo pipefail
-          if ! ssh \
+          set -o pipefail
+          ssh \
             -i ~/.ssh/f1lab_deploy \
             -o IdentitiesOnly=yes \
             -o BatchMode=yes \
             -o StrictHostKeyChecking=yes \
-            -o ConnectTimeout=15 \
-            "$VPS_USER@$VPS_HOST" "deploy-f1lab" 2>ssh-stderr.log; then
-            echo "::error::SSH deploy failed. Check VPS_SSH_KEY, VPS_USER (expected: ubuntu), VPS_HOST, and that the deploy key is in ~/.ssh/authorized_keys on the server."
-            if [ -s ssh-stderr.log ]; then
-              echo "---- ssh stderr (last lines) ----"
-              tail -n 30 ssh-stderr.log
-            fi
+            -o ConnectTimeout=30 \
+            -o ServerAliveInterval=30 \
+            -o ServerAliveCountMax=120 \
+            -o TCPKeepAlive=yes \
+            "$VPS_USER@$VPS_HOST" 2>&1 | tee deploy.log
+          ssh_status=${PIPESTATUS[0]}
+          if [ "$ssh_status" -ne 0 ]; then
+            echo "::error::SSH deploy exited with status $ssh_status. The server may still have finished deploy; check deploy.log and journalctl -u f1lab on the VPS."
+            tail -n 40 deploy.log || true
+            exit "$ssh_status"
+          fi
+          if ! grep -q "DEPLOY SUCCESSFUL" deploy.log; then
+            echo "::error::Deploy script did not report success."
             exit 1
           fi
