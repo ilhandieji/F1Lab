@@ -100,30 +100,23 @@ jobs:
           printf '%s\n' "$VPS_KNOWN_HOSTS" > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
 
-      - name: Verify SSH connectivity
-        env:
-          VPS_HOST: ${{ secrets.VPS_HOST }}
-          VPS_USER: ${{ secrets.VPS_USER }}
-        run: |
-          set -euo pipefail
-          ssh -T \
-            -i ~/.ssh/f1lab_deploy \
-            -o IdentitiesOnly=yes \
-            -o BatchMode=yes \
-            -o StrictHostKeyChecking=yes \
-            -o ConnectTimeout=15 \
-            "$VPS_USER@$VPS_HOST" "echo connected-as-\$(whoami)"
-
       - name: Deploy to VPS
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
         run: |
           set -euo pipefail
-          ssh -T \
+          if ! ssh \
             -i ~/.ssh/f1lab_deploy \
             -o IdentitiesOnly=yes \
             -o BatchMode=yes \
             -o StrictHostKeyChecking=yes \
             -o ConnectTimeout=15 \
-            "$VPS_USER@$VPS_HOST" "command -v deploy-f1lab >/dev/null && deploy-f1lab"
+            "$VPS_USER@$VPS_HOST" "deploy-f1lab" 2>ssh-stderr.log; then
+            echo "::error::SSH deploy failed. Exit 255 is usually wrong VPS_SSH_KEY, VPS_KNOWN_HOSTS, VPS_HOST/VPS_USER, or firewall. Ensure the matching public key is in ~/.ssh/authorized_keys on the server and deploy-f1lab exists on PATH for that user."
+            if [ -s ssh-stderr.log ]; then
+              echo "---- ssh stderr (last lines) ----"
+              tail -n 30 ssh-stderr.log
+            fi
+            exit 1
+          fi
