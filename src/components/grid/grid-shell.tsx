@@ -1,7 +1,17 @@
 "use client";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useCallback, useEffect, useState, type ReactNode, type TouchEvent } from "react";
+import {
+  Suspense,
+  useCallback,
+  useEffect,
+  useState,
+  type ReactNode,
+  type TouchEvent,
+} from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { adjacentSeasons, seasonHref } from "@/lib/grid/seasons";
+import { isGridTabId, type GridTabId } from "@/lib/grid/types";
 import { SeasonNavbar } from "./season-navbar";
 import { useSeasonNavigation } from "./use-season-navigation";
 
@@ -10,8 +20,25 @@ type GridShellProps = {
   children: ReactNode;
 };
 
-export function GridShell({ year, children }: GridShellProps) {
-  const { previous, next, hrefFor, navigate } = useSeasonNavigation(year);
+type GridShellBodyProps = GridShellProps & {
+  activeTab: GridTabId;
+  onSelectTab: (tab: GridTabId) => void;
+  previous: number | null;
+  next: number | null;
+  hrefFor: (year: number) => string;
+  navigate: (year: number) => void;
+};
+
+function GridShellBody({
+  year,
+  children,
+  activeTab,
+  onSelectTab,
+  previous,
+  next,
+  hrefFor,
+  navigate,
+}: GridShellBodyProps) {
   const [announcement, setAnnouncement] = useState("");
   const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
 
@@ -56,7 +83,8 @@ export function GridShell({ year, children }: GridShellProps) {
     <main
       className="relative isolate min-h-screen overflow-x-clip bg-[#07080c] text-white selection:bg-red-500/40"
       onTouchStart={(event) => {
-        if (event.target instanceof Element &&
+        if (
+          event.target instanceof Element &&
           event.target.closest(
             'a, button, input, textarea, [role="tablist"], [role="dialog"]',
           )
@@ -86,7 +114,11 @@ export function GridShell({ year, children }: GridShellProps) {
         onClick={() => previous !== null && goTo(previous)}
       >
         <ChevronLeft size={34} />
-        {previous ? <span className="text-[10px] font-black uppercase tracking-[0.18em] text-white/90">{previous}</span> : null}
+        {previous ? (
+          <span className="text-[10px] font-black uppercase tracking-[0.18em] text-white/90">
+            {previous}
+          </span>
+        ) : null}
       </button>
 
       <button
@@ -97,7 +129,11 @@ export function GridShell({ year, children }: GridShellProps) {
         onClick={() => next !== null && goTo(next)}
       >
         <ChevronRight size={34} />
-        {next ? <span className="text-[10px] font-black uppercase tracking-[0.18em] text-white/90">{next}</span> : null}
+        {next ? (
+          <span className="text-[10px] font-black uppercase tracking-[0.18em] text-white/90">
+            {next}
+          </span>
+        ) : null}
       </button>
 
       <p className="sr-only" aria-live="polite">
@@ -112,6 +148,8 @@ export function GridShell({ year, children }: GridShellProps) {
             next={next}
             hrefFor={hrefFor}
             navigate={goTo}
+            activeTab={activeTab}
+            onSelectTab={onSelectTab}
           />
         </div>
       </div>
@@ -128,12 +166,72 @@ export function GridShell({ year, children }: GridShellProps) {
             {year} <span className="text-red-500">Grid</span>
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-white/70 md:text-base">
-            See the opening lineup, then follow each driver move, constructor battle, and mid-season reshuffle as the year unfolds. On mobile, swipe horizontally to browse adjacent seasons.
+            See the opening lineup, then follow each driver move, constructor battle, and mid-season
+            reshuffle as the year unfolds. On mobile, swipe horizontally to browse adjacent seasons.
           </p>
         </header>
 
-        {children}
+        <div id="grid-main-content">{children}</div>
       </div>
     </main>
+  );
+}
+
+function GridShellStatic({ year, children }: GridShellProps) {
+  const { previous, next } = adjacentSeasons(year);
+  const hrefFor = (targetYear: number) => seasonHref(targetYear);
+
+  return (
+    <GridShellBody
+      year={year}
+      previous={previous}
+      next={next}
+      hrefFor={hrefFor}
+      navigate={() => {}}
+      activeTab="drivers"
+      onSelectTab={() => {}}
+    >
+      {children}
+    </GridShellBody>
+  );
+}
+
+function GridShellConnected({ year, children }: GridShellProps) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const tabValue = searchParams.get("tab");
+  const activeTab = isGridTabId(tabValue) ? tabValue : "drivers";
+  const { previous, next, hrefFor, navigate } = useSeasonNavigation(year);
+
+  const onSelectTab = useCallback(
+    (tab: GridTabId) => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("tab", tab);
+      router.replace(`${pathname}?${params}`, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  return (
+    <GridShellBody
+      year={year}
+      previous={previous}
+      next={next}
+      hrefFor={hrefFor}
+      navigate={navigate}
+      activeTab={activeTab}
+      onSelectTab={onSelectTab}
+    >
+      {children}
+    </GridShellBody>
+  );
+}
+
+export function GridShell({ year, children }: GridShellProps) {
+  return (
+    <Suspense fallback={<GridShellStatic year={year}>{children}</GridShellStatic>}>
+      <GridShellConnected year={year}>{children}</GridShellConnected>
+    </Suspense>
   );
 }

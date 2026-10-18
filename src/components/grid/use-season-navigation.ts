@@ -1,36 +1,33 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect } from "react";
-import { adjacentSeasons } from "@/lib/grid/seasons";
+import { adjacentSeasons, seasonHref } from "@/lib/grid/seasons";
 
 export function useSeasonNavigation(year: number) {
-  const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
   const query = searchParams.toString();
   const { previous, next } = adjacentSeasons(year);
+
   const hrefFor = useCallback(
-    (targetYear: number) => {
-      const path = pathname.replace(/\/\d{4}$/, `/${targetYear}`);
-      return query ? `${path}?${query}` : path;
-    },
-    [pathname, query],
+    (targetYear: number) => seasonHref(targetYear, query),
+    [query],
   );
 
   const navigate = useCallback(
     (targetYear: number) => {
       if (targetYear === year) return;
-      router.push(hrefFor(targetYear), { scroll: false });
+      router.push(seasonHref(targetYear, query), { scroll: false });
     },
-    [hrefFor, router, year],
+    [query, router, year],
   );
 
   useEffect(() => {
     for (const neighbor of [previous, next]) {
-      if (neighbor) router.prefetch(hrefFor(neighbor));
+      if (neighbor) router.prefetch(seasonHref(neighbor, query));
     }
-  }, [hrefFor, next, previous, router]);
+  }, [next, previous, query, router]);
 
   return {
     previous,

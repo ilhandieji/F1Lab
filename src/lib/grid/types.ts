@@ -46,12 +46,19 @@ export type ActivityChangeKind =
   | "substitution"
   | "lineup-change";
 
+export type ActivityStint = {
+  driverId: string;
+  startRound: number;
+  endRound: number;
+  weekends: number;
+};
+
 export type ActivityChange = {
   team: TeamInfo;
   outgoing: { id: string; name: string }[];
   incoming: { id: string; name: string }[];
   kind: ActivityChangeKind;
-  stint: { startRound: number; endRound: number; weekends: number };
+  stints: ActivityStint[];
 };
 
 export type ActivityEvent = {

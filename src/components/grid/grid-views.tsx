@@ -5,7 +5,7 @@ import { DriverGrid } from "./driver-grid";
 
 export function GridViews({ data, activeTab }: { data: SeasonGrid; activeTab: GridTabId }) {
   return (
-    <>
+    <div className="animate-in fade-in duration-300 motion-reduce:animate-none">
       <div hidden={activeTab !== "drivers"}>
         <DriverGrid
           year={data.year}
@@ -24,6 +24,6 @@ export function GridViews({ data, activeTab }: { data: SeasonGrid; activeTab: Gr
           emptyMessage={data.constructorStandingsEmptyMessage}
         />
       </div>
-    </>
+    </div>
   );
 }

@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import { useRef, type KeyboardEvent } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { GRID_TABS, isGridTabId, type GridTabId } from "@/lib/grid/types";
+import { GRID_TABS, type GridTabId } from "@/lib/grid/types";
 import { YearNavigation } from "./year-navigation";
 
 type SeasonNavbarProps = {
@@ -12,20 +11,20 @@ type SeasonNavbarProps = {
   next: number | null;
   hrefFor: (year: number) => string;
   navigate: (year: number) => void;
+  activeTab: GridTabId;
+  onSelectTab: (tab: GridTabId) => void;
 };
 
-export function SeasonNavbar({ year, previous, next, hrefFor, navigate }: SeasonNavbarProps) {
-  const pathname = usePathname();
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const activeTab = isGridTabId(searchParams.get("tab")) ? searchParams.get("tab") : "drivers";
+export function SeasonNavbar({
+  year,
+  previous,
+  next,
+  hrefFor,
+  navigate,
+  activeTab,
+  onSelectTab,
+}: SeasonNavbarProps) {
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
-
-  const setTab = (tab: GridTabId) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("tab", tab);
-    router.replace(`${pathname}?${params}`, { scroll: false });
-  };
 
   const handleTabKey = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
     const nextIndex =
@@ -43,7 +42,7 @@ export function SeasonNavbar({ year, previous, next, hrefFor, navigate }: Season
 
     event.preventDefault();
     event.stopPropagation();
-    setTab(GRID_TABS[nextIndex].id);
+    onSelectTab(GRID_TABS[nextIndex].id);
     tabRefs.current[nextIndex]?.focus();
   };
 
@@ -77,7 +76,7 @@ export function SeasonNavbar({ year, previous, next, hrefFor, navigate }: Season
               aria-selected={isActive}
               aria-controls={`grid-${tab.id}-panel`}
               tabIndex={isActive ? 0 : -1}
-              onClick={() => setTab(tab.id)}
+              onClick={() => onSelectTab(tab.id)}
               onKeyDown={(event) => handleTabKey(event, index)}
               className={`relative shrink-0 pb-2 pt-2 text-[10px] font-black uppercase tracking-[0.18em] transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500 ${isActive ? "text-white" : "text-white/50 hover:text-white"}`}
             >

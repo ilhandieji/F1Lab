@@ -11,9 +11,9 @@ export class OpeningGridBuilder {
 
   openingTeamByDriver(): Map<string, string> {
     const raceResults = this.sortedRaceResults();
-    const openingRound = [...new Set(raceResults.map((result) => result.race.round))].sort(
-      (left, right) => left - right,
-    )[0];
+    const openingRound = [
+      ...new Set(raceResults.map((result) => result.race.round)),
+    ].sort((left, right) => left - right)[0];
     if (openingRound === undefined) return new Map();
 
     const declared = new Map<string, Set<string>>();
@@ -39,7 +39,9 @@ export class OpeningGridBuilder {
     const openingTeams = new Map<string, string>();
     for (const [driverId, teams] of declared) {
       const candidates = [...teams].sort();
-      const matching = candidates.filter((team) => raced.get(driverId)?.has(team));
+      const matching = candidates.filter((team) =>
+        raced.get(driverId)?.has(team),
+      );
       const team =
         matching.length === 1
           ? matching[0]
@@ -56,7 +58,9 @@ export class OpeningGridBuilder {
     const drivers: GridDriver[] = [];
 
     for (const standing of this.records.driverStandings) {
-      const team = this.teams.get(openingTeamByDriver.get(standing.driver.id) ?? "");
+      const team = this.teams.get(
+        openingTeamByDriver.get(standing.driver.id) ?? "",
+      );
       if (!team || seen.has(standing.driver.id)) continue;
 
       seen.add(standing.driver.id);

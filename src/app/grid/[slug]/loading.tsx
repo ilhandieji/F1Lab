@@ -1,9 +1,5 @@
-import { GridSkeleton } from "@/components/grid/grid-skeleton";
+import { GridContentSkeleton } from "@/components/grid/grid-skeleton";
 
 export default function SeasonLoading() {
-  return (
-    <div className="mt-6">
-      <GridSkeleton />
-    </div>
-  );
+  return <GridContentSkeleton />;
 }

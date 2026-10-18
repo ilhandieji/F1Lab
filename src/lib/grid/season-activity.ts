@@ -12,6 +12,100 @@ import type {
 
 type RaceResult = SeasonRecords["raceResults"][number];
 
+type ChangeClassificationArgs = {
+  round: number;
+  team: TeamInfo;
+  outgoing: string[];
+  incoming: string[];
+  lineups: LineupIndex;
+};
+
+type IncomingDriverClassificationArgs = {
+  incomingId: string;
+  round: number;
+  team: TeamInfo;
+  lineups: LineupIndex;
+};
+
+/**
+ * Encapsulates lineup lookups so consumers do not need to work directly with
+ * nested Maps and Sets.
+ */
+class LineupIndex {
+  private readonly roundsInOrder: number[];
+  private readonly emptyDrivers = new Set<string>();
+
+  constructor(
+    private readonly lineupsByRound: Map<number, Map<string, Set<string>>>,
+  ) {
+    this.roundsInOrder = [...lineupsByRound.keys()].sort(
+      (left, right) => left - right,
+    );
+  }
+
+  rounds(): number[] {
+    return [...this.roundsInOrder];
+  }
+
+  roundsBefore(round: number): number[] {
+    return this.roundsInOrder
+      .filter((candidate) => candidate < round)
+      .reverse();
+  }
+
+  roundsAfter(round: number): number[] {
+    return this.roundsInOrder.filter((candidate) => candidate > round);
+  }
+
+  roundsFrom(round: number): number[] {
+    return this.roundsInOrder.filter((candidate) => candidate >= round);
+  }
+
+  teamIdsAt(round: number): string[] {
+    return [...(this.lineupsByRound.get(round)?.keys() ?? [])].sort();
+  }
+
+  teamsAt(round: number): Array<{
+    teamId: string;
+    drivers: ReadonlySet<string>;
+  }> {
+    return [...(this.lineupsByRound.get(round) ?? new Map())].map(
+      ([teamId, drivers]) => ({ teamId, drivers }),
+    );
+  }
+
+  driversAt(round: number, teamId: string): ReadonlySet<string> {
+    return this.lineupsByRound.get(round)?.get(teamId) ?? this.emptyDrivers;
+  }
+
+  hasDriver(round: number, teamId: string, driverId: string): boolean {
+    return this.lineupsByRound.get(round)?.get(teamId)?.has(driverId) ?? false;
+  }
+
+  hasDrivenForTeamBefore(
+    round: number,
+    teamId: string,
+    driverId: string,
+  ): boolean {
+    return this.roundsBefore(round).some((candidate) =>
+      this.hasDriver(candidate, teamId, driverId),
+    );
+  }
+
+  previousTeamsOfDriver(round: number, driverId: string): string[] {
+    for (const previousRound of this.roundsBefore(round)) {
+      const teamIds = this.teamsAt(previousRound)
+        .filter(({ drivers }) => drivers.has(driverId))
+        .map(({ teamId }) => teamId)
+        .sort();
+
+      if (teamIds.length > 0) return teamIds;
+    }
+
+    return [];
+  }
+}
+
 export class SeasonActivityBuilder {
   constructor(
     private readonly records: SeasonRecords,
@@ -25,10 +119,9 @@ export class SeasonActivityBuilder {
         left.position_display_order - right.position_display_order ||
         left.driver_id.localeCompare(right.driver_id),
     );
-    const raceRounds = [...new Set(raceResults.map((result) => result.race.round))].sort(
-      (left, right) => left - right,
-    );
+
     const index = this.indexResults(raceResults);
+    const raceRounds = index.lineups.rounds();
     const events = this.buildEvents(raceRounds, index);
     const drivers = this.buildRaceDrivers(index, openingTeamByDriver);
 
@@ -39,7 +132,9 @@ export class SeasonActivityBuilder {
           .flatMap((event) => event.changes)
           .filter((change) => change.kind === "substitution").length,
         changedTeams: new Set(
-          events.flatMap((event) => event.changes.map((change) => change.team.id)),
+          events.flatMap((event) =>
+            event.changes.map((change) => change.team.id),
+          ),
         ).size,
       },
       events,
@@ -50,7 +145,6 @@ export class SeasonActivityBuilder {
 
   private indexResults(raceResults: RaceResult[]) {
     const lineupsByRound = new Map<number, Map<string, Set<string>>>();
-    const raceRoundsByTeamDriver = new Map<string, Map<string, Set<number>>>();
     const raceRoundsByDriver = new Map<string, Set<number>>();
     const teamsByDriver = new Map<string, Set<string>>();
     const namesByDriver = new Map<string, string>();
@@ -58,26 +152,25 @@ export class SeasonActivityBuilder {
 
     for (const result of raceResults) {
       const { round, official_name: name } = result.race;
-      const lineup = lineupsByRound.get(round) ?? new Map<string, Set<string>>();
-      const teamDrivers = lineup.get(result.constructor_id) ?? new Set<string>();
+      const lineup =
+        lineupsByRound.get(round) ?? new Map<string, Set<string>>();
+      const teamDrivers =
+        lineup.get(result.constructor_id) ?? new Set<string>();
+
       teamDrivers.add(result.driver_id);
       lineup.set(result.constructor_id, teamDrivers);
       lineupsByRound.set(round, lineup);
 
-      const teamAppearances =
-        raceRoundsByTeamDriver.get(result.constructor_id) ?? new Map<string, Set<number>>();
-      const driverRounds = teamAppearances.get(result.driver_id) ?? new Set<number>();
-      driverRounds.add(round);
-      teamAppearances.set(result.driver_id, driverRounds);
-      raceRoundsByTeamDriver.set(result.constructor_id, teamAppearances);
-
-      const allDriverRounds = raceRoundsByDriver.get(result.driver_id) ?? new Set<number>();
+      const allDriverRounds =
+        raceRoundsByDriver.get(result.driver_id) ?? new Set<number>();
       allDriverRounds.add(round);
       raceRoundsByDriver.set(result.driver_id, allDriverRounds);
 
-      const driverTeams = teamsByDriver.get(result.driver_id) ?? new Set<string>();
+      const driverTeams =
+        teamsByDriver.get(result.driver_id) ?? new Set<string>();
       driverTeams.add(result.constructor_id);
       teamsByDriver.set(result.driver_id, driverTeams);
+
       namesByDriver.set(
         result.driver_id,
         `${result.driver.first_name} ${result.driver.last_name}`,
@@ -86,8 +179,7 @@ export class SeasonActivityBuilder {
     }
 
     return {
-      lineupsByRound,
-      raceRoundsByTeamDriver,
+      lineups: new LineupIndex(lineupsByRound),
       raceRoundsByDriver,
       teamsByDriver,
       namesByDriver,
@@ -102,21 +194,31 @@ export class SeasonActivityBuilder {
     const events = new Map<number, ActivityEvent>();
 
     for (let cursor = 1; cursor < raceRounds.length; cursor += 1) {
-      const previous = index.lineupsByRound.get(raceRounds[cursor - 1]) ?? new Map();
-      const current = index.lineupsByRound.get(raceRounds[cursor]) ?? new Map();
-      const teamIds = [...new Set([...previous.keys(), ...current.keys()])].sort();
+      const previousRound = raceRounds[cursor - 1];
+      const round = raceRounds[cursor];
+      const teamIds = [
+        ...new Set([
+          ...index.lineups.teamIdsAt(previousRound),
+          ...index.lineups.teamIdsAt(round),
+        ]),
+      ].sort();
 
       for (const teamId of teamIds) {
-        const outgoing = [...(previous.get(teamId) ?? new Set<string>())]
-          .filter((id) => !current.get(teamId)?.has(id))
+        const outgoing = [...index.lineups.driversAt(previousRound, teamId)]
+          .filter(
+            (driverId) => !index.lineups.hasDriver(round, teamId, driverId),
+          )
           .sort();
-        const incoming = [...(current.get(teamId) ?? new Set<string>())]
-          .filter((id) => !previous.get(teamId)?.has(id))
+        const incoming = [...index.lineups.driversAt(round, teamId)]
+          .filter(
+            (driverId) =>
+              !index.lineups.hasDriver(previousRound, teamId, driverId),
+          )
           .sort();
+
         if (outgoing.length === 0 && incoming.length === 0) continue;
 
         const team = this.teams.get(teamId);
-        const round = raceRounds[cursor];
         const name = index.eventNames.get(round);
         if (!team || !name) continue;
 
@@ -127,8 +229,7 @@ export class SeasonActivityBuilder {
             team,
             outgoing,
             incoming,
-            raceRounds,
-            ...index,
+            index,
           }),
         );
         events.set(round, event);
@@ -138,7 +239,9 @@ export class SeasonActivityBuilder {
     return [...events.values()]
       .map((event) => ({
         ...event,
-        changes: event.changes.sort((left, right) => left.team.name.localeCompare(right.team.name)),
+        changes: event.changes.sort((left, right) =>
+          left.team.name.localeCompare(right.team.name),
+        ),
       }))
       .sort((left, right) => left.round - right.round);
   }
@@ -148,74 +251,121 @@ export class SeasonActivityBuilder {
     team,
     outgoing,
     incoming,
-    raceRounds,
-    lineupsByRound,
-    raceRoundsByTeamDriver,
-    namesByDriver,
+    index,
   }: {
     round: number;
     team: TeamInfo;
     outgoing: string[];
     incoming: string[];
-    raceRounds: number[];
-    lineupsByRound: Map<number, Map<string, Set<string>>>;
-    raceRoundsByTeamDriver: Map<string, Map<string, Set<number>>>;
-    namesByDriver: Map<string, string>;
+    index: ReturnType<SeasonActivityBuilder["indexResults"]>;
   }): ActivityChange {
-    const incomingId = incoming[0];
-    const movedTeams =
-      incomingId !== undefined &&
-      raceRounds.some(
-        (candidate) =>
-          candidate === round &&
-          [...(lineupsByRound.get(candidate) ?? new Map()).entries()].some(
-            ([teamId, drivers]) =>
-              teamId !== team.id &&
-              drivers.has(incomingId) &&
-              !lineupsByRound.get(candidate - 1)?.get(teamId)?.has(incomingId),
-          ),
-      );
-    const returned =
-      incomingId !== undefined &&
-      raceRounds.some(
-        (candidate) =>
-          candidate < round && lineupsByRound.get(candidate)?.get(team.id)?.has(incomingId),
-      );
-    const originalDriverReturns = raceRounds.some((candidate) =>
-      candidate > round &&
-      outgoing.some((driver) => lineupsByRound.get(candidate)?.get(team.id)?.has(driver)),
-    );
-    const kind: ActivityChangeKind = movedTeams
-      ? "transfer"
-      : returned
-        ? "return"
-        : originalDriverReturns
-          ? "substitution"
-          : "lineup-change";
+    const kind = this.classifyChange({
+      round,
+      team,
+      outgoing,
+      incoming,
+      lineups: index.lineups,
+    });
 
-    const assigned = incomingId
-      ? [...(raceRoundsByTeamDriver.get(team.id)?.get(incomingId) ?? [])]
-          .filter((candidate) => candidate >= round)
-          .sort((left, right) => left - right)
-      : [];
-    const stint = assigned.reduce<number[]>(
-      (contiguous, candidate) =>
-        contiguous.length === 0 || candidate === contiguous[contiguous.length - 1] + 1
-          ? [...contiguous, candidate]
-          : contiguous,
-      [],
-    );
+    const stints = incoming.map((incomingId) => ({
+      driverId: incomingId,
+      ...this.buildStint(team.id, incomingId, round, index.lineups),
+    }));
 
     return {
       team,
-      outgoing: outgoing.map((id) => ({ id, name: namesByDriver.get(id) ?? id })),
-      incoming: incoming.map((id) => ({ id, name: namesByDriver.get(id) ?? id })),
+      outgoing: outgoing.map((id) => ({
+        id,
+        name: index.namesByDriver.get(id) ?? id,
+      })),
+      incoming: incoming.map((id) => ({
+        id,
+        name: index.namesByDriver.get(id) ?? id,
+      })),
       kind,
-      stint: {
-        startRound: stint[0] ?? round,
-        endRound: stint.at(-1) ?? round,
-        weekends: stint.length,
-      },
+      stints,
+    };
+  }
+
+  private classifyChange(args: ChangeClassificationArgs): ActivityChangeKind {
+    // A return takes precedence over a transfer when a driver has previously
+    // raced for this team and later came back from another team.
+    const returningDriver = args.incoming.some((incomingId) =>
+      this.didDriverReturnToTeam({
+        incomingId,
+        round: args.round,
+        team: args.team,
+        lineups: args.lineups,
+      }),
+    );
+    if (returningDriver) return "return";
+
+    const transferringDriver = args.incoming.some((incomingId) =>
+      this.didDriverTransferIn({
+        incomingId,
+        round: args.round,
+        team: args.team,
+        lineups: args.lineups,
+      }),
+    );
+    if (transferringDriver) return "transfer";
+
+    if (this.didOriginalDriverReturn(args)) return "substitution";
+
+    return "lineup-change";
+  }
+
+  private didDriverTransferIn({
+    incomingId,
+    round,
+    team,
+    lineups,
+  }: IncomingDriverClassificationArgs): boolean {
+    const previousTeams = lineups.previousTeamsOfDriver(round, incomingId);
+    return previousTeams.some((teamId) => teamId !== team.id);
+  }
+
+  private didDriverReturnToTeam({
+    incomingId,
+    round,
+    team,
+    lineups,
+  }: IncomingDriverClassificationArgs): boolean {
+    return lineups.hasDrivenForTeamBefore(round, team.id, incomingId);
+  }
+
+  private didOriginalDriverReturn({
+    round,
+    team,
+    outgoing,
+    lineups,
+  }: ChangeClassificationArgs): boolean {
+    return lineups
+      .roundsAfter(round)
+      .some((candidate) =>
+        outgoing.some((driverId) =>
+          lineups.hasDriver(candidate, team.id, driverId),
+        ),
+      );
+  }
+
+  private buildStint(
+    teamId: string,
+    incomingId: string,
+    round: number,
+    lineups: LineupIndex,
+  ): Omit<ActivityChange["stints"][number], "driverId"> {
+    const stintRounds: number[] = [];
+
+    for (const candidate of lineups.roundsFrom(round)) {
+      if (!lineups.hasDriver(candidate, teamId, incomingId)) break;
+      stintRounds.push(candidate);
+    }
+
+    return {
+      startRound: stintRounds[0] ?? round,
+      endRound: stintRounds.at(-1) ?? round,
+      weekends: stintRounds.length,
     };
   }
 
@@ -238,10 +388,14 @@ export class SeasonActivityBuilder {
   }
 
   private buildTestDrivers(): TestDriver[] {
-    const drivers = new Map<string, { id: string; name: string; teams: Map<string, TeamInfo> }>();
+    const drivers = new Map<
+      string,
+      { id: string; name: string; teams: Map<string, TeamInfo> }
+    >();
 
     for (const entry of this.records.entrantDrivers) {
       if (!entry.test_driver) continue;
+
       const driver = drivers.get(entry.driver.id) ?? {
         id: entry.driver.id,
         name: `${entry.driver.first_name} ${entry.driver.last_name}`,
@@ -256,7 +410,9 @@ export class SeasonActivityBuilder {
       .map(({ id, name, teams }) => ({
         id,
         name,
-        teams: [...teams.values()].sort((left, right) => left.name.localeCompare(right.name)),
+        teams: [...teams.values()].sort((left, right) =>
+          left.name.localeCompare(right.name),
+        ),
       }))
       .sort((left, right) => left.name.localeCompare(right.name));
   }

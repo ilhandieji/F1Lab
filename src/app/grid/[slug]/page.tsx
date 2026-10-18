@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { GridExplorer } from "@/components/grid/grid-explorer";
-import { GridSkeleton } from "@/components/grid/grid-skeleton";
+import { GridContentSkeleton } from "@/components/grid/grid-skeleton";
 import { getSeasonGrid } from "@/lib/grid/season-grid";
 import { parseSeasonYear } from "@/lib/grid/seasons";
 import { isGridTabId } from "@/lib/grid/types";
@@ -26,7 +26,7 @@ export async function generateMetadata({
 
 export default function SeasonPage(props: PageProps<"/grid/[slug]">) {
   return (
-    <Suspense fallback={<GridSkeleton />}>
+    <Suspense fallback={<GridContentSkeleton />}>
       <SeasonPageContent {...props} />
     </Suspense>
   );
