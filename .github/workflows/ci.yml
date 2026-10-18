@@ -69,11 +69,10 @@ jobs:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
           VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
-          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
         run: |
           set -euo pipefail
           missing=()
-          for name in VPS_HOST VPS_USER VPS_SSH_KEY VPS_KNOWN_HOSTS; do
+          for name in VPS_HOST VPS_USER VPS_SSH_KEY; do
             value="${!name}"
             if [ -z "$value" ]; then
               missing+=("$name")
@@ -86,8 +85,8 @@ jobs:
 
       - name: Configure SSH
         env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
-          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
         run: |
           set -euo pipefail
           install -d -m 700 ~/.ssh
@@ -97,7 +96,11 @@ jobs:
             echo "::error::VPS_SSH_KEY is not a valid private key. Re-paste the key in repo secrets (include BEGIN/END lines)."
             exit 1
           fi
-          printf '%s\n' "$VPS_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          if ! ssh-keyscan -T 20 -t ed25519,rsa,ecdsa "$VPS_HOST" > ~/.ssh/known_hosts 2>ssh-keyscan.log; then
+            echo "::error::Could not fetch SSH host keys for $VPS_HOST"
+            cat ssh-keyscan.log || true
+            exit 1
+          fi
           chmod 600 ~/.ssh/known_hosts
 
       - name: Deploy to VPS
@@ -113,7 +116,7 @@ jobs:
             -o StrictHostKeyChecking=yes \
             -o ConnectTimeout=15 \
             "$VPS_USER@$VPS_HOST" "deploy-f1lab" 2>ssh-stderr.log; then
-            echo "::error::SSH deploy failed. Exit 255 is usually wrong VPS_SSH_KEY, VPS_KNOWN_HOSTS, VPS_HOST/VPS_USER, or firewall. Ensure the matching public key is in ~/.ssh/authorized_keys on the server and deploy-f1lab exists on PATH for that user."
+            echo "::error::SSH deploy failed. Check VPS_SSH_KEY, VPS_USER (expected: ubuntu), VPS_HOST, and that the deploy key is in ~/.ssh/authorized_keys on the server."
             if [ -s ssh-stderr.log ]; then
               echo "---- ssh stderr (last lines) ----"
               tail -n 30 ssh-stderr.log
