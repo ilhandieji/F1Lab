@@ -6,6 +6,7 @@
  *   node scripts/sync-driver-portraits.mjs --dry-run
  *   node scripts/sync-driver-portraits.mjs
  *   node scripts/sync-driver-portraits.mjs --source ./headshots-webp
+ *   node scripts/sync-driver-portraits.mjs --db-only --source ./headshots-webp
  */
 
 import "dotenv/config";
@@ -21,6 +22,7 @@ const repoRoot = path.resolve(__dirname, "..");
 
 const args = process.argv.slice(2);
 const dryRun = args.includes("--dry-run");
+const dbOnly = args.includes("--db-only");
 const sourceArg = args.find((a) => a.startsWith("--source="));
 const sourceRoot = sourceArg
   ? path.resolve(sourceArg.slice("--source=".length))
@@ -179,7 +181,9 @@ async function applyPortraitSchema(client) {
 
 async function main() {
   console.log(`Source: ${sourceRoot}`);
-  console.log(dryRun ? "Mode: dry-run" : "Mode: upload + database upsert");
+  console.log(
+    dryRun ? "Mode: dry-run" : dbOnly ? "Mode: database upsert only" : "Mode: upload + database upsert",
+  );
 
   const files = dedupeEntries(await collectWebpFiles(sourceRoot));
   console.log(`Mapped ${files.length} unique driver-season files (after dedupe)`);
@@ -191,8 +195,8 @@ async function main() {
     await applyPortraitSchema(client);
     const seasonMap = await loadSeasonDriverMap(client);
 
-    const bucket = requireEnv("ARVAN_BUCKET");
-    const s3 = dryRun ? null : createS3();
+    const bucket = dbOnly ? null : requireEnv("ARVAN_BUCKET");
+    const s3 = dryRun || dbOnly ? null : createS3();
 
     const uploads = [];
     const skipped = [];
@@ -223,16 +227,18 @@ async function main() {
 
       if (dryRun) continue;
 
-      const body = createReadStream(entry.filePath);
-      await s3.send(
-        new PutObjectCommand({
-          Bucket: bucket,
-          Key: objectKey,
-          Body: body,
-          ContentType: "image/webp",
-          CacheControl: "public, max-age=86400",
-        }),
-      );
+      if (!dbOnly) {
+        const body = createReadStream(entry.filePath);
+        await s3.send(
+          new PutObjectCommand({
+            Bucket: bucket,
+            Key: objectKey,
+            Body: body,
+            ContentType: "image/webp",
+            CacheControl: "public, max-age=86400",
+          }),
+        );
+      }
 
       await client.query(
         `
@@ -261,16 +267,18 @@ async function main() {
         uploads.push({ ...row, seasonKey: "default", objectKey: defaultKey, source: `${row.source} -> default` });
         continue;
       }
-      const body = createReadStream(row.filePath);
-      await s3.send(
-        new PutObjectCommand({
-          Bucket: bucket,
-          Key: defaultKey,
-          Body: body,
-          ContentType: "image/webp",
-          CacheControl: "public, max-age=86400",
-        }),
-      );
+      if (!dbOnly) {
+        const body = createReadStream(row.filePath);
+        await s3.send(
+          new PutObjectCommand({
+            Bucket: bucket,
+            Key: defaultKey,
+            Body: body,
+            ContentType: "image/webp",
+            CacheControl: "public, max-age=86400",
+          }),
+        );
+      }
       await client.query(
         `
         INSERT INTO driver_portrait (driver_id, season_key, object_key)
