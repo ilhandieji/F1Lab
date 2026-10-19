@@ -9,6 +9,8 @@ export type DriverFamilyLink = {
   type: string;
   otherDriverId: string;
   otherDriverName: string;
+  otherDriverAbbreviation: string;
+  portraits: DriverPortraitRef[];
 };
 
 export type DriverCareerTotals = {
@@ -119,6 +121,8 @@ export function isDriverTabId(value: string | null | undefined): value is Driver
 export type DriverSearchHit = {
   id: string;
   fullName: string;
+  abbreviation: string;
   nationality: string;
   championshipWins: number;
+  portraitUrl: string | null;
 };

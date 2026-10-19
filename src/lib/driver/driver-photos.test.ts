@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import { afterEach, describe, it } from "node:test";
-import { driverPortraitUrl, selectDriverPortraitObjectKey } from "./driver-photos.ts";
+import {
+  driverPortraitUrl,
+  resolveDriverPortraitUrl,
+  selectDriverPortraitObjectKey,
+} from "./driver-photos.ts";
 
 const verstappen = [
   { seasonKey: "2026", objectKey: "drivers/max-verstappen/2026/portrait.webp" },
@@ -68,6 +72,21 @@ describe("selectDriverPortraitObjectKey", () => {
   it("returns null when the driver has no portrait records", () => {
     assert.equal(selectDriverPortraitObjectKey([], 2026), null);
     assert.equal(selectDriverPortraitObjectKey([], null), null);
+  });
+});
+
+describe("resolveDriverPortraitUrl", () => {
+  it("combines season selection and public URL building", () => {
+    process.env.NEXT_PUBLIC_DRIVER_IMAGE_BASE_URL = "https://media.example";
+    assert.equal(
+      resolveDriverPortraitUrl(verstappen, 2026),
+      "https://media.example/drivers/max-verstappen/2026/portrait.webp",
+    );
+    assert.equal(
+      resolveDriverPortraitUrl(verstappen, 2017),
+      "https://media.example/drivers/max-verstappen/default/portrait.webp",
+    );
+    assert.equal(resolveDriverPortraitUrl([], 2026), null);
   });
 });
 

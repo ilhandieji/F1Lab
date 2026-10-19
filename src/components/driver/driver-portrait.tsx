@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { driverPortraitUrl, selectDriverPortraitObjectKey } from "@/lib/driver/driver-photos";
+import { resolveDriverPortraitUrl } from "@/lib/driver/driver-photos";
 import type { DriverProfile } from "@/lib/driver/types";
 
 type DriverPortraitProps = {
@@ -12,7 +12,7 @@ type DriverPortraitProps = {
 };
 
 export function DriverPortrait({ profile, season, className = "" }: DriverPortraitProps) {
-  const photoUrl = driverPortraitUrl(selectDriverPortraitObjectKey(profile.portraits, season));
+  const photoUrl = resolveDriverPortraitUrl(profile.portraits, season);
   const [failedUrl, setFailedUrl] = useState<string | null>(null);
 
   return (

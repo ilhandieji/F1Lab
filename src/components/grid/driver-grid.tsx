@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { focusRing } from "@/components/chrome/focus";
+import { DriverAvatar } from "@/components/driver/driver-avatar";
 import { driverHref } from "@/lib/driver/routes";
 import type { GridDriver } from "@/lib/grid/types";
 import { TeamLogo } from "./team-logo";
@@ -50,6 +51,11 @@ export function DriverGrid({ year, drivers }: DriverGridProps) {
                     {driver.position}
                   </strong>
                   <div className="flex min-w-0 items-center gap-2 px-2 py-2">
+                    <DriverAvatar
+                      photoUrl={driver.portraitUrl}
+                      fullName={`${driver.firstName} ${driver.lastName}`}
+                      variant="row"
+                    />
                     <TeamLogo team={driver.team} size="compact" />
                     <div className="min-w-0">
                       <h3 className="truncate text-base font-black uppercase tracking-[-0.04em] text-white">

@@ -35,3 +35,17 @@ export function driverPortraitUrl(objectKey: string | null | undefined): string 
   if (!base || !key) return null;
   return `${base}/${key}`;
 }
+
+export function resolveDriverPortraitUrl(
+  portraits: readonly DriverPortraitRecord[],
+  season: number | null,
+): string | null {
+  return driverPortraitUrl(selectDriverPortraitObjectKey(portraits, season));
+}
+
+export function driverDisplayInitials(fullName: string): string {
+  const parts = fullName.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  if (parts.length === 1) return parts[0]!.slice(0, 2).toUpperCase();
+  return `${parts[0]![0] ?? ""}${parts[parts.length - 1]![0] ?? ""}`.toUpperCase();
+}

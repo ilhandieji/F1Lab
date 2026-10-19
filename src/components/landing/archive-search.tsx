@@ -184,7 +184,11 @@ function ArchiveSearchField() {
           onClick={() => onSelect(entry)}
         >
           {entry.kind === "driver" ? (
-            <DriverSearchMark fullName={entry.hit.fullName} />
+            <DriverSearchMark
+              fullName={entry.hit.fullName}
+              abbreviation={entry.hit.abbreviation}
+              portraitUrl={entry.hit.portraitUrl}
+            />
           ) : (
             <TeamSearchMark teamId={entry.hit.id} />
           )}

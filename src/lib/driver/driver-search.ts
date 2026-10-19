@@ -1,3 +1,4 @@
+import { getPortraitMapForDriverIds, portraitUrlFromMap } from "@/lib/driver/driver-portrait-records";
 import { prisma } from "@/lib/prisma";
 import type { DriverSearchHit } from "./types";
 
@@ -24,10 +25,14 @@ export async function searchDrivers(query: string): Promise<DriverSearchHit[]> {
     },
   });
 
+  const portraitMap = await getPortraitMapForDriverIds(drivers.map((driver) => driver.id));
+
   return drivers.map((driver) => ({
     id: driver.id,
     fullName: driver.full_name,
+    abbreviation: driver.abbreviation,
     nationality: driver.country_driver_nationality_country_idTocountry.name,
     championshipWins: driver.total_championship_wins,
+    portraitUrl: portraitUrlFromMap(portraitMap, driver.id, null),
   }));
 }

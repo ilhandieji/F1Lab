@@ -11,7 +11,7 @@ export async function getDriverProfileRecords(driverId: string) {
         orderBy: { position_display_order: "asc" },
         include: {
           driver_driver_family_relationship_other_driver_idTodriver: {
-            select: { id: true, full_name: true },
+            select: { id: true, full_name: true, abbreviation: true },
           },
         },
       },

@@ -27,6 +27,8 @@ drivers/max-verstappen/2018/portrait.webp
 drivers/max-verstappen/default/portrait.webp
 ```
 
+The site renders portraits with public URLs and `next/image`. It never uses S3 credentials in the app. Search and other lists without a season use the `default` portrait.
+
 The hero uses the portrait for the season on screen. If that season has no row, it uses `season_key = 'default'`. If that is missing too, or the image request fails, the frame shows the driver's abbreviation and permanent number. A portrait from another year is never used as a fallback.
 
 Set this before `next dev` and before `next build` on the VPS. `next start` alone is too late, because Next inlines `NEXT_PUBLIC_*` at build time.

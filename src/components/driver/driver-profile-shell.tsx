@@ -94,7 +94,7 @@ function DriverProfileShellBody({ profile, season, children }: DriverProfileShel
       <main id="driver-main-content" className="relative mx-auto max-w-6xl px-4 pb-16 md:px-6">
         <DriverHero profile={profile} season={season} />
         <DriverCareerStats totals={profile.careerTotals} />
-        <DriverFamily family={profile.family} />
+        <DriverFamily family={profile.family} season={season} />
         <div className="mt-8">{children}</div>
       </main>
     </div>

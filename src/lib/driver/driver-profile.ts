@@ -1,5 +1,6 @@
 import { cacheLife } from "next/cache";
 import { pointsToNumber } from "@/lib/decimal";
+import { getPortraitMapForDriverIds } from "./driver-portrait-records";
 import { getDriverProfileRecords } from "./driver-records";
 import type { DriverProfile } from "./types";
 
@@ -17,6 +18,11 @@ class DriverProfileService {
     const careerYears = record.season_driver.map((entry) => entry.year);
     const debutYear = careerYears[0] ?? new Date(record.date_of_birth).getFullYear();
     const defaultSeason = careerYears[careerYears.length - 1] ?? debutYear;
+    const familyLinks =
+      record.driver_family_relationship_driver_family_relationship_driver_idTodriver;
+    const familyPortraitMap = await getPortraitMapForDriverIds(
+      familyLinks.map((link) => link.other_driver_id),
+    );
 
     return {
       id: record.id,
@@ -47,13 +53,17 @@ class DriverProfileService {
       careerYears,
       debutYear,
       defaultSeason,
-      family: record.driver_family_relationship_driver_family_relationship_driver_idTodriver.map(
-        (link) => ({
-          type: link.type,
-          otherDriverId: link.other_driver_id,
-          otherDriverName: link.driver_driver_family_relationship_other_driver_idTodriver.full_name,
-        }),
-      ),
+      family: familyLinks.map((link) => ({
+        type: link.type,
+        otherDriverId: link.other_driver_id,
+        otherDriverName: link.driver_driver_family_relationship_other_driver_idTodriver.full_name,
+        otherDriverAbbreviation:
+          link.driver_driver_family_relationship_other_driver_idTodriver.abbreviation,
+        portraits: (familyPortraitMap.get(link.other_driver_id) ?? []).map((portrait) => ({
+          seasonKey: portrait.seasonKey,
+          objectKey: portrait.objectKey,
+        })),
+      })),
       portraits: record.driver_portrait.map((portrait) => ({
         seasonKey: portrait.season_key,
         objectKey: portrait.object_key,

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { TeamLogo } from "@/components/grid/team-logo";
+import { DriverAvatar } from "@/components/driver/driver-avatar";
 import { driverHref } from "@/lib/driver/routes";
 import type { ConstructorSeasonView } from "@/lib/constructor/types";
 
@@ -113,12 +114,19 @@ export function ConstructorSeasonPanel({ view }: ConstructorSeasonPanelProps) {
                 key={`${driver.driverId}-${driver.entrantName}-${driver.engineManufacturerName}`}
                 className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 bg-[linear-gradient(105deg,rgba(28,28,31,0.94),rgba(20,20,22,0.94))] px-4 py-3"
               >
-                <Link
-                  href={driverHref(driver.driverId, view.year)}
-                  className="font-semibold text-white underline decoration-white/20 underline-offset-2 hover:text-red-300"
-                >
-                  {driver.driverName}
-                </Link>
+                <span className="flex min-w-0 items-center gap-3">
+                  <DriverAvatar
+                    photoUrl={driver.portraitUrl}
+                    fullName={driver.driverName}
+                    variant="row"
+                  />
+                  <Link
+                    href={driverHref(driver.driverId, view.year)}
+                    className="truncate font-semibold text-white underline decoration-white/20 underline-offset-2 hover:text-red-300"
+                  >
+                    {driver.driverName}
+                  </Link>
+                </span>
                 <div className="text-end text-xs text-white/55">
                   <p>{driver.entrantName}</p>
                   <p>
