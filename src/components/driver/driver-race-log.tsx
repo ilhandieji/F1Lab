@@ -19,7 +19,7 @@ export function DriverRaceLog({ view }: DriverRaceLogProps) {
         <span className="text-[10px] font-black uppercase tracking-[0.18em] text-red-400">
           {view.year}
         </span>
-        <h2 className="text-xl font-black tracking-[-0.04em] text-white">Race log</h2>
+        <h2 className="text-xl font-black tracking-[-0.04em] text-white">Results</h2>
       </div>
 
       {races.length === 0 ? (

@@ -17,11 +17,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "F1Lab — Championship archive",
+    default: "F1Lab — F1 season archive",
     template: "%s · F1Lab",
   },
   description:
-    "Explore Formula 1 seasons from 1950 onward with opening grids, constructor standings, and the driver movements that changed each championship.",
+    "Explore Formula 1 seasons from 1950 onward with drivers' standings, constructors' standings, driver changes, and full team entry data.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

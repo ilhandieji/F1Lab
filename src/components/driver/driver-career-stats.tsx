@@ -23,7 +23,7 @@ export function DriverCareerStats({ totals }: DriverCareerStatsProps) {
     >
       <div className="mb-4 border-b border-white/10 pb-3">
         <span className="text-[10px] font-black uppercase tracking-[0.18em] text-red-400">Career</span>
-        <h2 className="text-xl font-black tracking-[-0.04em] text-white">Lifetime record</h2>
+        <h2 className="text-xl font-black tracking-[-0.04em] text-white">Career</h2>
       </div>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {STAT_ITEMS.map(({ key, label, format }) => {

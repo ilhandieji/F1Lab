@@ -102,7 +102,7 @@ export type DriverSeasonView = {
 
 export const DRIVER_TABS = [
   { id: "season", label: "Season" },
-  { id: "races", label: "Race log" },
+  { id: "races", label: "Results" },
 ] as const;
 
 export type DriverTabId = (typeof DRIVER_TABS)[number]["id"];

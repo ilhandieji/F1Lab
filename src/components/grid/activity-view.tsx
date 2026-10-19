@@ -49,8 +49,8 @@ export function ActivityView({ activity, year }: { activity: SeasonActivity; yea
         <SectionHeading
           id="activity-overview-title"
           kicker="Season overview"
-          title="The moving grid"
-          description="Who raced, who filled in, and which teams reshuffled seats."
+          title="Driver changes"
+          description="Substitutions, seat swaps, and teams that reshuffled their line-up."
         />
 
         <div className="grid grid-cols-1 divide-y divide-white/10 overflow-hidden rounded-xl border border-white/10 bg-white/[0.03] sm:grid-cols-3 sm:divide-x sm:divide-y-0">
@@ -104,7 +104,7 @@ export function ActivityView({ activity, year }: { activity: SeasonActivity; yea
                     {driver.name}
                   </Link>
                   <span className="truncate text-[10px] leading-4 text-white/45">
-                    {driver.openedSeason ? "Opening driver" : "Joined during season"}
+                    {driver.openedSeason ? "From round 1" : "Joined mid-season"}
                     {driver.teams.length > 0
                       ? ` · ${driver.teams.map((team) => team.name).join(" / ")}`
                       : ""}

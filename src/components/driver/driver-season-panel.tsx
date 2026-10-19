@@ -1,4 +1,5 @@
 import { TeamLogo } from "@/components/grid/team-logo";
+import { TeamNameLink } from "@/components/grid/team-name-link";
 import type { DriverSeasonView } from "@/lib/driver/types";
 
 type DriverSeasonPanelProps = {
@@ -20,7 +21,7 @@ export function DriverSeasonPanel({ view }: DriverSeasonPanelProps) {
           <span className="text-[10px] font-black uppercase tracking-[0.18em] text-red-400">
             {view.year} season
           </span>
-          <h2 className="text-xl font-black tracking-[-0.04em] text-white">Championship snapshot</h2>
+          <h2 className="text-xl font-black tracking-[-0.04em] text-white">Season</h2>
         </div>
         {standing ? (
           <div className="text-end">
@@ -65,7 +66,9 @@ export function DriverSeasonPanel({ view }: DriverSeasonPanelProps) {
               >
                 <TeamLogo team={stint.team} />
                 <div className="min-w-0 flex-1">
-                  <p className="font-semibold text-white">{stint.team.name}</p>
+                  <p className="font-semibold text-white">
+                    <TeamNameLink team={stint.team} year={view.year} className="text-white no-underline hover:text-red-300" />
+                  </p>
                   <p className="text-xs text-white/55">
                     {stint.roundsText ?? stint.rounds ?? "Full season"}
                     {stint.testDriver ? " · Test driver" : ""}

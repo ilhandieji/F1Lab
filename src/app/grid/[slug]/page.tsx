@@ -20,7 +20,7 @@ export async function generateMetadata({
 
   return {
     title: `${year} season archive`,
-    description: `Read the ${year} opening grid, constructor standings, and driver movement across the championship season.`,
+    description: `Drivers' standings, constructors' standings, and driver changes for the ${year} Formula 1 season.`,
   };
 }
 
