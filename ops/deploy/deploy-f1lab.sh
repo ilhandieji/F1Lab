@@ -46,8 +46,12 @@ fi
 echo "=== Syncing deploy scripts from origin/$OPS_BRANCH ==="
 git fetch origin "$OPS_BRANCH" "$APP_BRANCH"
 if git show "origin/$OPS_BRANCH:ops/deploy/deploy-f1lab.sh" >/dev/null 2>&1; then
-  git show "origin/$OPS_BRANCH:ops/deploy/deploy-f1lab.sh" | sudo install -m 755 /dev/stdin /usr/local/bin/deploy-f1lab
-  git show "origin/$OPS_BRANCH:ops/deploy/deploy-f1lab-ssh-wrapper.sh" | sudo install -m 755 /dev/stdin /usr/local/bin/deploy-f1lab-ssh-wrapper
+  sync_dir="$(mktemp -d)"
+  git show "origin/$OPS_BRANCH:ops/deploy/deploy-f1lab.sh" > "$sync_dir/deploy-f1lab.sh"
+  git show "origin/$OPS_BRANCH:ops/deploy/deploy-f1lab-ssh-wrapper.sh" > "$sync_dir/deploy-f1lab-ssh-wrapper.sh"
+  sudo install -m 755 "$sync_dir/deploy-f1lab.sh" /usr/local/bin/deploy-f1lab
+  sudo install -m 755 "$sync_dir/deploy-f1lab-ssh-wrapper.sh" /usr/local/bin/deploy-f1lab-ssh-wrapper
+  rm -rf "$sync_dir"
 else
   echo "WARN: Could not read ops scripts from origin/$OPS_BRANCH; using installed copies."
 fi
