@@ -20,14 +20,14 @@ export function DriverGrid({ year, drivers, highestPoints }: DriverGridProps) {
       <div className="mb-4 flex items-end justify-between gap-3 border-b border-white/10 pb-3">
         <div>
           <span className="text-[10px] font-black uppercase tracking-[0.18em] text-red-400">
-            Season start
+            WDC
           </span>
           <h2 className="text-xl font-black tracking-[-0.04em] text-white md:text-2xl">
-            Opening grid
+            Drivers&apos; standings
           </h2>
         </div>
         <p className="max-w-xl text-sm text-white/60">
-          The drivers and teams on the opening grid.
+          Championship order and points at the season opener.
         </p>
       </div>
 
@@ -102,13 +102,13 @@ export function DriverGrid({ year, drivers, highestPoints }: DriverGridProps) {
         </>
       ) : (
         <p className="rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm leading-6 text-white/60">
-          No opening driver lineup is recorded for {year}. Explore another season or check back
+          No drivers&apos; standings are recorded for {year}. Try another season or check back
           after the archive is updated.
         </p>
       )}
 
       <footer className="mt-4 flex items-center justify-between text-[10px] font-black uppercase tracking-[0.18em] text-white/50">
-        <span>Season-opening grid</span>
+        <span>Drivers&apos; standings</span>
         <span>{drivers.length} drivers</span>
         <span>{year}</span>
       </footer>

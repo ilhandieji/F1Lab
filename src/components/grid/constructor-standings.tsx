@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { constructorHref } from "@/lib/constructor/routes";
 import type { ConstructorStanding } from "@/lib/grid/types";
 import { TeamLogo } from "./team-logo";
 
@@ -24,14 +26,14 @@ export function ConstructorStandings({
       <div className="mb-4 flex items-end justify-between gap-3 border-b border-white/10 pb-3">
         <div>
           <span className="text-[10px] font-black uppercase tracking-[0.18em] text-red-400">
-            Championship table
+            WCC
           </span>
           <h2 className="text-xl font-black tracking-[-0.04em] text-white md:text-2xl">
-            Constructors
+            Constructors&apos; standings
           </h2>
         </div>
         <p className="max-w-xl text-sm text-white/60">
-          The teams and points recorded for the {year} championship.
+          Official team points and championship order for {year}.
         </p>
       </div>
 
@@ -47,9 +49,10 @@ export function ConstructorStandings({
           </div>
           <ol className="grid gap-2" aria-label={`${year} Constructors' Championship standings`}>
             {standings.map(({ team, position, points }) => (
-              <li
-                className="group relative grid min-h-[5.7rem] grid-cols-[3.5rem_minmax(0,_1fr)_auto] items-center overflow-hidden rounded-xl border border-white/10 bg-[linear-gradient(105deg,rgba(28,28,31,0.94),rgba(20,20,22,0.94)_75%)] transition hover:border-white/25 md:min-h-[6.7rem] md:grid-cols-[5.3rem_minmax(0,_1fr)_auto]"
-                key={team.id}
+              <li key={team.id}>
+              <Link
+                href={constructorHref(team.id, year)}
+                className="group relative grid min-h-[5.7rem] grid-cols-[3.5rem_minmax(0,_1fr)_auto] items-center overflow-hidden rounded-xl border border-white/10 bg-[linear-gradient(105deg,rgba(28,28,31,0.94),rgba(20,20,22,0.94)_75%)] transition hover:border-red-500/40 hover:border-white/25 md:min-h-[6.7rem] md:grid-cols-[5.3rem_minmax(0,_1fr)_auto]"
               >
                 <span
                   className="absolute inset-y-0 left-0 w-[3px] bg-red-500 opacity-0 transition group-hover:opacity-100"
@@ -73,6 +76,7 @@ export function ConstructorStandings({
                   </strong>
                   <span className="text-[10px] uppercase tracking-[0.18em] text-white/50">Pts</span>
                 </div>
+              </Link>
               </li>
             ))}
           </ol>

@@ -77,7 +77,7 @@ const ROW_COUNT = 12;
 
 export function DriverGridSkeleton() {
   return (
-    <GridPanelFrame aria-label="Loading opening grid">
+    <GridPanelFrame aria-label="Loading drivers' standings">
       <ColumnHeadersSkeleton />
       <div className="grid gap-2">
         {Array.from({ length: ROW_COUNT }, (_, index) => (
@@ -90,7 +90,7 @@ export function DriverGridSkeleton() {
 
 export function ConstructorStandingsSkeleton() {
   return (
-    <GridPanelFrame aria-label="Loading constructor standings">
+    <GridPanelFrame aria-label="Loading constructors' standings">
       <ColumnHeadersSkeleton />
       <div className="grid gap-2">
         {Array.from({ length: ROW_COUNT }, (_, index) => (
@@ -126,7 +126,7 @@ export function ActivityViewSkeleton() {
     <section
       className="mt-6 space-y-9 rounded-3xl border border-white/10 bg-white/3 p-3 shadow-lg shadow-black/10 md:p-5"
       aria-busy="true"
-      aria-label="Loading season activity"
+      aria-label="Loading driver changes"
     >
       <div className="space-y-4">
         <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">

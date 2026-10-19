@@ -17,10 +17,11 @@ export function DriverHero({ profile }: DriverHeroProps) {
     : profile.nationality;
 
   return (
-    <section className="grid gap-6 md:grid-cols-[minmax(0,1fr)_12rem] md:items-end">
+    <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/3 p-5 md:p-8">
+      <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_12rem] md:items-end">
       <div>
         <span className="text-[10px] font-black uppercase tracking-[0.18em] text-red-400">
-          Driver profile
+          Driver
         </span>
         <h1 className="mt-1 text-4xl font-black uppercase leading-[0.9] tracking-[-0.06em] text-white md:text-5xl">
           {profile.fullName}
@@ -46,6 +47,7 @@ export function DriverHero({ profile }: DriverHeroProps) {
         </div>
       </div>
       <DriverPortrait profile={profile} className="min-h-[12rem] md:min-h-[14rem]" />
+      </div>
     </section>
   );
 }

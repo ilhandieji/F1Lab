@@ -160,14 +160,14 @@ function GridShellBody({
         <header className="mt-6 md:mt-8">
           <div className="inline-flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.22em] text-white/60">
             <span className="h-2.5 w-2.5 rounded-full bg-red-500 shadow-[0_0_12px_rgba(239,68,68,0.8)]" />
-            Championship archive
+            Season archive
           </div>
           <h1 className="mt-4 text-4xl font-black uppercase tracking-[-0.08em] text-white md:text-6xl">
-            {year} <span className="text-red-500">Grid</span>
+            {year} <span className="text-red-500">season</span>
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-white/70 md:text-base">
-            See the opening lineup, then follow each driver move, constructor battle, and mid-season
-            reshuffle as the year unfolds. On mobile, swipe horizontally to browse adjacent seasons.
+            Drivers&apos; standings, driver changes, and constructors&apos; standings for the full
+            championship year. On mobile, swipe horizontally to browse adjacent seasons.
           </p>
         </header>
 
