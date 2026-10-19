@@ -3,7 +3,8 @@
 set -Eeuo pipefail
 
 APP_DIR="/home/ubuntu/apps/F1Lab"
-BRANCH="main"
+APP_BRANCH="main"
+OPS_BRANCH="server"
 SERVICE="f1lab"
 DEPLOYMENT_ACTIVE=0
 
@@ -42,10 +43,13 @@ if ! git check-ignore -q .env; then
   exit 1
 fi
 
-if [[ -n "$(git status --porcelain)" ]]; then
-  echo "ERROR: The repository has local changes. Aborting."
-  git status --short
-  exit 1
+echo "=== Syncing deploy scripts from origin/$OPS_BRANCH ==="
+git fetch origin "$OPS_BRANCH" "$APP_BRANCH"
+if git show "origin/$OPS_BRANCH:ops/deploy/deploy-f1lab.sh" >/dev/null 2>&1; then
+  git show "origin/$OPS_BRANCH:ops/deploy/deploy-f1lab.sh" | sudo install -m 755 /dev/stdin /usr/local/bin/deploy-f1lab
+  git show "origin/$OPS_BRANCH:ops/deploy/deploy-f1lab-ssh-wrapper.sh" | sudo install -m 755 /dev/stdin /usr/local/bin/deploy-f1lab-ssh-wrapper
+else
+  echo "WARN: Could not read ops scripts from origin/$OPS_BRANCH; using installed copies."
 fi
 
 echo "=== Stopping F1Lab ==="
@@ -56,9 +60,9 @@ if command -v fuser >/dev/null 2>&1; then
   sudo fuser -k 3000/tcp >/dev/null 2>&1 || true
 fi
 
-echo "=== Fetching latest code ==="
-git fetch origin "$BRANCH"
-git merge --ff-only "origin/$BRANCH"
+echo "=== Fetching latest application code (origin/$APP_BRANCH) ==="
+git checkout "$APP_BRANCH"
+git reset --hard "origin/$APP_BRANCH"
 
 echo "=== Installing dependencies ==="
 pnpm install --frozen-lockfile
