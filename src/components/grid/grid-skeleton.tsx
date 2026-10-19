@@ -32,30 +32,21 @@ function GridPanelFrame({ children, "aria-label": ariaLabel }: GridPanelFramePro
   );
 }
 
-function ListRowSkeleton({ withProgress = false }: { withProgress?: boolean }) {
+function ListRowSkeleton() {
   return (
     <div
-      className="grid min-h-[5.7rem] grid-cols-[3.5rem_minmax(0,_1fr)_auto] items-center overflow-hidden rounded-xl border border-white/10 bg-white/[0.04] md:min-h-[6.7rem] md:grid-cols-[5.3rem_minmax(0,_1fr)_auto]"
+      className="grid min-h-12 grid-cols-[2.25rem_minmax(0,1fr)_auto] items-center rounded-lg border border-white/10 bg-white/[0.04] md:grid-cols-[2.75rem_minmax(0,1fr)_auto]"
       aria-hidden="true"
     >
-      <div className="flex h-full flex-col items-center justify-center gap-1 border-r border-white/10 px-2">
-        <Pulse className="h-2 w-6 rounded-full bg-white/10" />
-        <Pulse className="h-6 w-8 rounded bg-white/10" />
-      </div>
-      <div className="min-w-0 space-y-3 px-3 py-3 md:px-5">
-        <div className="flex items-center gap-3">
-          <Pulse className="h-10 w-10 shrink-0 rounded-lg bg-white/10 md:h-12 md:w-12" />
-          <div className="min-w-0 flex-1 space-y-2">
-            <Pulse className="h-2 w-16 rounded-full bg-white/10" />
-            <Pulse className="h-5 w-32 rounded bg-white/10 md:w-40" />
-            <Pulse className="h-3 w-24 rounded-full bg-white/10" />
-          </div>
+      <Pulse className="mx-auto h-4 w-5 rounded bg-white/10" />
+      <div className="flex min-w-0 items-center gap-2 px-2 py-2">
+        <Pulse className="h-7 w-9 shrink-0 rounded-md bg-white/10" />
+        <div className="min-w-0 flex-1 space-y-1.5">
+          <Pulse className="h-4 w-28 rounded bg-white/10" />
+          <Pulse className="h-3 w-20 rounded-full bg-white/10" />
         </div>
-        {withProgress ? <Pulse className="h-0.5 w-full rounded-full bg-white/10" /> : null}
       </div>
-      <div className="px-3 md:px-5">
-        <Pulse className="ml-auto h-6 w-12 rounded bg-white/10" />
-      </div>
+      <Pulse className="me-3 h-5 w-10 rounded bg-white/10" />
     </div>
   );
 }
@@ -63,12 +54,12 @@ function ListRowSkeleton({ withProgress = false }: { withProgress?: boolean }) {
 function ColumnHeadersSkeleton() {
   return (
     <div
-      className="mb-2 grid grid-cols-[3.5rem_minmax(0,_1fr)_auto] px-3 py-3 max-sm:hidden md:grid-cols-[5.3rem_minmax(0,_1fr)_auto] md:px-5"
+      className="mb-2 grid grid-cols-[2.25rem_minmax(0,1fr)_auto] px-2 py-2 md:grid-cols-[2.75rem_minmax(0,1fr)_auto] md:px-3"
       aria-hidden="true"
     >
-      <Pulse className="h-2 w-8 rounded-full bg-white/10" />
-      <Pulse className="h-2 w-14 rounded-full bg-white/10" />
-      <Pulse className="ml-auto h-2 w-12 rounded-full bg-white/10" />
+      <Pulse className="h-3 w-6 rounded-full bg-white/10" />
+      <Pulse className="h-3 w-14 rounded-full bg-white/10" />
+      <Pulse className="ms-auto h-3 w-12 rounded-full bg-white/10" />
     </div>
   );
 }
@@ -81,7 +72,7 @@ export function DriverGridSkeleton() {
       <ColumnHeadersSkeleton />
       <div className="grid gap-2">
         {Array.from({ length: ROW_COUNT }, (_, index) => (
-          <ListRowSkeleton key={index} withProgress />
+          <ListRowSkeleton key={index} />
         ))}
       </div>
     </GridPanelFrame>
@@ -104,7 +95,7 @@ export function ConstructorStandingsSkeleton() {
 function TimelineItemSkeleton() {
   return (
     <li className="relative min-w-0 list-none" aria-hidden="true">
-      <Pulse className="absolute -left-[1.45rem] top-0 h-5 w-5 rounded-full bg-white/10 md:-left-[1.95rem]" />
+      <Pulse className="absolute -start-[1.45rem] top-0 h-5 w-5 rounded-full bg-white/10 md:-start-[1.95rem]" />
       <div className="mb-2 flex flex-col justify-between gap-2 sm:flex-row sm:items-start">
         <Pulse className="h-4 w-40 rounded bg-white/10" />
         <Pulse className="h-3 w-24 rounded-full bg-white/10" />
@@ -152,7 +143,7 @@ export function ActivityViewSkeleton() {
           <Pulse className="h-7 w-52 rounded-lg bg-white/10" />
         </div>
         <ol
-          className="ml-2 grid gap-5 border-l border-white/15 py-1 pl-4 md:ml-4 md:pl-6"
+          className="ms-2 grid gap-5 border-s border-white/15 py-1 ps-4 md:ms-4 md:ps-6"
           aria-hidden="true"
         >
           {Array.from({ length: 4 }, (_, index) => (
