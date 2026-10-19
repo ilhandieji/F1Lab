@@ -1,5 +1,6 @@
 import { cacheLife } from "next/cache";
 import { ConstructorStandingsBuilder } from "./constructor-standings";
+import { enrichSeasonGridPortraits } from "./enrich-season-portraits";
 import { OpeningGridBuilder } from "./opening-grid";
 import { SeasonActivityBuilder } from "./season-activity";
 import { getSeasonRecords } from "./season-records";
@@ -18,13 +19,14 @@ class SeasonGridService {
     const constructors = new ConstructorStandingsBuilder(this.year, records, teams).build();
     const activity = new SeasonActivityBuilder(records, teams).build(openingTeamByDriver);
 
-    return {
+    const grid: SeasonGrid = {
       year: this.year,
       startingDrivers,
       highestPoints: Math.max(...startingDrivers.map((driver) => driver.points), 1),
       ...constructors,
       activity,
     };
+    return enrichSeasonGridPortraits(grid);
   }
 }
 

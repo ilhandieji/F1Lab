@@ -1,6 +1,5 @@
 "use client";
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
   Suspense,
   useCallback,
@@ -84,37 +83,18 @@ function DriverProfileShellBody({ profile, season, children }: DriverProfileShel
         className="pointer-events-none fixed inset-0 opacity-15 [background-image:linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:24px_24px]"
       />
 
-      <Suspense fallback={<div className="h-[4.5rem]" aria-hidden="true" />}>
+      <Suspense fallback={<div className="h-36 md:h-20" aria-hidden="true" />}>
         <DriverNavbar profile={profile} season={season} />
       </Suspense>
 
       <div className="sr-only" aria-live="polite">{announcement}</div>
 
-      {previous !== null ? (
-        <button
-          type="button"
-          className="fixed left-2 top-1/2 z-30 hidden -translate-y-1/2 rounded-full border border-white/10 bg-black/40 p-2 text-white/70 backdrop-blur hover:border-white/25 hover:text-white md:inline-flex"
-          aria-label={`Previous season ${previous}`}
-          onClick={() => goTo(previous)}
-        >
-          <ChevronLeft size={20} />
-        </button>
-      ) : null}
-      {next !== null ? (
-        <button
-          type="button"
-          className="fixed right-2 top-1/2 z-30 hidden -translate-y-1/2 rounded-full border border-white/10 bg-black/40 p-2 text-white/70 backdrop-blur hover:border-white/25 hover:text-white md:inline-flex"
-          aria-label={`Next season ${next}`}
-          onClick={() => goTo(next)}
-        >
-          <ChevronRight size={20} />
-        </button>
-      ) : null}
+      <div aria-hidden="true" className="h-36 md:h-20" />
 
-      <main id="driver-main-content" className="relative mx-auto max-w-6xl px-4 pb-16 pt-[5.5rem] md:px-6 md:pt-24">
-        <DriverHero profile={profile} />
+      <main id="driver-main-content" className="relative mx-auto max-w-6xl px-4 pb-16 md:px-6">
+        <DriverHero profile={profile} season={season} />
         <DriverCareerStats totals={profile.careerTotals} />
-        <DriverFamily family={profile.family} />
+        <DriverFamily family={profile.family} season={season} />
         <div className="mt-8">{children}</div>
       </main>
     </div>

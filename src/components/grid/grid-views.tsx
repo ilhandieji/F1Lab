@@ -7,11 +7,7 @@ export function GridViews({ data, activeTab }: { data: SeasonGrid; activeTab: Gr
   return (
     <div className="animate-in fade-in duration-300 motion-reduce:animate-none">
       <div hidden={activeTab !== "drivers"}>
-        <DriverGrid
-          year={data.year}
-          drivers={data.startingDrivers}
-          highestPoints={data.highestPoints}
-        />
+        <DriverGrid year={data.year} drivers={data.startingDrivers} />
       </div>
       <div hidden={activeTab !== "activity"}>
         <ActivityView activity={data.activity} year={data.year} />

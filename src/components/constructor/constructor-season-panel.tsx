@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { TeamLogo } from "@/components/grid/team-logo";
+import { DriverAvatar } from "@/components/driver/driver-avatar";
 import { driverHref } from "@/lib/driver/routes";
 import type { ConstructorSeasonView } from "@/lib/constructor/types";
 
@@ -17,7 +18,7 @@ function DetailSection({
 }) {
   return (
     <div className="mt-6">
-      <h3 className="mb-3 text-[10px] font-black uppercase tracking-[0.16em] text-white/45">{title}</h3>
+      <h3 className="mb-3 text-xs font-bold uppercase tracking-[0.12em] text-white/70">{title}</h3>
       {children}
     </div>
   );
@@ -46,7 +47,7 @@ export function ConstructorSeasonPanel({ view }: ConstructorSeasonPanelProps) {
         </div>
         {standing ? (
           <div className="text-end">
-            <p className="text-[10px] font-black uppercase tracking-[0.16em] text-white/45">Standing</p>
+            <p className="text-xs font-bold uppercase tracking-[0.12em] text-white/70">Standing</p>
             <p className="text-2xl font-black text-white">
               P{standing.position}
               {standing.championshipWon ? (
@@ -78,7 +79,7 @@ export function ConstructorSeasonPanel({ view }: ConstructorSeasonPanelProps) {
             },
           ].map((stat) => (
             <div key={stat.label} className="rounded-xl border border-white/10 bg-white/5 px-3 py-2">
-              <p className="text-[9px] font-black uppercase tracking-[0.14em] text-white/45">{stat.label}</p>
+              <p className="text-xs font-bold uppercase tracking-[0.12em] text-white/70">{stat.label}</p>
               <p className="text-lg font-black text-white">{stat.value}</p>
             </div>
           ))}
@@ -113,12 +114,19 @@ export function ConstructorSeasonPanel({ view }: ConstructorSeasonPanelProps) {
                 key={`${driver.driverId}-${driver.entrantName}-${driver.engineManufacturerName}`}
                 className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 bg-[linear-gradient(105deg,rgba(28,28,31,0.94),rgba(20,20,22,0.94))] px-4 py-3"
               >
-                <Link
-                  href={driverHref(driver.driverId, view.year)}
-                  className="font-semibold text-white underline decoration-white/20 underline-offset-2 hover:text-red-300"
-                >
-                  {driver.driverName}
-                </Link>
+                <span className="flex min-w-0 items-center gap-3">
+                  <DriverAvatar
+                    photoUrl={driver.portraitUrl}
+                    fullName={driver.driverName}
+                    variant="row"
+                  />
+                  <Link
+                    href={driverHref(driver.driverId, view.year)}
+                    className="truncate font-semibold text-white underline decoration-white/20 underline-offset-2 hover:text-red-300"
+                  >
+                    {driver.driverName}
+                  </Link>
+                </span>
                 <div className="text-end text-xs text-white/55">
                   <p>{driver.entrantName}</p>
                   <p>
@@ -204,7 +212,7 @@ export function ConstructorSeasonPanel({ view }: ConstructorSeasonPanelProps) {
           <div className="overflow-x-auto">
             <table className="w-full min-w-[28rem] border-collapse text-left text-sm">
               <thead>
-                <tr className="text-[9px] font-black uppercase tracking-[0.14em] text-white/40">
+                <tr className="text-xs font-bold uppercase tracking-[0.12em] text-white/70">
                   <th className="pb-2 pe-2">Rnd</th>
                   <th className="pb-2 pe-2">Grand Prix</th>
                   <th className="pb-2 pe-2">Pos</th>
