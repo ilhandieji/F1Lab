@@ -19,6 +19,9 @@ export async function getDriverProfileRecords(driverId: string) {
         orderBy: { year: "asc" },
         select: { year: true },
       },
+      driver_portrait: {
+        select: { season_key: true, object_key: true },
+      },
     },
   });
 }

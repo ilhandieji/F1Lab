@@ -1,5 +1,10 @@
 import type { TeamInfo } from "@/lib/grid/types";
 
+export type DriverPortraitRef = {
+  seasonKey: string;
+  objectKey: string;
+};
+
 export type DriverFamilyLink = {
   type: string;
   otherDriverId: string;
@@ -38,7 +43,7 @@ export type DriverProfile = {
   debutYear: number;
   defaultSeason: number;
   family: DriverFamilyLink[];
-  photoUrl: string | null;
+  portraits: DriverPortraitRef[];
 };
 
 export type DriverSeasonStanding = {

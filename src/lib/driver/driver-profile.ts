@@ -1,6 +1,5 @@
 import { cacheLife } from "next/cache";
 import { pointsToNumber } from "@/lib/decimal";
-import { driverPhotoUrl } from "./driver-photos";
 import { getDriverProfileRecords } from "./driver-records";
 import type { DriverProfile } from "./types";
 
@@ -55,7 +54,10 @@ class DriverProfileService {
           otherDriverName: link.driver_driver_family_relationship_other_driver_idTodriver.full_name,
         }),
       ),
-      photoUrl: driverPhotoUrl(record.id),
+      portraits: record.driver_portrait.map((portrait) => ({
+        seasonKey: portrait.season_key,
+        objectKey: portrait.object_key,
+      })),
     };
   }
 }
