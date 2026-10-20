@@ -3,6 +3,8 @@ import type { TeamInfo } from "@/lib/grid/types";
 export type ConstructorChronologyLink = {
   otherConstructorId: string;
   otherConstructorName: string;
+  otherConstructorCountryAlpha2: string | null;
+  otherConstructorCountryName: string | null;
   yearFrom: number;
   yearTo: number | null;
 };
@@ -30,6 +32,7 @@ export type ConstructorProfile = {
   name: string;
   fullName: string;
   country: string;
+  countryAlpha2: string | null;
   careerTotals: ConstructorCareerTotals;
   careerYears: number[];
   debutYear: number;
@@ -72,6 +75,8 @@ export type ConstructorEntrantRegistration = {
 export type ConstructorLineupDriver = {
   driverId: string;
   driverName: string;
+  nationalityAlpha2: string | null;
+  nationalityName: string | null;
   portraitUrl: string | null;
   entrantName: string;
   engineManufacturerName: string;
@@ -118,6 +123,8 @@ export type ConstructorRaceResult = {
   grandPrixName: string;
   driverId: string;
   driverName: string;
+  nationalityAlpha2: string | null;
+  nationalityName: string | null;
   portraitUrl: string | null;
   gridPosition: string | null;
   finishPosition: string;
@@ -161,5 +168,6 @@ export type ConstructorSearchHit = {
   name: string;
   fullName: string;
   country: string;
+  countryAlpha2: string | null;
   championshipWins: number;
 };

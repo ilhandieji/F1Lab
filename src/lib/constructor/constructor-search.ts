@@ -13,6 +13,18 @@ export async function searchConstructors(query: string): Promise<ConstructorSear
       OR: [
         { full_name: { contains: trimmed, mode: "insensitive" } },
         { name: { contains: trimmed, mode: "insensitive" } },
+        ...(trimmed.length >= 3
+          ? [
+              {
+                country: {
+                  OR: [
+                    { name: { startsWith: trimmed, mode: "insensitive" as const } },
+                    { demonym: { startsWith: trimmed, mode: "insensitive" as const } },
+                  ],
+                },
+              },
+            ]
+          : []),
       ],
     },
     orderBy: [
@@ -21,21 +33,17 @@ export async function searchConstructors(query: string): Promise<ConstructorSear
       { name: "asc" },
     ],
     take: RESULT_LIMIT,
+    include: {
+      country: true,
+    },
   });
-
-  const countryIds = [...new Set(constructors.map((entry) => entry.country_id))];
-  const countries = countryIds.length
-    ? await prisma.country.findMany({
-        where: { id: { in: countryIds } },
-      })
-    : [];
-  const countryById = new Map(countries.map((entry) => [entry.id, entry.name]));
 
   return constructors.map((entry) => ({
     id: entry.id,
     name: entry.name,
     fullName: entry.full_name,
-    country: countryById.get(entry.country_id) ?? "—",
+    country: entry.country?.name ?? "—",
+    countryAlpha2: entry.country?.alpha2_code ?? null,
     championshipWins: entry.total_championship_wins,
   }));
 }

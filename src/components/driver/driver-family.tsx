@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CountryFlag } from "@/components/chrome/country-flag";
 import { DriverAvatar } from "@/components/driver/driver-avatar";
 import { driverHref } from "@/lib/driver/routes";
 import type { DriverFamilyLink } from "@/lib/driver/types";
@@ -32,6 +33,7 @@ export function DriverFamily({ family, season }: DriverFamilyProps) {
                   fullName={link.otherDriverName}
                   variant="row"
                 />
+                <CountryFlag alpha2={link.nationalityAlpha2} name={link.nationalityName} />
                 <span className="truncate font-semibold text-white">{link.otherDriverName}</span>
               </span>
               <span className="text-[10px] font-black uppercase tracking-[0.14em] text-white/50">

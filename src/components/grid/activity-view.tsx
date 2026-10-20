@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CountryFlag } from "@/components/chrome/country-flag";
 import { focusRing } from "@/components/chrome/focus";
 import { DriverAvatar } from "@/components/driver/driver-avatar";
 import { driverHref } from "@/lib/driver/routes";
@@ -98,6 +99,7 @@ export function ActivityView({ activity, year }: { activity: SeasonActivity; yea
             {activity.drivers.map((driver) => (
               <li className="flex min-w-0 items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-3.5" key={driver.id}>
                 <DriverAvatar photoUrl={driver.portraitUrl} fullName={driver.name} variant="row" />
+                <CountryFlag alpha2={driver.nationalityAlpha2} name={driver.nationalityName} />
                 {driver.teams[0] ? <TeamLogo team={driver.teams[0]} size="tiny" /> : null}
                 <div className="grid min-w-0 flex-1 gap-0.5">
                   <Link
@@ -134,6 +136,7 @@ export function ActivityView({ activity, year }: { activity: SeasonActivity; yea
             {activity.testDrivers.map((driver) => (
               <li className="flex min-w-0 items-start gap-2.5 rounded-xl border border-white/10 bg-white/[0.03] p-3" key={driver.id}>
                 <DriverAvatar photoUrl={driver.portraitUrl} fullName={driver.name} variant="row" />
+                <CountryFlag alpha2={driver.nationalityAlpha2} name={driver.nationalityName} />
                 <div className="min-w-0 flex-1">
                 <Link
                   href={driverHref(driver.id, year)}

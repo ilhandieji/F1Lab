@@ -10,7 +10,7 @@ class ConstructorProfileService {
     const bundle = await getConstructorProfileRecords(this.constructorId);
     if (!bundle) return null;
 
-    const { record, countryName, seasonYears, chronology } = bundle;
+    const { record, countryName, countryAlpha2, seasonYears, chronology } = bundle;
     const careerYears = seasonYears.map((entry) => entry.year);
     const debutYear = careerYears[0] ?? new Date().getFullYear();
     const defaultSeason = careerYears[careerYears.length - 1] ?? debutYear;
@@ -20,6 +20,7 @@ class ConstructorProfileService {
       name: record.name,
       fullName: record.full_name,
       country: countryName,
+      countryAlpha2,
       careerTotals: {
         championshipWins: record.total_championship_wins,
         raceWins: record.total_race_wins,
@@ -45,6 +46,8 @@ class ConstructorProfileService {
         .map((link) => ({
           otherConstructorId: link.other_constructor_id,
           otherConstructorName: link.otherConstructor!.name,
+          otherConstructorCountryAlpha2: link.otherConstructor!.countryAlpha2,
+          otherConstructorCountryName: link.otherConstructor!.countryName,
           yearFrom: link.year_from,
           yearTo: link.year_to,
         })),

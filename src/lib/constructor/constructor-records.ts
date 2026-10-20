@@ -29,15 +29,36 @@ export async function getConstructorProfileRecords(constructorId: string) {
       })
     : [];
   const otherConstructorById = new Map(otherConstructors.map((entry) => [entry.id, entry]));
+  const otherCountryIds = [...new Set(otherConstructors.map((entry) => entry.country_id))];
+  const otherCountries = otherCountryIds.length
+    ? await prisma.country.findMany({
+        where: { id: { in: otherCountryIds } },
+      })
+    : [];
+  const otherCountryById = new Map(otherCountries.map((entry) => [entry.id, entry]));
 
   return {
     record,
     countryName: country?.name ?? "—",
+    countryAlpha2: country?.alpha2_code ?? null,
     seasonYears: seasonYears.map((entry) => ({ year: entry.year })),
-    chronology: chronologyLinks.map((link) => ({
-      ...link,
-      otherConstructor: otherConstructorById.get(link.other_constructor_id) ?? null,
-    })),
+    chronology: chronologyLinks.map((link) => {
+      const otherConstructor = otherConstructorById.get(link.other_constructor_id) ?? null;
+      const otherCountry = otherConstructor
+        ? otherCountryById.get(otherConstructor.country_id)
+        : undefined;
+      return {
+        ...link,
+        otherConstructor: otherConstructor
+          ? {
+              id: otherConstructor.id,
+              name: otherConstructor.name,
+              countryAlpha2: otherCountry?.alpha2_code ?? null,
+              countryName: otherCountry?.name ?? null,
+            }
+          : null,
+      };
+    }),
   };
 }
 
@@ -149,6 +170,9 @@ export async function getConstructorSeasonRecords(constructorId: string, year: n
       driverIds.length
         ? prisma.driver.findMany({
             where: { id: { in: driverIds } },
+            include: {
+              country_driver_nationality_country_idTocountry: true,
+            },
           })
         : [],
       chassisIds.length

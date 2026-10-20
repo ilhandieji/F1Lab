@@ -1,4 +1,5 @@
 import type { DriverProfile } from "@/lib/driver/types";
+import { NationalityFlags } from "@/components/chrome/country-flag";
 import { DriverPortrait } from "./driver-portrait";
 
 function formatLifeDates(profile: DriverProfile): string {
@@ -27,8 +28,17 @@ export function DriverHero({ profile, season }: DriverHeroProps) {
         <h1 className="mt-1 text-4xl font-black uppercase leading-[0.9] tracking-[-0.06em] text-white md:text-5xl">
           {profile.fullName}
         </h1>
-        <p className="mt-3 text-sm text-white/65">
-          {nationalities} · {profile.placeOfBirth}, {profile.countryOfBirth}
+        <p className="mt-3 flex flex-wrap items-center gap-2 text-sm text-white/65">
+          <NationalityFlags
+            primaryAlpha2={profile.nationalityAlpha2}
+            primaryName={profile.nationality}
+            secondAlpha2={profile.secondNationalityAlpha2}
+            secondName={profile.secondNationality}
+            labelled={false}
+          />
+          <span>
+            {nationalities} · {profile.placeOfBirth}, {profile.countryOfBirth}
+          </span>
         </p>
         <p className="mt-1 text-sm text-white/50">{formatLifeDates(profile)}</p>
         <div className="mt-4 flex flex-wrap gap-2">

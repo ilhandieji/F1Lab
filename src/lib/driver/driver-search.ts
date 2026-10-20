@@ -16,6 +16,18 @@ export async function searchDrivers(query: string): Promise<DriverSearchHit[]> {
         { name: { contains: trimmed, mode: "insensitive" } },
         { last_name: { contains: trimmed, mode: "insensitive" } },
         { first_name: { contains: trimmed, mode: "insensitive" } },
+        ...(trimmed.length >= 3
+          ? [
+              {
+                country_driver_nationality_country_idTocountry: {
+                  OR: [
+                    { name: { startsWith: trimmed, mode: "insensitive" as const } },
+                    { demonym: { startsWith: trimmed, mode: "insensitive" as const } },
+                  ],
+                },
+              },
+            ]
+          : []),
       ],
     },
     orderBy: [{ total_championship_wins: "desc" }, { total_race_wins: "desc" }, { full_name: "asc" }],
@@ -32,6 +44,7 @@ export async function searchDrivers(query: string): Promise<DriverSearchHit[]> {
     fullName: driver.full_name,
     abbreviation: driver.abbreviation,
     nationality: driver.country_driver_nationality_country_idTocountry.name,
+    nationalityAlpha2: driver.country_driver_nationality_country_idTocountry.alpha2_code,
     championshipWins: driver.total_championship_wins,
     portraitUrl: portraitUrlFromMap(portraitMap, driver.id, null),
   }));

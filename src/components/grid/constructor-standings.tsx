@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CountryFlag } from "@/components/chrome/country-flag";
 import { focusRing } from "@/components/chrome/focus";
 import { constructorHref } from "@/lib/constructor/routes";
 import type { ConstructorStanding } from "@/lib/grid/types";
@@ -58,6 +59,7 @@ export function ConstructorStandings({
                   </strong>
                   <div className="flex min-w-0 items-center gap-2 px-2 py-2">
                     <TeamLogo team={team} size="compact" />
+                    <CountryFlag alpha2={team.countryAlpha2} name={team.countryName} />
                     <h3 className="truncate text-base font-black uppercase tracking-[-0.04em] text-white">
                       {team.name}
                     </h3>

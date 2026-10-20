@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CountryFlag } from "@/components/chrome/country-flag";
 import { TeamLogo } from "@/components/grid/team-logo";
 import { constructorHref } from "@/lib/constructor/routes";
 import { getTeamLogo } from "@/lib/team-logos";
@@ -39,6 +40,10 @@ export function ConstructorChronology({ links }: ConstructorChronologyProps) {
               >
                 <span className="flex min-w-0 items-center gap-2.5">
                   <TeamLogo team={team} size="compact" />
+                  <CountryFlag
+                    alpha2={link.otherConstructorCountryAlpha2}
+                    name={link.otherConstructorCountryName}
+                  />
                   <span className="truncate font-semibold text-white">{link.otherConstructorName}</span>
                 </span>
                 <span className="shrink-0 text-[10px] font-black uppercase tracking-[0.14em] text-white/50">

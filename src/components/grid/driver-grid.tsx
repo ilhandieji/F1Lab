@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CountryFlag } from "@/components/chrome/country-flag";
 import { focusRing } from "@/components/chrome/focus";
 import { DriverAvatar } from "@/components/driver/driver-avatar";
 import { driverHref } from "@/lib/driver/routes";
@@ -66,15 +67,8 @@ export function DriverGrid({ year, drivers }: DriverGridProps) {
                       </p>
                     </div>
                   </div>
-                  <div className="flex flex-col items-end justify-center gap-0.5 pe-3 text-end">
-                    {driver.nationalityAlpha3 ? (
-                      <span
-                        className="text-[10px] font-black uppercase tracking-[0.14em] text-white/55"
-                        title="Nationality"
-                      >
-                        {driver.nationalityAlpha3}
-                      </span>
-                    ) : null}
+                  <div className="flex flex-col items-end justify-center gap-1 pe-3 text-end">
+                    <CountryFlag alpha2={driver.nationalityAlpha2} name={driver.nationalityName} />
                     <div className="flex items-baseline gap-1">
                       <strong className="text-lg font-black tabular-nums tracking-[-0.04em] text-white">
                         {driver.points}

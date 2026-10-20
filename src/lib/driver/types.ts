@@ -10,6 +10,8 @@ export type DriverFamilyLink = {
   otherDriverId: string;
   otherDriverName: string;
   otherDriverAbbreviation: string;
+  nationalityAlpha2: string | null;
+  nationalityName: string | null;
   portraits: DriverPortraitRef[];
 };
 
@@ -39,7 +41,9 @@ export type DriverProfile = {
   placeOfBirth: string;
   countryOfBirth: string;
   nationality: string;
+  nationalityAlpha2: string | null;
   secondNationality: string | null;
+  secondNationalityAlpha2: string | null;
   careerTotals: DriverCareerTotals;
   careerYears: number[];
   debutYear: number;
@@ -123,6 +127,7 @@ export type DriverSearchHit = {
   fullName: string;
   abbreviation: string;
   nationality: string;
+  nationalityAlpha2: string | null;
   championshipWins: number;
   portraitUrl: string | null;
 };

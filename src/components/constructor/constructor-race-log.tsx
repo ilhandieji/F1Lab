@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CountryFlag } from "@/components/chrome/country-flag";
 import { ResultMarks } from "@/components/chrome/result-marks";
 import { DriverAvatar } from "@/components/driver/driver-avatar";
 import { driverHref } from "@/lib/driver/routes";
@@ -54,6 +55,7 @@ export function ConstructorRaceLog({ view }: ConstructorRaceLogProps) {
                           fullName={race.driverName}
                           variant="row"
                         />
+                        <CountryFlag alpha2={race.nationalityAlpha2} name={race.nationalityName} />
                         <Link
                           href={driverHref(race.driverId, view.year)}
                           className="text-white underline decoration-white/20 underline-offset-2 hover:text-red-300"
@@ -101,6 +103,7 @@ export function ConstructorRaceLog({ view }: ConstructorRaceLogProps) {
                     fullName={race.driverName}
                     variant="row"
                   />
+                  <CountryFlag alpha2={race.nationalityAlpha2} name={race.nationalityName} />
                   <Link
                     href={driverHref(race.driverId, view.year)}
                     className="text-sm font-medium text-white underline decoration-white/20 underline-offset-2"

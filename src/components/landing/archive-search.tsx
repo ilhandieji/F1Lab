@@ -7,6 +7,7 @@ import type { ConstructorSearchHit } from "@/lib/constructor/types";
 import { driverHref } from "@/lib/driver/routes";
 import type { DriverSearchHit } from "@/lib/driver/types";
 import { DriverSearchMark, TeamSearchMark } from "./archive-search-hit-mark";
+import { CountryFlag } from "@/components/chrome/country-flag";
 import { focusRing } from "@/components/chrome/focus";
 
 type ArchiveHit =
@@ -121,6 +122,13 @@ export function ArchiveSearchField({
   const onChange = (value: string) => {
     setQuery(value);
     setOpen(true);
+    if (value.trim().length < 2) {
+      setResults([]);
+      setLoading(false);
+      setActiveIndex(-1);
+    } else {
+      setLoading(true);
+    }
     scheduleSearch(value, true);
   };
 
@@ -200,18 +208,25 @@ export function ArchiveSearchField({
           ) : (
             <TeamSearchMark teamId={entry.hit.id} />
           )}
-          <span className="min-w-0 flex-1 truncate font-semibold text-white">
-            {entry.kind === "driver" ? entry.hit.fullName : entry.hit.name}
-          </span>
-          <span
-            className={`shrink-0 text-xs font-bold uppercase tracking-[0.12em] ${
-              entry.kind === "driver" ? "text-red-300" : "text-white/75"
-            }`}
-          >
-            {entry.kind === "driver" ? "Driver" : "Team"}
-            {entry.hit.championshipWins > 0
-              ? ` · ${entry.hit.championshipWins}× ${entry.kind === "driver" ? "WDC" : "WCC"}`
-              : ""}
+          <span className="min-w-0 flex-1">
+            <span className="flex min-w-0 items-center gap-2">
+              <CountryFlag
+                alpha2={entry.kind === "driver" ? entry.hit.nationalityAlpha2 : entry.hit.countryAlpha2}
+                name={entry.kind === "driver" ? entry.hit.nationality : entry.hit.country}
+              />
+              <span className="truncate font-semibold text-white">
+                {entry.kind === "driver" ? entry.hit.fullName : entry.hit.name}
+              </span>
+            </span>
+            {entry.hit.championshipWins > 0 ? (
+              <span
+                className={`mt-0.5 block text-[10px] font-bold uppercase tracking-[0.12em] ${
+                  entry.kind === "driver" ? "text-red-300" : "text-white/55"
+                }`}
+              >
+                {entry.hit.championshipWins}× {entry.kind === "driver" ? "WDC" : "WCC"}
+              </span>
+            ) : null}
           </span>
         </button>
       </li>
@@ -258,31 +273,39 @@ export function ArchiveSearchField({
         <div
           id="archive-search-listbox"
           role="listbox"
-          className="absolute z-50 mt-2 max-h-80 w-full overflow-y-auto rounded-2xl border border-white/10 bg-[#0c0d12] p-2 shadow-xl"
+          className={`absolute z-50 mt-2 w-[min(40rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-white/10 bg-[#0c0d12] shadow-xl ${
+            isNav ? "end-0" : "start-0"
+          }`}
         >
           {loading ? (
             <p className="px-3 py-2 text-sm text-white/50">Searching…</p>
-          ) : results.length === 0 ? (
-            <p className="px-3 py-2 text-sm text-white/50">No matches found.</p>
           ) : (
-            <>
-              {driverResults.length > 0 ? (
-                <div className="mb-2">
-                  <p className="px-3 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-white/70">
-                    Drivers
-                  </p>
-                  <ul>{driverResults.map((entry) => renderOption(entry))}</ul>
-                </div>
-              ) : null}
-              {teamResults.length > 0 ? (
-                <div>
-                  <p className="px-3 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-white/70">
-                    Teams
-                  </p>
-                  <ul>{teamResults.map((entry) => renderOption(entry))}</ul>
-                </div>
-              ) : null}
-            </>
+            <div className="grid max-h-80 md:grid-cols-2 md:divide-x md:divide-white/10">
+              <div className="min-w-0 overflow-y-auto p-2">
+                <p className="px-3 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-white/70">
+                  Drivers
+                </p>
+                {driverResults.length === 0 ? (
+                  <p className="px-3 py-2 text-sm text-white/50">No drivers</p>
+                ) : (
+                  <ul role="group" aria-label="Drivers">
+                    {driverResults.map((entry) => renderOption(entry))}
+                  </ul>
+                )}
+              </div>
+              <div className="min-w-0 overflow-y-auto border-t border-white/10 p-2 md:border-t-0">
+                <p className="px-3 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-white/70">
+                  Teams
+                </p>
+                {teamResults.length === 0 ? (
+                  <p className="px-3 py-2 text-sm text-white/50">No teams</p>
+                ) : (
+                  <ul role="group" aria-label="Teams">
+                    {teamResults.map((entry) => renderOption(entry))}
+                  </ul>
+                )}
+              </div>
+            </div>
           )}
         </div>
       ) : null}

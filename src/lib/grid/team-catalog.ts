@@ -2,7 +2,12 @@ import { getTeamLogo } from "@/lib/team-logos";
 import type { SeasonRecords } from "./season-records";
 import type { TeamInfo } from "./types";
 
-type ConstructorRef = { id: string; name: string };
+type ConstructorRef = {
+  id: string;
+  name: string;
+  countryAlpha2?: string | null;
+  countryName?: string | null;
+};
 
 /** Year-aware constructor identities, including the badge for that season. */
 export class TeamCatalog {
@@ -36,6 +41,8 @@ export class TeamCatalog {
       name: constructor.name,
       logoPath: logo?.src ?? null,
       lightLogo: logo?.light ?? false,
+      countryAlpha2: constructor.countryAlpha2 ?? null,
+      countryName: constructor.countryName ?? null,
     };
     this.teams.set(team.id, team);
     return team;

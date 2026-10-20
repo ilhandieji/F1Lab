@@ -11,7 +11,12 @@ export async function getDriverProfileRecords(driverId: string) {
         orderBy: { position_display_order: "asc" },
         include: {
           driver_driver_family_relationship_other_driver_idTodriver: {
-            select: { id: true, full_name: true, abbreviation: true },
+            select: {
+              id: true,
+              full_name: true,
+              abbreviation: true,
+              country_driver_nationality_country_idTocountry: true,
+            },
           },
         },
       },
@@ -75,7 +80,28 @@ export async function getDriverSeasonRecords(driverId: string, year: number) {
       })
     : [];
 
-  const constructorById = new Map(constructors.map((entry) => [entry.id, entry]));
+  const countryIds = [...new Set(constructors.map((entry) => entry.country_id))];
+  const countries = countryIds.length
+    ? await prisma.country.findMany({
+        where: { id: { in: countryIds } },
+      })
+    : [];
+  const countryById = new Map(countries.map((country) => [country.id, country]));
+
+  const constructorById = new Map(
+    constructors.map((entry) => {
+      const country = countryById.get(entry.country_id);
+      return [
+        entry.id,
+        {
+          id: entry.id,
+          name: entry.name,
+          countryAlpha2: country?.alpha2_code ?? null,
+          countryName: country?.name ?? null,
+        },
+      ] as const;
+    }),
+  );
   const raceById = new Map(races.map((race) => [race.id, race]));
 
   return {
