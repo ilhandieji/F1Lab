@@ -25,7 +25,7 @@ export function DriverPortrait({ profile, season, className = "" }: DriverPortra
           alt=""
           fill
           sizes="(min-width: 768px) 12rem, 100vw"
-          className="object-cover object-top"
+          className="object-cover object-[center_22%] scale-[1.05]"
           onError={() => setFailedUrl(photoUrl)}
         />
       ) : (

@@ -4,6 +4,7 @@ import { Suspense, type ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
 import { parseDriverSeasonParam, resolveDriverSeason } from "@/lib/driver/routes";
 import type { DriverProfile } from "@/lib/driver/types";
+import { isDriverTabId, type DriverTabId } from "@/lib/driver/types";
 import { DriverProfileShell } from "./driver-profile-shell";
 
 type DriverProfileLayoutProps = {
@@ -17,9 +18,11 @@ function DriverProfileLayoutConnected({ profile, children }: DriverProfileLayout
     profile,
     parseDriverSeasonParam(searchParams.get("season") ?? undefined),
   );
+  const tabParam = searchParams.get("tab");
+  const activeTab: DriverTabId = isDriverTabId(tabParam) ? tabParam : "season";
 
   return (
-    <DriverProfileShell profile={profile} season={season}>
+    <DriverProfileShell profile={profile} season={season} activeTab={activeTab}>
       {children}
     </DriverProfileShell>
   );

@@ -1,5 +1,6 @@
 import { cacheLife } from "next/cache";
 import { pointsToNumber } from "@/lib/decimal";
+import { grandPrixDisplayName } from "@/lib/race/grand-prix-display";
 import { TeamCatalog } from "@/lib/grid/team-catalog";
 import { getSeasonRecords } from "@/lib/grid/season-records";
 import { getDriverSeasonRecords } from "./driver-records";
@@ -43,7 +44,7 @@ class DriverSeasonService {
         const retired = isRetirement(finishPosition, result.race_reason_retired);
         return {
           round: result.race!.round,
-          grandPrixName: result.race!.official_name,
+          grandPrixName: grandPrixDisplayName(result.race!),
           team: teams.register(result.constructor!),
           gridPosition: result.race_grid_position_text,
           finishPosition,

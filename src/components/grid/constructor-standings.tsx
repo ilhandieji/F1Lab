@@ -32,7 +32,7 @@ export function ConstructorStandings({
           </h2>
         </div>
         <p className="max-w-xl text-sm text-white/70">
-          Official team points and championship order for {year}.
+          Team points in championship order for {year}.
         </p>
       </div>
 

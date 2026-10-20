@@ -4,6 +4,7 @@ import {
   getPortraitMapForDriverIds,
   portraitUrlFromMap,
 } from "@/lib/driver/driver-portrait-records";
+import { grandPrixDisplayName } from "@/lib/race/grand-prix-display";
 import { getTeamLogo } from "@/lib/team-logos";
 import { getConstructorSeasonRecords } from "./constructor-records";
 import type { ConstructorSeasonView } from "./types";
@@ -103,7 +104,7 @@ class ConstructorSeasonService {
       .filter((row) => row.race && row.engineManufacturer)
       .map((row) => ({
         round: row.race!.round,
-        grandPrixName: row.race!.official_name,
+        grandPrixName: grandPrixDisplayName(row.race!),
         position: row.position_text,
         positionNumber: row.position_number,
         points: pointsToNumber(row.points),
@@ -121,7 +122,7 @@ class ConstructorSeasonService {
         const retired = isRetirement(finishPosition, result.race_reason_retired);
         return {
           round: result.race!.round,
-          grandPrixName: result.race!.official_name,
+          grandPrixName: grandPrixDisplayName(result.race!),
           driverId: result.driver_id,
           driverName: result.driver!.full_name,
           portraitUrl: portraitUrlFromMap(portraitMap, result.driver_id, this.year),

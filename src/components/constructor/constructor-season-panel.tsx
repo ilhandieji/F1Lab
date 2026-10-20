@@ -37,7 +37,7 @@ export function ConstructorSeasonPanel({ view }: ConstructorSeasonPanelProps) {
     >
       <div className="mb-4 flex flex-wrap items-end justify-between gap-3 border-b border-white/10 pb-3">
         <div className="flex min-w-0 items-center gap-3">
-          <TeamLogo team={view.team} />
+          <TeamLogo team={view.team} size="featured" />
           <div>
             <span className="text-[10px] font-black uppercase tracking-[0.18em] text-red-400">
               {view.year} season
