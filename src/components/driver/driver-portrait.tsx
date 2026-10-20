@@ -1,32 +1,28 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
-import { resolveDriverPortraitUrl } from "@/lib/driver/driver-photos";
 import type { DriverProfile } from "@/lib/driver/types";
 
 type DriverPortraitProps = {
-  profile: Pick<DriverProfile, "abbreviation" | "permanentNumber" | "portraits" | "fullName">;
-  season: number | null;
+  profile: Pick<DriverProfile, "id" | "abbreviation" | "permanentNumber" | "photoUrl" | "fullName">;
   className?: string;
 };
 
-export function DriverPortrait({ profile, season, className = "" }: DriverPortraitProps) {
-  const photoUrl = resolveDriverPortraitUrl(profile.portraits, season);
-  const [failedUrl, setFailedUrl] = useState<string | null>(null);
+export function DriverPortrait({ profile, className = "" }: DriverPortraitProps) {
+  const [failed, setFailed] = useState(false);
+  const showImage = profile.photoUrl && !failed;
 
   return (
     <div
       className={`relative overflow-hidden rounded-2xl border border-white/10 bg-[linear-gradient(145deg,rgba(40,40,45,0.95),rgba(18,18,22,0.98))] ${className}`}
     >
-      {photoUrl && failedUrl !== photoUrl ? (
-        <Image
-          src={photoUrl}
+      {showImage ? (
+        // eslint-disable-next-line @next/next/no-img-element -- manual files in public/assets/drivers
+        <img
+          src={profile.photoUrl!}
           alt=""
-          fill
-          sizes="(min-width: 768px) 12rem, 100vw"
-          className="object-cover object-top"
-          onError={() => setFailedUrl(photoUrl)}
+          className="absolute inset-0 h-full w-full object-cover object-top"
+          onError={() => setFailed(true)}
         />
       ) : (
         <div className="flex h-full min-h-[12rem] flex-col items-center justify-center gap-2 p-6">

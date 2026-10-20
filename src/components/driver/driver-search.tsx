@@ -2,7 +2,6 @@
 
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { DriverAvatar } from "@/components/driver/driver-avatar";
 import { driverHref } from "@/lib/driver/routes";
 import type { DriverSearchHit } from "@/lib/driver/types";
 
@@ -126,16 +125,10 @@ function DriverSearchField() {
                   type="button"
                   role="option"
                   aria-selected={false}
-                  className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-start text-sm transition hover:bg-white/10"
+                  className="flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2 text-start text-sm transition hover:bg-white/10"
                   onClick={() => onSelect(hit)}
                 >
-                  <DriverAvatar
-                    photoUrl={hit.portraitUrl}
-                    abbreviation={hit.abbreviation}
-                    fullName={hit.fullName}
-                    variant="thumb"
-                  />
-                  <span className="min-w-0 flex-1 font-semibold text-white">{hit.fullName}</span>
+                  <span className="font-semibold text-white">{hit.fullName}</span>
                   <span className="shrink-0 text-[10px] font-black uppercase tracking-[0.12em] text-white/45">
                     {hit.nationality}
                     {hit.championshipWins > 0 ? ` · ${hit.championshipWins}× WDC` : ""}

@@ -1,5 +1,6 @@
 "use client";
 
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
   Suspense,
   useCallback,
@@ -105,21 +106,55 @@ function GridShellBody({
         aria-hidden="true"
       />
 
+      <button
+        type="button"
+        className={`fixed left-4 top-1/2 z-30 hidden w-20 -translate-y-1/2 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-2 py-4 text-white shadow-[0_18px_40px_rgba(0,0,0,0.3)] backdrop-blur-md transition duration-200 hover:border-red-500/70 hover:bg-red-600/90 md:grid ${previous === null ? "cursor-not-allowed opacity-25 hover:border-white/10 hover:bg-white/5" : ""}`}
+        aria-label={previous ? `Go back to ${previous}` : "No earlier season"}
+        disabled={previous === null}
+        onClick={() => previous !== null && goTo(previous)}
+      >
+        <ChevronLeft size={34} />
+        {previous ? (
+          <span className="text-[10px] font-black uppercase tracking-[0.18em] text-white/90">
+            {previous}
+          </span>
+        ) : null}
+      </button>
+
+      <button
+        type="button"
+        className={`fixed right-4 top-1/2 z-30 hidden w-20 -translate-y-1/2 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-2 py-4 text-white shadow-[0_18px_40px_rgba(0,0,0,0.3)] backdrop-blur-md transition duration-200 hover:border-red-500/70 hover:bg-red-600/90 md:grid ${next === null ? "cursor-not-allowed opacity-25 hover:border-white/10 hover:bg-white/5" : ""}`}
+        aria-label={next ? `Advance to ${next}` : "No later season"}
+        disabled={next === null}
+        onClick={() => next !== null && goTo(next)}
+      >
+        <ChevronRight size={34} />
+        {next ? (
+          <span className="text-[10px] font-black uppercase tracking-[0.18em] text-white/90">
+            {next}
+          </span>
+        ) : null}
+      </button>
+
       <p className="sr-only" aria-live="polite">
         {announcement}
       </p>
 
-      <SeasonNavbar
-        year={year}
-        previous={previous}
-        next={next}
-        hrefFor={hrefFor}
-        navigate={goTo}
-        activeTab={activeTab}
-        onSelectTab={onSelectTab}
-      />
+      <div className="fixed inset-x-0 top-0 z-40 w-full border-b border-white/10 bg-[#07080c]/55 backdrop-blur-xl">
+        <div className="mx-auto w-full max-w-6xl px-4 md:px-6">
+          <SeasonNavbar
+            year={year}
+            previous={previous}
+            next={next}
+            hrefFor={hrefFor}
+            navigate={goTo}
+            activeTab={activeTab}
+            onSelectTab={onSelectTab}
+          />
+        </div>
+      </div>
 
-      <div aria-hidden="true" className="h-36 md:h-20" />
+      <div aria-hidden="true" className="h-28 md:h-16" />
 
       <div className="mx-auto w-full max-w-6xl px-4 pb-12 pt-4 md:px-6">
         <header className="mt-6 md:mt-8">
@@ -132,8 +167,7 @@ function GridShellBody({
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-white/70 md:text-base">
             Drivers&apos; standings, driver changes, and constructors&apos; standings for the full
-            championship year. Use the season controls to move between years. On a touch screen, a
-            horizontal swipe does the same.
+            championship year. On mobile, swipe horizontally to browse adjacent seasons.
           </p>
         </header>
 

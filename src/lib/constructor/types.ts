@@ -72,7 +72,6 @@ export type ConstructorEntrantRegistration = {
 export type ConstructorLineupDriver = {
   driverId: string;
   driverName: string;
-  portraitUrl: string | null;
   entrantName: string;
   engineManufacturerName: string;
   rounds: string | null;
@@ -118,7 +117,6 @@ export type ConstructorRaceResult = {
   grandPrixName: string;
   driverId: string;
   driverName: string;
-  portraitUrl: string | null;
   gridPosition: string | null;
   finishPosition: string;
   finishNumber: number | null;

@@ -1,24 +1,22 @@
 import Image from "next/image";
-import { DriverAvatar } from "@/components/driver/driver-avatar";
 import { getTeamLogo } from "@/lib/team-logos";
 import { FEATURED_SEASON } from "@/lib/grid/seasons";
 
-export function DriverSearchMark({
-  fullName,
-  abbreviation,
-  portraitUrl,
-}: {
-  fullName: string;
-  abbreviation?: string;
-  portraitUrl?: string | null;
-}) {
+function driverInitials(fullName: string): string {
+  const parts = fullName.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  if (parts.length === 1) return parts[0]!.slice(0, 2).toUpperCase();
+  return `${parts[0]![0] ?? ""}${parts[parts.length - 1]![0] ?? ""}`.toUpperCase();
+}
+
+export function DriverSearchMark({ fullName }: { fullName: string }) {
   return (
-    <DriverAvatar
-      photoUrl={portraitUrl}
-      abbreviation={abbreviation}
-      fullName={fullName}
-      variant="thumb"
-    />
+    <span
+      className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-red-500/50 bg-red-500/15 text-[10px] font-black uppercase tracking-tight text-red-200"
+      aria-hidden="true"
+    >
+      {driverInitials(fullName)}
+    </span>
   );
 }
 

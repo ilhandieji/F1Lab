@@ -189,7 +189,6 @@ model driver {
   season_driver                                                                 season_driver[]
   season_driver_standing                                                        season_driver_standing[]
   season_entrant_driver                                                         season_entrant_driver[]
-  driver_portrait                                                               driver_portrait[]
 
   @@index([abbreviation], map: "drvr_abbreviation_idx")
   @@index([country_of_birth_country_id], map: "drvr_country_of_birth_country_id_idx")
@@ -204,15 +203,6 @@ model driver {
   @@index([permanent_number], map: "drvr_permanent_number_idx")
   @@index([place_of_birth], map: "drvr_place_of_birth_idx")
   @@index([second_nationality_country_id], map: "drvr_second_nationality_country_id_idx")
-}
-
-model driver_portrait {
-  driver_id  String @db.VarChar(100)
-  season_key String @db.VarChar(16)
-  object_key String @db.VarChar(512)
-  driver     driver @relation(fields: [driver_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@id([driver_id, season_key])
 }
 
 model driver_family_relationship {

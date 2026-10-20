@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { driverHref } from "@/lib/driver/routes";
-import type { ActivityDriverRef } from "@/lib/grid/types";
 
-export function DriverNameList({ drivers, year }: { drivers: ActivityDriverRef[]; year: number }) {
+type DriverRef = { id: string; name: string };
+
+export function DriverNameList({ drivers, year }: { drivers: DriverRef[]; year: number }) {
   if (drivers.length === 0) return <>—</>;
 
   return (

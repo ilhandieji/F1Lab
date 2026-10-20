@@ -11,16 +11,13 @@ export async function getDriverProfileRecords(driverId: string) {
         orderBy: { position_display_order: "asc" },
         include: {
           driver_driver_family_relationship_other_driver_idTodriver: {
-            select: { id: true, full_name: true, abbreviation: true },
+            select: { id: true, full_name: true },
           },
         },
       },
       season_driver: {
         orderBy: { year: "asc" },
         select: { year: true },
-      },
-      driver_portrait: {
-        select: { season_key: true, object_key: true },
       },
     },
   });

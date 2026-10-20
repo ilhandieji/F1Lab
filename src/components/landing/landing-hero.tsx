@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { focusRing } from "@/components/chrome/focus";
 import { ArchiveSearchLazy } from "@/components/landing/archive-search-lazy";
 import { FEATURED_CONSTRUCTOR_ID } from "@/lib/constructor/constants";
 import { constructorHref } from "@/lib/constructor/routes";
@@ -65,14 +64,14 @@ export function LandingHero() {
         <header className="flex items-center justify-between gap-3">
           <Link
             href="/"
-            className={`text-[11px] font-black uppercase tracking-[0.34em] text-white ${focusRing}`}
+            className="text-[11px] font-black uppercase tracking-[0.34em] text-white"
             aria-label="F1Lab home"
           >
             F1<span className="text-red-500">Lab</span>
           </Link>
           <Link
             href={`/grid/${FEATURED_SEASON}?tab=drivers`}
-            className={`min-h-10 rounded-full border-4 border-white/15 bg-white/5 px-4 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-white/90 transition hover:border-red-500/60 hover:bg-red-500/15 ${focusRing}`}
+            className="min-h-11 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-white/90 transition hover:border-red-500/60 hover:bg-red-500/15"
           >
             {FEATURED_SEASON} season
           </Link>
@@ -91,9 +90,9 @@ export function LandingHero() {
           </h1>
 
           <p className="mt-5 max-w-2xl text-base leading-7 text-white/70 md:text-lg">
-            Drivers&apos; standings, driver changes, constructors&apos;
-            standings, and full team entry data from the F1DB archive. Jump into{" "}
-            {FEATURED_SEASON} or pick any year back to 1950.
+            Drivers&apos; standings, driver changes, constructors&apos; standings, and full team
+            entry data from the F1DB archive. Jump into {FEATURED_SEASON} or pick any year back to
+            1950.
           </p>
 
           <ArchiveSearchLazy />
@@ -101,28 +100,25 @@ export function LandingHero() {
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
               href={`/grid/${FEATURED_SEASON}?tab=drivers`}
-              className={`inline-flex min-h-11 items-center rounded-md bg-red-500 px-5 py-3 text-[11px] font-black uppercase tracking-[0.18em] text-white transition hover:bg-red-400 motion-reduce:transition-none ${focusRing}`}
+              className="inline-flex min-h-11 items-center rounded-md bg-red-500 px-5 py-3 text-[11px] font-black uppercase tracking-[0.18em] text-white transition hover:bg-red-400"
             >
               {FEATURED_SEASON} drivers&apos; standings
             </Link>
           </div>
         </section>
 
-        <nav
-          className="grid gap-3 md:grid-cols-2 lg:grid-cols-3"
-          aria-label="Explore the archive"
-        >
+        <nav className="grid gap-3 md:grid-cols-2 lg:grid-cols-3" aria-label="Explore the archive">
           {paths.map((path) => (
             <Link
               key={path.href}
               href={path.href}
-              className={`group relative flex min-h-[11rem] overflow-hidden rounded-2xl border border-white/10 transition hover:-translate-y-0.5 hover:border-red-500/50 motion-reduce:transition-none motion-reduce:hover:translate-y-0 md:min-h-[13rem] ${focusRing}`}
+              className="group relative flex min-h-[11rem] overflow-hidden rounded-2xl border border-white/10 transition hover:-translate-y-0.5 hover:border-red-500/50 md:min-h-[13rem]"
             >
               <Image
                 src={path.image}
                 alt=""
                 fill
-                className="object-cover transition duration-500 group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+                className="object-cover transition duration-500 group-hover:scale-[1.03]"
                 sizes="(max-width: 768px) 100vw, 33vw"
               />
               <div
@@ -133,9 +129,7 @@ export function LandingHero() {
                 <h2 className="text-xl font-black tracking-[-0.04em] text-white md:text-2xl">
                   {path.title}
                 </h2>
-                <p className="mt-2 text-sm leading-6 text-white/75">
-                  {path.copy}
-                </p>
+                <p className="mt-2 text-sm leading-6 text-white/75">{path.copy}</p>
               </div>
             </Link>
           ))}

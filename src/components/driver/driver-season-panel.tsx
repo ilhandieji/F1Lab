@@ -25,7 +25,7 @@ export function DriverSeasonPanel({ view }: DriverSeasonPanelProps) {
         </div>
         {standing ? (
           <div className="text-end">
-            <p className="text-xs font-bold uppercase tracking-[0.12em] text-white/70">Standing</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.16em] text-white/45">Standing</p>
             <p className="text-2xl font-black text-white">
               P{standing.position}
               {standing.championshipWon ? (
@@ -48,7 +48,7 @@ export function DriverSeasonPanel({ view }: DriverSeasonPanelProps) {
             { label: "Points", value: totals.points },
           ].map((stat) => (
             <div key={stat.label} className="rounded-xl border border-white/10 bg-white/5 px-3 py-2">
-              <p className="text-xs font-bold uppercase tracking-[0.12em] text-white/70">{stat.label}</p>
+              <p className="text-[9px] font-black uppercase tracking-[0.14em] text-white/45">{stat.label}</p>
               <p className="text-lg font-black text-white">{stat.value}</p>
             </div>
           ))}
@@ -56,7 +56,7 @@ export function DriverSeasonPanel({ view }: DriverSeasonPanelProps) {
       ) : null}
 
       <div>
-        <h3 className="mb-3 text-xs font-bold uppercase tracking-[0.12em] text-white/70">Teams</h3>
+        <h3 className="mb-3 text-[10px] font-black uppercase tracking-[0.16em] text-white/45">Teams</h3>
         {teams.length > 0 ? (
           <ul className="grid gap-2">
             {teams.map((stint) => (

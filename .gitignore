@@ -50,6 +50,3 @@ AGENTS.md
 CLAUDE.md
 
 qodana.yaml
-
-# Local portrait sources (uploaded to object storage separately)
-/headshots-webp/

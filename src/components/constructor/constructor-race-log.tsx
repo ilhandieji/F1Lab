@@ -1,6 +1,4 @@
 import Link from "next/link";
-import { ResultMarks } from "@/components/chrome/result-marks";
-import { DriverAvatar } from "@/components/driver/driver-avatar";
 import { driverHref } from "@/lib/driver/routes";
 import type { ConstructorSeasonView } from "@/lib/constructor/types";
 
@@ -32,7 +30,7 @@ export function ConstructorRaceLog({ view }: ConstructorRaceLogProps) {
           <div className="hidden overflow-x-auto md:block">
             <table className="w-full min-w-[40rem] border-collapse text-left text-sm">
               <thead>
-                <tr className="text-xs font-bold uppercase tracking-[0.12em] text-white/70">
+                <tr className="text-[9px] font-black uppercase tracking-[0.14em] text-white/40">
                   <th className="pb-2 pe-2">Rnd</th>
                   <th className="pb-2 pe-2">Grand Prix</th>
                   <th className="pb-2 pe-2">Driver</th>
@@ -48,28 +46,26 @@ export function ConstructorRaceLog({ view }: ConstructorRaceLogProps) {
                     <td className="py-3 pe-2 font-black text-white/70">{race.round}</td>
                     <td className="max-w-[10rem] py-3 pe-2 font-medium text-white">{race.grandPrixName}</td>
                     <td className="py-3 pe-2">
-                      <span className="flex items-center gap-2">
-                        <DriverAvatar
-                          photoUrl={race.portraitUrl}
-                          fullName={race.driverName}
-                          variant="row"
-                        />
-                        <Link
-                          href={driverHref(race.driverId, view.year)}
-                          className="text-white underline decoration-white/20 underline-offset-2 hover:text-red-300"
-                        >
-                          {race.driverName}
-                        </Link>
-                      </span>
+                      <Link
+                        href={driverHref(race.driverId, view.year)}
+                        className="text-white underline decoration-white/20 underline-offset-2 hover:text-red-300"
+                      >
+                        {race.driverName}
+                      </Link>
                     </td>
                     <td className="py-3 pe-2 text-white/70">{race.gridPosition ?? "—"}</td>
                     <td className="py-3 pe-2">
-                      <span className={race.retired ? "text-amber-200" : "font-semibold text-white"}>
+                      <span className={race.retired ? "text-amber-400/90" : "font-semibold text-white"}>
                         {race.finishPosition}
                       </span>
-                      <ResultMarks pole={race.pole} fastestLap={race.fastestLap} />
+                      {race.pole ? (
+                        <span className="ms-1 text-[9px] font-black uppercase text-purple-300">Pole</span>
+                      ) : null}
+                      {race.fastestLap ? (
+                        <span className="ms-1 text-[9px] font-black uppercase text-violet-300">FL</span>
+                      ) : null}
                       {race.retirementReason ? (
-                        <span className="mt-0.5 block text-xs text-white/65">{race.retirementReason}</span>
+                        <span className="mt-0.5 block text-xs text-white/45">{race.retirementReason}</span>
                       ) : null}
                     </td>
                     <td className="py-3 pe-2 text-white/60">{race.tyreManufacturerName}</td>
@@ -95,33 +91,23 @@ export function ConstructorRaceLog({ view }: ConstructorRaceLogProps) {
                   </div>
                   <p className="text-xl font-black text-white">{race.points} pts</p>
                 </div>
-                <div className="mt-3 flex items-center gap-2">
-                  <DriverAvatar
-                    photoUrl={race.portraitUrl}
-                    fullName={race.driverName}
-                    variant="row"
-                  />
-                  <Link
-                    href={driverHref(race.driverId, view.year)}
-                    className="text-sm font-medium text-white underline decoration-white/20 underline-offset-2"
-                  >
-                    {race.driverName}
-                  </Link>
-                </div>
+                <Link
+                  href={driverHref(race.driverId, view.year)}
+                  className="mt-3 block text-sm font-medium text-white underline decoration-white/20 underline-offset-2"
+                >
+                  {race.driverName}
+                </Link>
                 <dl className="mt-3 grid grid-cols-2 gap-2 text-xs text-white/60">
                   <div>
-                    <dt className="uppercase tracking-[0.12em] text-white/65">Grid</dt>
+                    <dt className="uppercase tracking-[0.12em] text-white/40">Grid</dt>
                     <dd className="mt-0.5 font-semibold text-white">{race.gridPosition ?? "—"}</dd>
                   </div>
                   <div>
-                    <dt className="uppercase tracking-[0.12em] text-white/65">Finish</dt>
-                    <dd className="mt-0.5 font-semibold text-white">
-                      {race.finishPosition}
-                      <ResultMarks pole={race.pole} fastestLap={race.fastestLap} />
-                    </dd>
+                    <dt className="uppercase tracking-[0.12em] text-white/40">Finish</dt>
+                    <dd className="mt-0.5 font-semibold text-white">{race.finishPosition}</dd>
                   </div>
                   <div className="col-span-2">
-                    <dt className="uppercase tracking-[0.12em] text-white/65">Tyres · Engine</dt>
+                    <dt className="uppercase tracking-[0.12em] text-white/40">Tyres · Engine</dt>
                     <dd className="mt-0.5">
                       {race.tyreManufacturerName} · {race.engineManufacturerName}
                     </dd>

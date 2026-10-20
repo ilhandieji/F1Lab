@@ -22,6 +22,7 @@ export function DriverCareerStats({ totals }: DriverCareerStatsProps) {
       aria-label="Career statistics"
     >
       <div className="mb-4 border-b border-white/10 pb-3">
+        <span className="text-[10px] font-black uppercase tracking-[0.18em] text-red-400">Career</span>
         <h2 className="text-xl font-black tracking-[-0.04em] text-white">Career</h2>
       </div>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -39,7 +40,7 @@ export function DriverCareerStats({ totals }: DriverCareerStatsProps) {
               key={key}
               className="rounded-2xl border border-white/10 bg-[linear-gradient(160deg,rgba(28,28,31,0.9),rgba(16,16,18,0.95))] p-4"
             >
-              <p className="text-xs font-bold uppercase tracking-[0.12em] text-white/70">{label}</p>
+              <p className="text-[9px] font-black uppercase tracking-[0.16em] text-white/45">{label}</p>
               <p className="mt-2 text-2xl font-black tabular-nums text-white">{display}</p>
             </div>
           );
