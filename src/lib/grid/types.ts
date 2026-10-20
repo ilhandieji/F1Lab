@@ -12,6 +12,7 @@ export type GridDriver = {
   position: string;
   points: number;
   team: TeamInfo;
+  portraitUrl?: string | null;
 };
 
 export type ConstructorStanding = {
@@ -32,12 +33,20 @@ export type ActivityDriver = {
   weekends: number;
   teams: TeamInfo[];
   openedSeason: boolean;
+  portraitUrl?: string | null;
 };
 
 export type TestDriver = {
   id: string;
   name: string;
   teams: TeamInfo[];
+  portraitUrl?: string | null;
+};
+
+export type ActivityDriverRef = {
+  id: string;
+  name: string;
+  portraitUrl?: string | null;
 };
 
 export type ActivityChangeKind =
@@ -55,8 +64,8 @@ export type ActivityStint = {
 
 export type ActivityChange = {
   team: TeamInfo;
-  outgoing: { id: string; name: string }[];
-  incoming: { id: string; name: string }[];
+  outgoing: ActivityDriverRef[];
+  incoming: ActivityDriverRef[];
   kind: ActivityChangeKind;
   stints: ActivityStint[];
 };

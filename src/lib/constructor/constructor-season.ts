@@ -1,5 +1,9 @@
 import { cacheLife } from "next/cache";
 import { pointsToNumber } from "@/lib/decimal";
+import {
+  getPortraitMapForDriverIds,
+  portraitUrlFromMap,
+} from "@/lib/driver/driver-portrait-records";
 import { getTeamLogo } from "@/lib/team-logos";
 import { getConstructorSeasonRecords } from "./constructor-records";
 import type { ConstructorSeasonView } from "./types";
@@ -47,11 +51,18 @@ class ConstructorSeasonService {
         engineManufacturerName: entry.engineManufacturer!.name,
       }));
 
+    const lineupDriverIds = records.entrantDrivers.map((entry) => entry.driver_id);
+    const raceDriverIds = records.raceResults.map((result) => result.driver_id);
+    const portraitMap = await getPortraitMapForDriverIds([
+      ...new Set([...lineupDriverIds, ...raceDriverIds]),
+    ]);
+
     const lineup = records.entrantDrivers
       .filter((entry) => entry.driver && entry.entrant && entry.engineManufacturer)
       .map((entry) => ({
         driverId: entry.driver_id,
         driverName: entry.driver!.full_name,
+        portraitUrl: portraitUrlFromMap(portraitMap, entry.driver_id, this.year),
         entrantName: entry.entrant!.name,
         engineManufacturerName: entry.engineManufacturer!.name,
         rounds: entry.rounds,
@@ -113,6 +124,7 @@ class ConstructorSeasonService {
           grandPrixName: result.race!.official_name,
           driverId: result.driver_id,
           driverName: result.driver!.full_name,
+          portraitUrl: portraitUrlFromMap(portraitMap, result.driver_id, this.year),
           gridPosition: result.race_grid_position_text,
           finishPosition,
           finishNumber: result.position_number,

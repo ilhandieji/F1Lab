@@ -1,12 +1,13 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { constructorHref } from "@/lib/constructor/routes";
 import type { ConstructorSearchHit } from "@/lib/constructor/types";
 import { driverHref } from "@/lib/driver/routes";
 import type { DriverSearchHit } from "@/lib/driver/types";
 import { DriverSearchMark, TeamSearchMark } from "./archive-search-hit-mark";
+import { focusRing } from "@/components/chrome/focus";
 
 type ArchiveHit =
   | { kind: "driver"; hit: DriverSearchHit }
@@ -29,6 +30,7 @@ function ArchiveSearchField() {
   const [results, setResults] = useState<ArchiveHit[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(-1);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -70,6 +72,7 @@ function ArchiveSearchField() {
     if (trimmed.length < 2) {
       setResults([]);
       setLoading(false);
+      setActiveIndex(-1);
       return;
     }
     setLoading(true);
@@ -87,8 +90,12 @@ function ArchiveSearchField() {
           ...constructors.map((hit) => ({ kind: "constructor" as const, hit })),
         ];
         setResults(merged);
+        setActiveIndex(merged.length > 0 ? 0 : -1);
       })
-      .catch(() => setResults([]))
+      .catch(() => {
+        setResults([]);
+        setActiveIndex(-1);
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -120,6 +127,89 @@ function ArchiveSearchField() {
     router.push(constructorHref(entry.hit.id));
   };
 
+  const optionId = (index: number) => `archive-search-option-${index}`;
+
+  const moveActive = (index: number) => {
+    if (results.length === 0) return;
+    const next = (index + results.length) % results.length;
+    setActiveIndex(next);
+    requestAnimationFrame(() => {
+      document.getElementById(optionId(next))?.scrollIntoView({ block: "nearest" });
+    });
+  };
+
+  const onInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      setOpen(true);
+      moveActive(activeIndex < 0 ? 0 : activeIndex + 1);
+      return;
+    }
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setOpen(true);
+      moveActive(activeIndex < 0 ? results.length - 1 : activeIndex - 1);
+      return;
+    }
+    if ((event.key === "Home" || event.key === "End") && open && results.length > 0) {
+      event.preventDefault();
+      moveActive(event.key === "Home" ? 0 : results.length - 1);
+      return;
+    }
+    if (event.key === "Escape" && open) {
+      event.preventDefault();
+      setOpen(false);
+      return;
+    }
+    if (event.key === "Enter" && open && results[activeIndex]) {
+      event.preventDefault();
+      onSelect(results[activeIndex]);
+    }
+  };
+
+  const renderOption = (entry: ArchiveHit) => {
+    const index = results.indexOf(entry);
+    const selected = index === activeIndex;
+    return (
+      <li key={`${entry.kind}-${entry.hit.id}`}>
+        <button
+          id={optionId(index)}
+          type="button"
+          role="option"
+          aria-selected={selected}
+          className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-start text-sm transition hover:bg-white/10 ${focusRing} ${
+            selected ? "bg-white/10" : ""
+          }`}
+          onMouseEnter={() => setActiveIndex(index)}
+          onClick={() => onSelect(entry)}
+        >
+          {entry.kind === "driver" ? (
+            <DriverSearchMark
+              fullName={entry.hit.fullName}
+              abbreviation={entry.hit.abbreviation}
+              portraitUrl={entry.hit.portraitUrl}
+            />
+          ) : (
+            <TeamSearchMark teamId={entry.hit.id} />
+          )}
+          <span className="min-w-0 flex-1 truncate font-semibold text-white">
+            {entry.kind === "driver" ? entry.hit.fullName : entry.hit.name}
+          </span>
+          <span
+            className={`shrink-0 text-xs font-bold uppercase tracking-[0.12em] ${
+              entry.kind === "driver" ? "text-red-300" : "text-white/75"
+            }`}
+          >
+            {entry.kind === "driver" ? "Driver" : "Team"}
+            {entry.hit.championshipWins > 0
+              ? ` · ${entry.hit.championshipWins}× ${entry.kind === "driver" ? "WDC" : "WCC"}`
+              : ""}
+          </span>
+        </button>
+      </li>
+    );
+  };
+
   return (
     <div ref={wrapperRef} className="relative mt-8 max-w-xl">
       <label htmlFor="archive-search" className="sr-only">
@@ -143,7 +233,9 @@ function ArchiveSearchField() {
         aria-expanded={open}
         aria-controls="archive-search-listbox"
         aria-autocomplete="list"
+        aria-activedescendant={open && activeIndex >= 0 ? optionId(activeIndex) : undefined}
         role="combobox"
+        onKeyDown={onInputKeyDown}
       />
       {open && (results.length > 0 || loading || query.trim().length >= 2) ? (
         <div
@@ -159,64 +251,18 @@ function ArchiveSearchField() {
             <>
               {driverResults.length > 0 ? (
                 <div className="mb-2">
-                  <p className="px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.16em] text-white/40">
+                  <p className="px-3 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-white/70">
                     Drivers
                   </p>
-                  <ul>
-                    {driverResults.map((entry) => (
-                      <li key={`driver-${entry.hit.id}`}>
-                        <button
-                          type="button"
-                          role="option"
-                          aria-selected={false}
-                          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-start text-sm transition hover:bg-white/10"
-                          onClick={() => onSelect(entry)}
-                        >
-                          <DriverSearchMark fullName={entry.hit.fullName} />
-                          <span className="min-w-0 flex-1 truncate font-semibold text-white">
-                            {entry.hit.fullName}
-                          </span>
-                          <span className="shrink-0 text-[10px] font-black uppercase tracking-[0.12em] text-red-300/80">
-                            Driver
-                            {entry.hit.championshipWins > 0
-                              ? ` · ${entry.hit.championshipWins}× WDC`
-                              : ""}
-                          </span>
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
+                  <ul>{driverResults.map((entry) => renderOption(entry))}</ul>
                 </div>
               ) : null}
               {teamResults.length > 0 ? (
                 <div>
-                  <p className="px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.16em] text-white/40">
+                  <p className="px-3 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-white/70">
                     Teams
                   </p>
-                  <ul>
-                    {teamResults.map((entry) => (
-                      <li key={`team-${entry.hit.id}`}>
-                        <button
-                          type="button"
-                          role="option"
-                          aria-selected={false}
-                          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-start text-sm transition hover:bg-white/10"
-                          onClick={() => onSelect(entry)}
-                        >
-                          <TeamSearchMark teamId={entry.hit.id} />
-                          <span className="min-w-0 flex-1 truncate font-semibold text-white">
-                            {entry.hit.name}
-                          </span>
-                          <span className="shrink-0 text-[10px] font-black uppercase tracking-[0.12em] text-white/45">
-                            Team
-                            {entry.hit.championshipWins > 0
-                              ? ` · ${entry.hit.championshipWins}× WCC`
-                              : ""}
-                          </span>
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
+                  <ul>{teamResults.map((entry) => renderOption(entry))}</ul>
                 </div>
               ) : null}
             </>

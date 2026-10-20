@@ -9,9 +9,10 @@ function formatLifeDates(profile: DriverProfile): string {
 
 type DriverHeroProps = {
   profile: DriverProfile;
+  season: number;
 };
 
-export function DriverHero({ profile }: DriverHeroProps) {
+export function DriverHero({ profile, season }: DriverHeroProps) {
   const nationalities = profile.secondNationality
     ? `${profile.nationality} / ${profile.secondNationality}`
     : profile.nationality;
@@ -46,7 +47,7 @@ export function DriverHero({ profile }: DriverHeroProps) {
           </span>
         </div>
       </div>
-      <DriverPortrait profile={profile} className="min-h-[12rem] md:min-h-[14rem]" />
+      <DriverPortrait profile={profile} season={season} className="min-h-[12rem] md:min-h-[14rem]" />
       </div>
     </section>
   );
