@@ -6,7 +6,7 @@ import { ArchiveSearchField } from "./archive-search";
 function SearchNavSkeleton() {
   return (
     <div
-      className="h-9 w-full rounded-xl border border-white/15 bg-white/5"
+      className="h-8 w-full rounded-xl border border-white/15 bg-white/5"
       aria-hidden="true"
     />
   );

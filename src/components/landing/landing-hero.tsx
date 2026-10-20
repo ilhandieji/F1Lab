@@ -73,10 +73,8 @@ export function LandingHero() {
         }
       />
 
-      <div aria-hidden="true" className="h-44 md:h-32" />
-
       <div
-        className={`relative z-10 mx-auto flex min-h-[calc(100vh-11rem)] w-full ${archiveMaxWidthClass} flex-col px-4 pb-10 md:px-6`}
+        className={`relative z-10 mx-auto flex min-h-[calc(100vh-4.5rem)] w-full ${archiveMaxWidthClass} flex-col px-4 pb-10 md:px-6`}
       >
         <section className="flex flex-1 flex-col justify-center py-8 md:py-12">
           <span className="mb-5 inline-flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.22em] text-white/60">

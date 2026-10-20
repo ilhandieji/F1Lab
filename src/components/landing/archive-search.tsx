@@ -223,7 +223,7 @@ export function ArchiveSearchField({
   return (
     <div
       ref={wrapperRef}
-      className={`relative w-full ${isNav ? "max-w-none" : "mt-8 max-w-xl"}`}
+      className={`relative w-full ${isNav ? "z-50 max-w-none" : "mt-8 max-w-xl"}`}
     >
       <label htmlFor={inputId} className="sr-only">
         Search drivers and teams
