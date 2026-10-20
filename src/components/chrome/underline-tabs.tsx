@@ -64,7 +64,7 @@ export function UnderlineTabs<T extends string>({
             tabIndex={isActive ? 0 : -1}
             onClick={() => onSelect(tab.id)}
             onKeyDown={(event) => handleTabKey(event, index)}
-            className={`relative shrink-0 px-2 py-2.5 text-[11px] font-black uppercase tracking-[0.16em] transition-colors ${focusRing} ${
+            className={`relative shrink-0 px-2 py-2 text-[11px] font-black uppercase tracking-[0.16em] transition-colors md:py-1.5 ${focusRing} ${
               isActive ? "text-white" : "text-white/70 hover:text-white"
             }`}
           >

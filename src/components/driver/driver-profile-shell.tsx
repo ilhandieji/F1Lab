@@ -87,13 +87,11 @@ function DriverProfileShellBody({ profile, season, activeTab, children }: Driver
         className="pointer-events-none fixed inset-0 opacity-15 [background-image:linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:24px_24px]"
       />
 
-      <Suspense fallback={<div className="h-44 md:h-32" aria-hidden="true" />}>
+      <Suspense fallback={null}>
         <DriverNavbar profile={profile} season={season} />
       </Suspense>
 
       <div className="sr-only" aria-live="polite">{announcement}</div>
-
-      <div aria-hidden="true" className="h-44 md:h-32" />
 
       <main id="driver-main-content" className={archiveMainClass}>
         {resultsOnly ? (

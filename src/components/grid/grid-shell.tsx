@@ -119,8 +119,6 @@ function GridShellBody({
         onSelectTab={onSelectTab}
       />
 
-      <div aria-hidden="true" className="h-44 md:h-32" />
-
       <div className="mx-auto w-full max-w-[88rem] px-4 pb-12 pt-4 md:px-6">
         <header className="mt-6 md:mt-8">
           <div className="inline-flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.22em] text-white/60">
