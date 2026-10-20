@@ -22,7 +22,15 @@ function SearchFieldSkeleton() {
   );
 }
 
-function ArchiveSearchField() {
+type ArchiveSearchFieldProps = {
+  variant?: "hero" | "nav";
+  inputId?: string;
+};
+
+export function ArchiveSearchField({
+  variant = "hero",
+  inputId = "archive-search",
+}: ArchiveSearchFieldProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialUrlQuery = searchParams.get("q") ?? "";
@@ -210,18 +218,27 @@ function ArchiveSearchField() {
     );
   };
 
+  const isNav = variant === "nav";
+
   return (
-    <div ref={wrapperRef} className="relative mt-8 max-w-xl">
-      <label htmlFor="archive-search" className="sr-only">
+    <div
+      ref={wrapperRef}
+      className={`relative w-full ${isNav ? "max-w-none" : "mt-8 max-w-xl"}`}
+    >
+      <label htmlFor={inputId} className="sr-only">
         Search drivers and teams
       </label>
       <input
-        id="archive-search"
+        id={inputId}
         type="search"
         value={query}
-        placeholder="Search drivers or teams…"
+        placeholder={isNav ? "Search drivers or teams…" : "Find a driver or team…"}
         autoComplete="off"
-        className="w-full rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/40 outline-none ring-red-500/40 transition focus:border-red-500/50 focus:ring-2"
+        className={`w-full border border-white/15 bg-white/5 text-white placeholder:text-white/40 outline-none ring-red-500/40 transition focus:border-red-500/50 focus:ring-2 ${
+          isNav
+            ? "rounded-xl px-3 py-2 text-sm"
+            : "rounded-2xl px-4 py-3 text-sm"
+        }`}
         onChange={(event) => onChange(event.target.value)}
         onInput={(event) => onChange(event.currentTarget.value)}
         onFocus={() => {
@@ -276,7 +293,7 @@ function ArchiveSearchField() {
 export function ArchiveSearch() {
   return (
     <Suspense fallback={<SearchFieldSkeleton />}>
-      <ArchiveSearchField />
+      <ArchiveSearchField variant="hero" />
     </Suspense>
   );
 }

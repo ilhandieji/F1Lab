@@ -71,6 +71,7 @@ export class OpeningGridBuilder {
         position: String(drivers.length + 1),
         points: pointsToNumber(standing.points),
         team,
+        nationalityAlpha3: standing.driver.nationalityAlpha3,
       });
     }
 

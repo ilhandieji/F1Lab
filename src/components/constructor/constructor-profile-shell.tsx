@@ -8,7 +8,9 @@ import {
   type ReactNode,
   type TouchEvent,
 } from "react";
-import type { ConstructorProfile } from "@/lib/constructor/types";
+import { ConstructorProfileFocusBar } from "@/components/chrome/profile-focus-bar";
+import type { ConstructorProfile, ConstructorTabId } from "@/lib/constructor/types";
+import { archiveMainClass } from "@/lib/layout";
 import { ConstructorCareerStats } from "./constructor-career-stats";
 import { ConstructorChronology } from "./constructor-chronology";
 import { ConstructorHero } from "./constructor-hero";
@@ -20,6 +22,7 @@ type ConstructorProfileShellProps = {
   profile: ConstructorProfile;
   season: number;
   seasonMarks: ConstructorSeasonMark[];
+  activeTab: ConstructorTabId;
   children: ReactNode;
 };
 
@@ -27,8 +30,10 @@ function ConstructorProfileShellBody({
   profile,
   season,
   seasonMarks,
+  activeTab,
   children,
 }: ConstructorProfileShellProps) {
+  const resultsOnly = activeTab === "races";
   const { previous, next, hrefFor, navigate } = useConstructorNavigation(
     profile.id,
     profile.careerYears,
@@ -94,7 +99,7 @@ function ConstructorProfileShellBody({
         className="pointer-events-none fixed inset-0 opacity-15 [background-image:linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:24px_24px]"
       />
 
-      <Suspense fallback={<div className="h-36 md:h-20" aria-hidden="true" />}>
+      <Suspense fallback={<div className="h-44 md:h-32" aria-hidden="true" />}>
         <ConstructorNavbar profile={profile} season={season} />
       </Suspense>
 
@@ -102,14 +107,20 @@ function ConstructorProfileShellBody({
         {announcement}
       </div>
 
-      <div aria-hidden="true" className="h-36 md:h-20" />
+      <div aria-hidden="true" className="h-44 md:h-32" />
 
-      <main id="constructor-main-content" className="relative mx-auto max-w-6xl px-4 pb-16 md:px-6">
-        <ConstructorHero profile={profile} season={season} />
-        <ConstructorSeasonRail season={season} marks={seasonMarks} hrefFor={hrefFor} />
-        <ConstructorCareerStats totals={profile.careerTotals} />
-        <ConstructorChronology links={profile.chronology} />
-        <div className="mt-8">{children}</div>
+      <main id="constructor-main-content" className={archiveMainClass}>
+        {resultsOnly ? (
+          <ConstructorProfileFocusBar profile={profile} season={season} />
+        ) : (
+          <>
+            <ConstructorHero profile={profile} season={season} />
+            <ConstructorSeasonRail season={season} marks={seasonMarks} hrefFor={hrefFor} />
+            <ConstructorCareerStats totals={profile.careerTotals} />
+            <ConstructorChronology links={profile.chronology} />
+          </>
+        )}
+        <div className={resultsOnly ? "" : "mt-8"}>{children}</div>
       </main>
     </div>
   );

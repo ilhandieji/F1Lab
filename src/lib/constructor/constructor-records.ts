@@ -86,7 +86,12 @@ export async function getConstructorSeasonRecords(constructorId: string, year: n
     }),
     prisma.race.findMany({
       where: { year },
-      select: { id: true, round: true, official_name: true },
+      select: {
+        id: true,
+        round: true,
+        official_name: true,
+        grand_prix: { select: { short_name: true } },
+      },
       orderBy: { round: "asc" },
     }),
     prisma.season_entrant.findMany({

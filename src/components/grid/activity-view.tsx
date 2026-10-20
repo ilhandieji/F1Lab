@@ -51,17 +51,17 @@ export function ActivityView({ activity, year }: { activity: SeasonActivity; yea
         <SectionHeading
           id="activity-overview-title"
           kicker="Season overview"
-          title="Driver changes"
-          description="Substitutions, seat swaps, and teams that reshuffled their line-up."
+          title="Seat changes"
+          description="Who swapped teams, who subbed in, and when line-ups shifted."
         />
 
         <div className="grid grid-cols-1 divide-y divide-white/10 overflow-hidden rounded-xl border border-white/10 bg-white/[0.03] sm:grid-cols-3 sm:divide-x sm:divide-y-0">
           <article className="grid gap-1.5 p-3 md:p-4">
-            <span className="text-xs font-bold uppercase tracking-[0.14em] text-white/70">Unique race drivers</span>
+            <span className="text-xs font-bold uppercase tracking-[0.14em] text-white/70">Race drivers</span>
             <strong className="mt-2 block text-2xl font-black tracking-[-0.05em] text-white">{activity.summary.uniqueRaceDrivers}</strong>
           </article>
           <article className="grid gap-1.5 p-3 md:p-4">
-            <span className="text-xs font-bold uppercase tracking-[0.14em] text-white/70">Substitution stints</span>
+            <span className="text-xs font-bold uppercase tracking-[0.14em] text-white/70">Sub stints</span>
             <strong className="mt-2 block text-2xl font-black tracking-[-0.05em] text-white">{activity.summary.substitutions}</strong>
           </article>
           <article className="grid gap-1.5 p-3 md:p-4">
@@ -71,8 +71,8 @@ export function ActivityView({ activity, year }: { activity: SeasonActivity; yea
         </div>
 
         <p className="text-sm leading-6 text-white/65">
-          A substitute stint is counted when a replacement fills a seat and the previous race
-          driver later returns. Transfers and mid-season returns are listed separately.
+          A sub stint is when a stand-in races and the regular driver comes back later. Swaps and
+          returns are listed in the timeline below.
         </p>
       </section>
 
@@ -80,8 +80,8 @@ export function ActivityView({ activity, year }: { activity: SeasonActivity; yea
         <SectionHeading
           id="activity-changes-title"
           kicker="Chronology"
-          title="Driver changes"
-          description="Outgoing and incoming race drivers, weekend by weekend."
+          title="Weekend by weekend"
+          description="Who left each seat and who took over, round by round."
         />
         <ActivityTimeline events={activity.events} year={year} />
       </section>
@@ -90,13 +90,13 @@ export function ActivityView({ activity, year }: { activity: SeasonActivity; yea
         <SectionHeading
           id="race-drivers-title"
           kicker="Race results"
-          title="Race-driver appearances"
-          description="Every driver with a recorded Grand Prix result this season."
+          title="Who raced"
+          description="Everyone who scored a race result this year."
         />
         {activity.drivers.length > 0 ? (
           <ul className="grid gap-2 sm:grid-cols-2">
             {activity.drivers.map((driver) => (
-              <li className="flex min-w-0 items-center gap-2.5 rounded-xl border border-white/10 bg-white/[0.03] p-3" key={driver.id}>
+              <li className="flex min-w-0 items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-3.5" key={driver.id}>
                 <DriverAvatar photoUrl={driver.portraitUrl} fullName={driver.name} variant="row" />
                 {driver.teams[0] ? <TeamLogo team={driver.teams[0]} size="tiny" /> : null}
                 <div className="grid min-w-0 flex-1 gap-0.5">

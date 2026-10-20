@@ -19,20 +19,24 @@ class SeasonGridService {
     const constructors = new ConstructorStandingsBuilder(this.year, records, teams).build();
     const activity = new SeasonActivityBuilder(records, teams).build(openingTeamByDriver);
 
-    const grid: SeasonGrid = {
+    return {
       year: this.year,
       startingDrivers,
       highestPoints: Math.max(...startingDrivers.map((driver) => driver.points), 1),
       ...constructors,
       activity,
     };
-    return enrichSeasonGridPortraits(grid);
   }
 }
 
-/** Cached view-model used by the grid page and neighboring-season prefetches. */
-export async function getSeasonGrid(year: number): Promise<SeasonGrid> {
+/** Cached season records and standings. Portrait URLs are applied afterward so new `driver_portrait` rows show up without waiting for this cache to expire. */
+export async function getSeasonGridData(year: number): Promise<SeasonGrid> {
   "use cache";
   cacheLife("hours");
   return new SeasonGridService(year).assemble();
+}
+
+/** Grid page view-model: standings from cache, portraits always from the database. */
+export async function getSeasonGrid(year: number): Promise<SeasonGrid> {
+  return enrichSeasonGridPortraits(await getSeasonGridData(year));
 }

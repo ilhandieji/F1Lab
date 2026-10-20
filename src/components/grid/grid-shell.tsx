@@ -119,9 +119,9 @@ function GridShellBody({
         onSelectTab={onSelectTab}
       />
 
-      <div aria-hidden="true" className="h-36 md:h-20" />
+      <div aria-hidden="true" className="h-44 md:h-32" />
 
-      <div className="mx-auto w-full max-w-6xl px-4 pb-12 pt-4 md:px-6">
+      <div className="mx-auto w-full max-w-[88rem] px-4 pb-12 pt-4 md:px-6">
         <header className="mt-6 md:mt-8">
           <div className="inline-flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.22em] text-white/60">
             <span className="h-2.5 w-2.5 rounded-full bg-red-500 shadow-[0_0_12px_rgba(239,68,68,0.8)]" />
@@ -131,7 +131,7 @@ function GridShellBody({
             {year} <span className="text-red-500">season</span>
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-white/70 md:text-base">
-            Drivers&apos; standings, driver changes, and constructors&apos; standings for the full
+            Driver and team standings, seat changes, and the full
             championship year. Use the season controls to move between years. On a touch screen, a
             horizontal swipe does the same.
           </p>

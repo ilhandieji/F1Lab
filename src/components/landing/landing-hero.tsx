@@ -1,7 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ArchiveHeader } from "@/components/chrome/archive-header";
 import { focusRing } from "@/components/chrome/focus";
-import { ArchiveSearchLazy } from "@/components/landing/archive-search-lazy";
+import { archiveMaxWidthClass } from "@/lib/layout";
 import { FEATURED_CONSTRUCTOR_ID } from "@/lib/constructor/constants";
 import { constructorHref } from "@/lib/constructor/routes";
 import { FEATURED_DRIVER_ID } from "@/lib/driver/constants";
@@ -61,24 +62,23 @@ export function LandingHero() {
         className="pointer-events-none absolute inset-0 z-0 opacity-20 [background-image:linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:24px_24px]"
       />
 
-      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl flex-col px-4 pb-10 pt-5 md:px-6">
-        <header className="flex items-center justify-between gap-3">
-          <Link
-            href="/"
-            className={`text-[11px] font-black uppercase tracking-[0.34em] text-white ${focusRing}`}
-            aria-label="F1Lab home"
-          >
-            F1<span className="text-red-500">Lab</span>
-          </Link>
+      <ArchiveHeader
+        yearControl={
           <Link
             href={`/grid/${FEATURED_SEASON}?tab=drivers`}
-            className={`min-h-10 rounded-full border-4 border-white/15 bg-white/5 px-4 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-white/90 transition hover:border-red-500/60 hover:bg-red-500/15 ${focusRing}`}
+            className={`min-h-10 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-white/90 transition hover:border-red-500/60 hover:bg-red-500/15 ${focusRing}`}
           >
             {FEATURED_SEASON} season
           </Link>
-        </header>
+        }
+      />
 
-        <section className="flex flex-1 flex-col justify-center py-10 md:py-16">
+      <div aria-hidden="true" className="h-44 md:h-32" />
+
+      <div
+        className={`relative z-10 mx-auto flex min-h-[calc(100vh-11rem)] w-full ${archiveMaxWidthClass} flex-col px-4 pb-10 md:px-6`}
+      >
+        <section className="flex flex-1 flex-col justify-center py-8 md:py-12">
           <span className="mb-5 inline-flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.22em] text-white/60">
             <span className="h-2.5 w-2.5 rounded-full bg-red-500 shadow-[0_0_12px_rgba(239,68,68,0.8)]" />
             Formula 1 archive · 1950 onward
@@ -91,12 +91,9 @@ export function LandingHero() {
           </h1>
 
           <p className="mt-5 max-w-2xl text-base leading-7 text-white/70 md:text-lg">
-            Drivers&apos; standings, driver changes, constructors&apos;
-            standings, and full team entry data from the F1DB archive. Jump into{" "}
-            {FEATURED_SEASON} or pick any year back to 1950.
+            Driver and team standings, seat changes, and season results from 1950
+            onward. Search above or jump into {FEATURED_SEASON}.
           </p>
-
-          <ArchiveSearchLazy />
 
           <div className="mt-8 flex flex-wrap gap-3">
             <Link

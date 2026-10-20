@@ -12,7 +12,12 @@ type DriverAvatarVariant = "thumb" | "row";
 
 const variantClass: Record<DriverAvatarVariant, string> = {
   thumb: "h-8 w-8 rounded-full text-[10px]",
-  row: "h-10 w-10 shrink-0 rounded-lg text-xs md:h-11 md:w-11",
+  row: "h-11 w-11 shrink-0 rounded-xl text-xs sm:h-12 sm:w-12 md:h-11 md:w-11",
+};
+
+const imageObjectClass: Record<DriverAvatarVariant, string> = {
+  thumb: "object-cover object-center",
+  row: "object-cover object-[center_22%] scale-[1.08]",
 };
 
 type DriverAvatarProps = {
@@ -54,8 +59,8 @@ export function DriverAvatar({
           src={photoUrl!}
           alt=""
           fill
-          sizes={variant === "thumb" ? "2rem" : "2.75rem"}
-          className="object-cover object-top"
+          sizes={variant === "thumb" ? "2rem" : "3rem"}
+          className={imageObjectClass[variant]}
           onError={() => setFailedUrl(photoUrl)}
         />
       ) : (

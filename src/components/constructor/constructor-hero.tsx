@@ -32,9 +32,9 @@ export function ConstructorHero({ profile, season }: ConstructorHeroProps) {
           />
         </div>
       ) : null}
-      <div className="relative grid gap-6 md:grid-cols-[auto_minmax(0,1fr)] md:items-end">
-        <div className="flex items-center justify-center rounded-2xl border border-white/10 bg-black/30 p-4 md:min-h-[8rem] md:min-w-[9rem]">
-          <TeamLogo team={team} />
+      <div className="relative grid gap-5 md:grid-cols-[minmax(0,13rem)_minmax(0,1fr)] md:items-stretch md:gap-8">
+        <div className="flex min-h-[6.5rem] items-center justify-center rounded-2xl border border-white/10 bg-black/30 px-4 py-3 md:min-h-[10rem] md:px-5 md:py-4">
+          <TeamLogo team={team} size="hero" />
         </div>
         <div className="min-w-0">
           <span className="text-[10px] font-black uppercase tracking-[0.18em] text-red-400">

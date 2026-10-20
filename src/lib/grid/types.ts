@@ -12,6 +12,7 @@ export type GridDriver = {
   position: string;
   points: number;
   team: TeamInfo;
+  nationalityAlpha3?: string | null;
   portraitUrl?: string | null;
 };
 
@@ -98,9 +99,9 @@ export type SeasonGrid = {
 };
 
 export const GRID_TABS = [
-  { id: "drivers", label: "Drivers' standings" },
-  { id: "activity", label: "Driver changes" },
-  { id: "constructors", label: "Constructors' standings" },
+  { id: "drivers", label: "Drivers" },
+  { id: "constructors", label: "Teams" },
+  { id: "activity", label: "Changes" },
 ] as const;
 
 export type GridTabId = (typeof GRID_TABS)[number]["id"];

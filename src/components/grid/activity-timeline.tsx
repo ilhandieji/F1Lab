@@ -7,10 +7,10 @@ import { DriverNameList } from "./driver-name-link";
 import { TeamLogo } from "./team-logo";
 
 const changeLabel: Record<ActivityChangeKind, string> = {
-  transfer: "Team transfer",
-  return: "Returned to seat",
-  substitution: "Substitute",
-  "lineup-change": "Lineup change",
+  transfer: "Team swap",
+  return: "Back in seat",
+  substitution: "Sub",
+  "lineup-change": "Line-up change",
 };
 
 const changeColor: Record<ActivityChangeKind, string> = {

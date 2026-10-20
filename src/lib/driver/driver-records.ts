@@ -51,7 +51,12 @@ export async function getDriverSeasonRecords(driverId: string, year: number) {
     }),
     prisma.race.findMany({
       where: { year },
-      select: { id: true, round: true, official_name: true },
+      select: {
+        id: true,
+        round: true,
+        official_name: true,
+        grand_prix: { select: { short_name: true } },
+      },
       orderBy: { round: "asc" },
     }),
   ]);

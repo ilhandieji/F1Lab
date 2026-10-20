@@ -1,3 +1,4 @@
+import { grandPrixDisplayName } from "@/lib/race/grand-prix-display";
 import type { SeasonRecords } from "./season-records";
 import type { TeamCatalog } from "./team-catalog";
 import type {
@@ -151,7 +152,8 @@ export class SeasonActivityBuilder {
     const eventNames = new Map<number, string>();
 
     for (const result of raceResults) {
-      const { round, official_name: name } = result.race;
+      const { round } = result.race;
+      const name = grandPrixDisplayName(result.race);
       const lineup =
         lineupsByRound.get(round) ?? new Map<string, Set<string>>();
       const teamDrivers =
