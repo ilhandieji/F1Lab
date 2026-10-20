@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CountryFlag } from "@/components/chrome/country-flag";
 import { DriverAvatar } from "@/components/driver/driver-avatar";
 import { focusRing } from "@/components/chrome/focus";
 import { driverHref } from "@/lib/driver/routes";
@@ -18,6 +19,7 @@ export function DriverNameList({ drivers, year }: { drivers: ActivityDriverRef[]
             variant="thumb"
             className="inline-flex align-middle"
           />
+          <CountryFlag alpha2={driver.nationalityAlpha2} name={driver.nationalityName} />
           <Link
             href={driverHref(driver.id, year)}
             className={`underline decoration-white/20 underline-offset-2 transition hover:text-red-300 hover:decoration-red-400/50 ${focusRing}`}

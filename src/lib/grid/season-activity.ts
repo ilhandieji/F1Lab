@@ -149,6 +149,7 @@ export class SeasonActivityBuilder {
     const raceRoundsByDriver = new Map<string, Set<number>>();
     const teamsByDriver = new Map<string, Set<string>>();
     const namesByDriver = new Map<string, string>();
+    const nationalityByDriver = new Map<string, { alpha2: string | null; name: string | null }>();
     const eventNames = new Map<number, string>();
 
     for (const result of raceResults) {
@@ -177,6 +178,10 @@ export class SeasonActivityBuilder {
         result.driver_id,
         `${result.driver.first_name} ${result.driver.last_name}`,
       );
+      nationalityByDriver.set(result.driver_id, {
+        alpha2: result.driver.nationalityAlpha2,
+        name: result.driver.nationalityName,
+      });
       eventNames.set(round, name);
     }
 
@@ -185,6 +190,7 @@ export class SeasonActivityBuilder {
       raceRoundsByDriver,
       teamsByDriver,
       namesByDriver,
+      nationalityByDriver,
       eventNames,
     };
   }
@@ -248,6 +254,19 @@ export class SeasonActivityBuilder {
       .sort((left, right) => left.round - right.round);
   }
 
+  private driverRef(
+    index: ReturnType<SeasonActivityBuilder["indexResults"]>,
+    id: string,
+  ) {
+    const nationality = index.nationalityByDriver.get(id);
+    return {
+      id,
+      name: index.namesByDriver.get(id) ?? id,
+      nationalityAlpha2: nationality?.alpha2 ?? null,
+      nationalityName: nationality?.name ?? null,
+    };
+  }
+
   private toChange({
     round,
     team,
@@ -276,14 +295,8 @@ export class SeasonActivityBuilder {
 
     return {
       team,
-      outgoing: outgoing.map((id) => ({
-        id,
-        name: index.namesByDriver.get(id) ?? id,
-      })),
-      incoming: incoming.map((id) => ({
-        id,
-        name: index.namesByDriver.get(id) ?? id,
-      })),
+      outgoing: outgoing.map((id) => this.driverRef(index, id)),
+      incoming: incoming.map((id) => this.driverRef(index, id)),
       kind,
       stints,
     };
@@ -379,6 +392,8 @@ export class SeasonActivityBuilder {
       .map(([id, rounds]) => ({
         id,
         name: index.namesByDriver.get(id) ?? id,
+        nationalityAlpha2: index.nationalityByDriver.get(id)?.alpha2 ?? null,
+        nationalityName: index.nationalityByDriver.get(id)?.name ?? null,
         weekends: rounds.size,
         teams: [...(index.teamsByDriver.get(id) ?? [])]
           .map((teamId) => this.teams.get(teamId))
@@ -392,7 +407,13 @@ export class SeasonActivityBuilder {
   private buildTestDrivers(): TestDriver[] {
     const drivers = new Map<
       string,
-      { id: string; name: string; teams: Map<string, TeamInfo> }
+      {
+        id: string;
+        name: string;
+        nationalityAlpha2: string | null;
+        nationalityName: string | null;
+        teams: Map<string, TeamInfo>;
+      }
     >();
 
     for (const entry of this.records.entrantDrivers) {
@@ -401,6 +422,8 @@ export class SeasonActivityBuilder {
       const driver = drivers.get(entry.driver.id) ?? {
         id: entry.driver.id,
         name: `${entry.driver.first_name} ${entry.driver.last_name}`,
+        nationalityAlpha2: entry.driver.nationalityAlpha2,
+        nationalityName: entry.driver.nationalityName,
         teams: new Map<string, TeamInfo>(),
       };
       const team = this.teams.get(entry.constructor_id);
@@ -409,9 +432,11 @@ export class SeasonActivityBuilder {
     }
 
     return [...drivers.values()]
-      .map(({ id, name, teams }) => ({
+      .map(({ id, name, nationalityAlpha2, nationalityName, teams }) => ({
         id,
         name,
+        nationalityAlpha2,
+        nationalityName,
         teams: [...teams.values()].sort((left, right) =>
           left.name.localeCompare(right.name),
         ),

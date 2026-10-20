@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { ArchiveHeader } from "@/components/chrome/archive-header";
 import { focusRing } from "@/components/chrome/focus";
@@ -12,31 +11,31 @@ import { FEATURED_SEASON } from "@/lib/grid/seasons";
 const paths = [
   {
     href: `/grid/${FEATURED_SEASON}?tab=drivers`,
-    image: "/talon-kai-honeyman-EwUZ8hjWXSk-unsplash.webp",
+    kicker: "WDC",
     title: "Drivers' standings",
     copy: "Championship order, points, and who started the season in each seat.",
   },
   {
     href: `/grid/${FEATURED_SEASON}?tab=activity`,
-    image: "/marc-kleen-fJjtt4kHews-unsplash.webp",
+    kicker: "Changes",
     title: "Driver changes",
     copy: "Substitutions, seat swaps, and mid-season moves as they happened.",
   },
   {
     href: `/grid/${FEATURED_SEASON}?tab=constructors`,
-    image: "/toby-s-bb-bW4Ea5mM-unsplash.webp",
+    kicker: "WCC",
     title: "Constructors' standings",
     copy: "The WCC table, team points, and how each constructor finished the year.",
   },
   {
     href: driverHref(FEATURED_DRIVER_ID, FEATURED_SEASON),
-    image: "/isaac-maffeis-UU1txX-LtEA-unsplash.webp",
+    kicker: "Driver",
     title: "Drivers",
     copy: "Career stats, family links, and season-by-season results.",
   },
   {
     href: constructorHref(FEATURED_CONSTRUCTOR_ID, FEATURED_SEASON),
-    image: "/roy-tsong-W0haDrVTW58-unsplash.webp",
+    kicker: "Team",
     title: "Teams",
     copy: "Entry lists, engines, tyres, and every race result by constructor.",
   },
@@ -104,33 +103,21 @@ export function LandingHero() {
         </section>
 
         <nav
-          className="grid gap-3 md:grid-cols-2 lg:grid-cols-3"
+          className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5"
           aria-label="Explore the archive"
         >
           {paths.map((path) => (
             <Link
               key={path.href}
               href={path.href}
-              className={`group relative flex min-h-[11rem] overflow-hidden rounded-2xl border border-white/10 transition hover:-translate-y-0.5 hover:border-red-500/50 motion-reduce:transition-none motion-reduce:hover:translate-y-0 md:min-h-[13rem] ${focusRing}`}
+              className={`flex min-h-[9.5rem] flex-col justify-between rounded-2xl border border-white/10 bg-white/[0.03] p-4 transition hover:border-red-500/40 motion-reduce:transition-none ${focusRing}`}
             >
-              <Image
-                src={path.image}
-                alt=""
-                fill
-                className="object-cover transition duration-500 group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
-                sizes="(max-width: 768px) 100vw, 33vw"
-              />
-              <div
-                aria-hidden="true"
-                className="absolute inset-0 bg-[linear-gradient(0deg,rgba(5,5,7,0.92)_0%,rgba(5,5,7,0.45)_45%,rgba(5,5,7,0.15)_100%)]"
-              />
-              <div className="relative flex h-full flex-col justify-end p-4 md:p-5">
-                <h2 className="text-xl font-black tracking-[-0.04em] text-white md:text-2xl">
-                  {path.title}
-                </h2>
-                <p className="mt-2 text-sm leading-6 text-white/75">
-                  {path.copy}
-                </p>
+              <span className="text-[10px] font-black uppercase tracking-[0.18em] text-red-400">
+                {path.kicker}
+              </span>
+              <div>
+                <h2 className="text-lg font-black tracking-[-0.04em] text-white">{path.title}</h2>
+                <p className="mt-2 text-sm leading-6 text-white/70">{path.copy}</p>
               </div>
             </Link>
           ))}

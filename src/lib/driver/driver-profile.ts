@@ -36,7 +36,10 @@ class DriverProfileService {
       placeOfBirth: record.place_of_birth,
       countryOfBirth: record.country_driver_country_of_birth_country_idTocountry.name,
       nationality: record.country_driver_nationality_country_idTocountry.name,
+      nationalityAlpha2: record.country_driver_nationality_country_idTocountry.alpha2_code,
       secondNationality: record.country_driver_second_nationality_country_idTocountry?.name ?? null,
+      secondNationalityAlpha2:
+        record.country_driver_second_nationality_country_idTocountry?.alpha2_code ?? null,
       careerTotals: {
         championshipWins: record.total_championship_wins,
         raceWins: record.total_race_wins,
@@ -59,6 +62,12 @@ class DriverProfileService {
         otherDriverName: link.driver_driver_family_relationship_other_driver_idTodriver.full_name,
         otherDriverAbbreviation:
           link.driver_driver_family_relationship_other_driver_idTodriver.abbreviation,
+        nationalityAlpha2:
+          link.driver_driver_family_relationship_other_driver_idTodriver
+            .country_driver_nationality_country_idTocountry?.alpha2_code ?? null,
+        nationalityName:
+          link.driver_driver_family_relationship_other_driver_idTodriver
+            .country_driver_nationality_country_idTocountry?.name ?? null,
         portraits: (familyPortraitMap.get(link.other_driver_id) ?? []).map((portrait) => ({
           seasonKey: portrait.seasonKey,
           objectKey: portrait.objectKey,

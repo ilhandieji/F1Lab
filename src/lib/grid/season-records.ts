@@ -1,6 +1,11 @@
 import { prisma } from "@/lib/prisma";
 
-const driverSelect = { id: true, first_name: true, last_name: true } as const;
+const driverSelect = {
+  id: true,
+  first_name: true,
+  last_name: true,
+  nationality_country_id: true,
+} as const;
 const raceSelect = {
   id: true,
   round: true,
@@ -12,12 +17,15 @@ type DriverRecord = {
   id: string;
   first_name: string;
   last_name: string;
-  nationalityAlpha3: string | null;
+  nationalityAlpha2: string | null;
+  nationalityName: string | null;
 };
 
 type ConstructorRecord = {
   id: string;
   name: string;
+  countryAlpha2: string | null;
+  countryName: string | null;
 };
 
 function requireRecord<T>(records: Map<string | number, T>, id: string | number, label: string): T {
@@ -88,53 +96,61 @@ export async function getSeasonRecords(year: number) {
     ]),
   ];
 
-  const [constructors, driverRows, nationalityRows] = await Promise.all([
+  const [constructorRows, driverRows] = await Promise.all([
     constructorIds.length
       ? prisma["constructor"].findMany({
           where: { id: { in: constructorIds } },
         })
-      : Promise.resolve<ConstructorRecord[]>([]),
+      : [],
     driverIds.length
       ? prisma.driver.findMany({
           where: { id: { in: driverIds } },
           select: driverSelect,
         })
-      : Promise.resolve<{ id: string; first_name: string; last_name: string }[]>([]),
-    driverIds.length
-      ? prisma.driver.findMany({
-          where: { id: { in: driverIds } },
-          select: { id: true, nationality_country_id: true },
-        })
-      : Promise.resolve<{ id: string; nationality_country_id: string }[]>([]),
+      : [],
   ]);
 
-  const nationalityCountryIds = [
-    ...new Set(nationalityRows.map((row) => row.nationality_country_id)),
+  const countryIds = [
+    ...new Set([
+      ...constructorRows.map((constructor) => constructor.country_id),
+      ...driverRows.map((driver) => driver.nationality_country_id),
+    ]),
   ];
-  const nationalityCountries = nationalityCountryIds.length
+  const countries = countryIds.length
     ? await prisma.country.findMany({
-        where: { id: { in: nationalityCountryIds } },
+        where: { id: { in: countryIds } },
       })
     : [];
-  const alpha3ByCountryId = new Map(
-    nationalityCountries.map((country) => [country.id, country.alpha3_code]),
-  );
-  const nationalityAlpha3ByDriverId = new Map(
-    nationalityRows.map((row) => [
-      row.id,
-      alpha3ByCountryId.get(row.nationality_country_id) ?? null,
-    ]),
-  );
+  const countryById = new Map(countries.map((country) => [country.id, country]));
 
-  const constructorById = new Map(constructors.map((constructor) => [constructor.id, constructor]));
+  const constructorById = new Map<string, ConstructorRecord>(
+    constructorRows.map((constructor) => {
+      const country = countryById.get(constructor.country_id);
+      return [
+        constructor.id,
+        {
+          id: constructor.id,
+          name: constructor.name,
+          countryAlpha2: country?.alpha2_code ?? null,
+          countryName: country?.name ?? null,
+        },
+      ];
+    }),
+  );
   const driverById = new Map<string, DriverRecord>(
-    driverRows.map((driver) => [
-      driver.id,
-      {
-        ...driver,
-        nationalityAlpha3: nationalityAlpha3ByDriverId.get(driver.id) ?? null,
-      },
-    ]),
+    driverRows.map((driver) => {
+      const country = countryById.get(driver.nationality_country_id);
+      return [
+        driver.id,
+        {
+          id: driver.id,
+          first_name: driver.first_name,
+          last_name: driver.last_name,
+          nationalityAlpha2: country?.alpha2_code ?? null,
+          nationalityName: country?.name ?? null,
+        },
+      ];
+    }),
   );
   const raceById = new Map(races.map((race) => [race.id, race]));
 

@@ -1,3 +1,4 @@
+import { CountryFlag } from "@/components/chrome/country-flag";
 import { TeamLogo } from "@/components/grid/team-logo";
 import { TeamNameLink } from "@/components/grid/team-name-link";
 import type { DriverSeasonView } from "@/lib/driver/types";
@@ -66,7 +67,8 @@ export function DriverSeasonPanel({ view }: DriverSeasonPanelProps) {
               >
                 <TeamLogo team={stint.team} />
                 <div className="min-w-0 flex-1">
-                  <p className="font-semibold text-white">
+                  <p className="flex items-center gap-2 font-semibold text-white">
+                    <CountryFlag alpha2={stint.team.countryAlpha2} name={stint.team.countryName} />
                     <TeamNameLink team={stint.team} year={view.year} className="text-white no-underline hover:text-red-300" />
                   </p>
                   <p className="text-xs text-white/55">

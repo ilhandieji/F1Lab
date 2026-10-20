@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { CountryFlag } from "@/components/chrome/country-flag";
 import { TeamLogo } from "@/components/grid/team-logo";
 import { getTeamLogo } from "@/lib/team-logos";
 import type { ConstructorProfile } from "@/lib/constructor/types";
@@ -44,8 +45,11 @@ export function ConstructorHero({ profile, season }: ConstructorHeroProps) {
             {profile.name}
           </h1>
           <p className="mt-2 text-sm text-white/60">{profile.fullName}</p>
-          <p className="mt-1 text-sm text-white/50">
-            {profile.country} · Active {profile.debutYear}–{profile.careerYears.at(-1) ?? profile.debutYear}
+          <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-white/50">
+            <CountryFlag alpha2={profile.countryAlpha2} name={profile.country} labelled={false} />
+            <span>
+              {profile.country} · Active {profile.debutYear}–{profile.careerYears.at(-1) ?? profile.debutYear}
+            </span>
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             {profile.careerTotals.championshipWins > 0 ? (

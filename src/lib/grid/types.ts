@@ -3,6 +3,8 @@ export type TeamInfo = {
   name: string;
   logoPath: string | null;
   lightLogo: boolean;
+  countryAlpha2?: string | null;
+  countryName?: string | null;
 };
 
 export type GridDriver = {
@@ -12,7 +14,8 @@ export type GridDriver = {
   position: string;
   points: number;
   team: TeamInfo;
-  nationalityAlpha3?: string | null;
+  nationalityAlpha2: string | null;
+  nationalityName: string | null;
   portraitUrl?: string | null;
 };
 
@@ -34,6 +37,8 @@ export type ActivityDriver = {
   weekends: number;
   teams: TeamInfo[];
   openedSeason: boolean;
+  nationalityAlpha2: string | null;
+  nationalityName: string | null;
   portraitUrl?: string | null;
 };
 
@@ -41,12 +46,16 @@ export type TestDriver = {
   id: string;
   name: string;
   teams: TeamInfo[];
+  nationalityAlpha2: string | null;
+  nationalityName: string | null;
   portraitUrl?: string | null;
 };
 
 export type ActivityDriverRef = {
   id: string;
   name: string;
+  nationalityAlpha2: string | null;
+  nationalityName: string | null;
   portraitUrl?: string | null;
 };
 

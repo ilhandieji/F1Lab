@@ -51,5 +51,6 @@ CLAUDE.md
 
 qodana.yaml
 
-# Local portrait sources (uploaded to object storage separately)
+# Local portrait and flag sources (uploaded to object storage separately)
 /headshots-webp/
+/svg/

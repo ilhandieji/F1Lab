@@ -63,6 +63,8 @@ class ConstructorSeasonService {
       .map((entry) => ({
         driverId: entry.driver_id,
         driverName: entry.driver!.full_name,
+        nationalityAlpha2: entry.driver!.country_driver_nationality_country_idTocountry?.alpha2_code ?? null,
+        nationalityName: entry.driver!.country_driver_nationality_country_idTocountry?.name ?? null,
         portraitUrl: portraitUrlFromMap(portraitMap, entry.driver_id, this.year),
         entrantName: entry.entrant!.name,
         engineManufacturerName: entry.engineManufacturer!.name,
@@ -125,6 +127,9 @@ class ConstructorSeasonService {
           grandPrixName: grandPrixDisplayName(result.race!),
           driverId: result.driver_id,
           driverName: result.driver!.full_name,
+          nationalityAlpha2:
+            result.driver!.country_driver_nationality_country_idTocountry?.alpha2_code ?? null,
+          nationalityName: result.driver!.country_driver_nationality_country_idTocountry?.name ?? null,
           portraitUrl: portraitUrlFromMap(portraitMap, result.driver_id, this.year),
           gridPosition: result.race_grid_position_text,
           finishPosition,
