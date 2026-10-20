@@ -1,12 +1,12 @@
-name: CI
+name: CI and Deploy
 
 on:
   push:
     branches:
-      - main
+      - server
   pull_request:
     branches:
-      - main
+      - server
   workflow_dispatch:
 
 permissions:
@@ -51,3 +51,82 @@ jobs:
         run: pnpm run build
         env:
           DATABASE_URL: postgresql://ci:ci@127.0.0.1:5432/ci
+
+  deploy:
+    name: Deploy F1Lab
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: quality
+    if: github.ref == 'refs/heads/server' && github.event_name != 'pull_request'
+
+    concurrency:
+      group: f1lab-production
+      cancel-in-progress: false
+
+    steps:
+      - name: Validate deploy secrets
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          missing=()
+          for name in VPS_HOST VPS_USER VPS_SSH_KEY; do
+            value="${!name}"
+            if [ -z "$value" ]; then
+              missing+=("$name")
+            fi
+          done
+          if [ "${#missing[@]}" -gt 0 ]; then
+            echo "::error::Missing GitHub Actions secrets: ${missing[*]}"
+            exit 1
+          fi
+
+      - name: Configure SSH
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/f1lab_deploy
+          chmod 600 ~/.ssh/f1lab_deploy
+          if ! ssh-keygen -y -f ~/.ssh/f1lab_deploy >/dev/null 2>&1; then
+            echo "::error::VPS_SSH_KEY is not a valid private key. Re-paste the key in repo secrets (include BEGIN/END lines)."
+            exit 1
+          fi
+          if ! ssh-keyscan -T 20 -t ed25519,rsa,ecdsa "$VPS_HOST" > ~/.ssh/known_hosts 2>ssh-keyscan.log; then
+            echo "::error::Could not fetch SSH host keys for $VPS_HOST"
+            cat ssh-keyscan.log || true
+            exit 1
+          fi
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Deploy to VPS
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          set -euo pipefail
+          set -o pipefail
+          ssh \
+            -i ~/.ssh/f1lab_deploy \
+            -o IdentitiesOnly=yes \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=yes \
+            -o ConnectTimeout=30 \
+            -o ServerAliveInterval=30 \
+            -o ServerAliveCountMax=120 \
+            -o TCPKeepAlive=yes \
+            "$VPS_USER@$VPS_HOST" 2>&1 | tee deploy.log
+          ssh_status=${PIPESTATUS[0]}
+          if [ "$ssh_status" -ne 0 ]; then
+            echo "::error::SSH deploy exited with status $ssh_status. The server may still have finished deploy; check deploy.log and journalctl -u f1lab on the VPS."
+            tail -n 40 deploy.log || true
+            exit "$ssh_status"
+          fi
+          if ! grep -q "DEPLOY SUCCESSFUL" deploy.log; then
+            echo "::error::Deploy script did not report success."
+            exit 1
+          fi
