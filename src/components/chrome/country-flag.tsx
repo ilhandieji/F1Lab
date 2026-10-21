@@ -29,7 +29,7 @@ export function CountryFlag({
         height={12}
         loading="lazy"
         decoding="async"
-        className="h-3 w-[1.125rem] rounded-[1px] object-contain ring-1 ring-white/30"
+        className="h-3 w-[1.125rem] object-contain"
       />
       {labelled ? <span className="sr-only">{label}</span> : null}
     </span>
