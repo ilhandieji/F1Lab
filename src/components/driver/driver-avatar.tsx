@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
 import { ImageZoom } from "@/components/chrome/image-zoom";
+import { useRetryingImage } from "@/components/chrome/use-retrying-image";
 import {
   driverDisplayInitials,
   resolveDriverPortraitUrl,
@@ -46,8 +46,8 @@ export function DriverAvatar({
   const photoUrl =
     photoUrlProp ??
     (portraits ? resolveDriverPortraitUrl(portraits, season ?? null) : null);
-  const [failedUrl, setFailedUrl] = useState<string | null>(null);
-  const showImage = Boolean(photoUrl) && failedUrl !== photoUrl;
+  const image = useRetryingImage(photoUrl);
+  const showImage = image.show && Boolean(photoUrl);
 
   const fallbackLabel =
     abbreviation?.trim() ||
@@ -59,12 +59,14 @@ export function DriverAvatar({
     return (
       <ImageZoom src={photoUrl!} alt={fullName || fallbackLabel} className={frameClass}>
         <Image
+          key={`${photoUrl}-${image.attempt}`}
           src={photoUrl!}
           alt=""
           fill
+          unoptimized
           sizes={variant === "thumb" ? "2rem" : "3rem"}
           className={imageObjectClass[variant]}
-          onError={() => setFailedUrl(photoUrl)}
+          onError={image.onError}
         />
       </ImageZoom>
     );
@@ -74,12 +76,14 @@ export function DriverAvatar({
     <span className={frameClass} aria-hidden={showImage ? true : undefined}>
       {showImage ? (
         <Image
+          key={`${photoUrl}-${image.attempt}`}
           src={photoUrl!}
           alt=""
           fill
+          unoptimized
           sizes={variant === "thumb" ? "2rem" : "3rem"}
           className={imageObjectClass[variant]}
-          onError={() => setFailedUrl(photoUrl)}
+          onError={image.onError}
         />
       ) : (
         <span className={variant === "thumb" ? "text-red-200" : "text-white/85"}>

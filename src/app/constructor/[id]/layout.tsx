@@ -1,7 +1,7 @@
 import { Suspense, type ReactNode } from "react";
 import { notFound } from "next/navigation";
 import { ConstructorProfileLayout } from "@/components/constructor/constructor-profile-layout";
-import { ConstructorSeasonSkeleton } from "@/components/constructor/constructor-season-skeleton";
+import { ConstructorProfileSkeleton } from "@/components/constructor/constructor-profile-skeleton";
 import { getConstructorProfile } from "@/lib/constructor/constructor-profile";
 import { getTeamLogo } from "@/lib/team-logos";
 
@@ -12,7 +12,7 @@ type ConstructorLayoutProps = {
 
 export default function ConstructorLayout({ children, params }: ConstructorLayoutProps) {
   return (
-    <Suspense fallback={<ConstructorSeasonSkeleton />}>
+    <Suspense fallback={<ConstructorProfileSkeleton />}>
       <ConstructorLayoutContent params={params}>{children}</ConstructorLayoutContent>
     </Suspense>
   );

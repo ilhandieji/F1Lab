@@ -1,10 +1,11 @@
 "use client";
 
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { DriverAvatar } from "@/components/driver/driver-avatar";
 import { driverHref } from "@/lib/driver/routes";
 import type { DriverSearchHit } from "@/lib/driver/types";
+import { distinctFullName } from "@/lib/search/name-query";
 
 function SearchFieldSkeleton() {
   return (
@@ -17,9 +18,7 @@ function SearchFieldSkeleton() {
 
 function DriverSearchField() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const initialUrlQuery = searchParams.get("q") ?? "";
-  const [query, setQuery] = useState(initialUrlQuery);
+  const [query, setQuery] = useState("");
   const [results, setResults] = useState<DriverSearchHit[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -33,18 +32,6 @@ function DriverSearchField() {
     window.addEventListener("pointerdown", onPointerDown);
     return () => window.removeEventListener("pointerdown", onPointerDown);
   }, [open]);
-
-  const syncUrl = useCallback(
-    (value: string) => {
-      const params = new URLSearchParams(searchParams.toString());
-      const trimmed = value.trim();
-      if (trimmed) params.set("q", trimmed);
-      else params.delete("q");
-      const queryString = params.toString();
-      router.replace(queryString ? `/?${queryString}` : "/", { scroll: false });
-    },
-    [router, searchParams],
-  );
 
   const fetchResults = useCallback((value: string) => {
     const trimmed = value.trim();
@@ -64,25 +51,24 @@ function DriverSearchField() {
   }, []);
 
   const scheduleSearch = useCallback(
-    (value: string, sync: boolean) => {
+    (value: string) => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
       debounceRef.current = setTimeout(() => {
         fetchResults(value);
-        if (sync) syncUrl(value);
       }, 220);
     },
-    [fetchResults, syncUrl],
+    [fetchResults],
   );
 
   const onChange = (value: string) => {
     setQuery(value);
     setOpen(true);
-    scheduleSearch(value, true);
+    scheduleSearch(value);
   };
 
   const onSelect = (hit: DriverSearchHit) => {
     setOpen(false);
-    setQuery(hit.fullName);
+    setQuery(hit.name);
     router.push(driverHref(hit.id));
   };
 
@@ -132,11 +118,18 @@ function DriverSearchField() {
                   <DriverAvatar
                     photoUrl={hit.portraitUrl}
                     abbreviation={hit.abbreviation}
-                    fullName={hit.fullName}
+                    fullName={hit.name}
                     variant="thumb"
                     zoomable={false}
                   />
-                  <span className="min-w-0 flex-1 font-semibold text-white">{hit.fullName}</span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate font-semibold text-white">{hit.name}</span>
+                    {distinctFullName(hit.name, hit.fullName) ? (
+                      <span className="mt-0.5 block truncate text-xs text-white/55">
+                        {hit.fullName}
+                      </span>
+                    ) : null}
+                  </span>
                   <span className="shrink-0 text-[10px] font-black uppercase tracking-[0.12em] text-white/45">
                     {hit.nationality}
                     {hit.championshipWins > 0 ? ` · ${hit.championshipWins}× WDC` : ""}
