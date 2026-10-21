@@ -1,4 +1,4 @@
-import { grandPrixDisplayName } from "@/lib/race/grand-prix-display";
+import { circuitCountry, grandPrixDisplayName } from "@/lib/race/grand-prix-display";
 import type { SeasonRecords } from "./season-records";
 import type { TeamCatalog } from "./team-catalog";
 import type {
@@ -150,11 +150,15 @@ export class SeasonActivityBuilder {
     const teamsByDriver = new Map<string, Set<string>>();
     const namesByDriver = new Map<string, string>();
     const nationalityByDriver = new Map<string, { alpha2: string | null; name: string | null }>();
-    const eventNames = new Map<number, string>();
+    const eventMeta = new Map<
+      number,
+      { name: string; countryAlpha2: string | null; countryName: string | null }
+    >();
 
     for (const result of raceResults) {
       const { round } = result.race;
       const name = grandPrixDisplayName(result.race);
+      const country = circuitCountry(result.race);
       const lineup =
         lineupsByRound.get(round) ?? new Map<string, Set<string>>();
       const teamDrivers =
@@ -182,7 +186,11 @@ export class SeasonActivityBuilder {
         alpha2: result.driver.nationalityAlpha2,
         name: result.driver.nationalityName,
       });
-      eventNames.set(round, name);
+      eventMeta.set(round, {
+        name,
+        countryAlpha2: country.alpha2,
+        countryName: country.name,
+      });
     }
 
     return {
@@ -191,7 +199,7 @@ export class SeasonActivityBuilder {
       teamsByDriver,
       namesByDriver,
       nationalityByDriver,
-      eventNames,
+      eventMeta,
     };
   }
 
@@ -227,10 +235,16 @@ export class SeasonActivityBuilder {
         if (outgoing.length === 0 && incoming.length === 0) continue;
 
         const team = this.teams.get(teamId);
-        const name = index.eventNames.get(round);
-        if (!team || !name) continue;
+        const meta = index.eventMeta.get(round);
+        if (!team || !meta) continue;
 
-        const event = events.get(round) ?? { round, name, changes: [] };
+        const event = events.get(round) ?? {
+          round,
+          name: meta.name,
+          countryAlpha2: meta.countryAlpha2,
+          countryName: meta.countryName,
+          changes: [],
+        };
         event.changes.push(
           this.toChange({
             round,

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CountryFlag } from "@/components/chrome/country-flag";
+import { GrandPrixName } from "@/components/chrome/grand-prix-name";
 import { ResultMarks } from "@/components/chrome/result-marks";
 import { DriverAvatar } from "@/components/driver/driver-avatar";
 import { driverHref } from "@/lib/driver/routes";
@@ -47,7 +48,13 @@ export function ConstructorRaceLog({ view }: ConstructorRaceLogProps) {
                 {races.map((race, index) => (
                   <tr key={`${race.round}-${race.driverId}-${index}`} className="border-t border-white/10">
                     <td className="py-3 pe-2 font-black text-white/70">{race.round}</td>
-                    <td className="max-w-[10rem] py-3 pe-2 font-medium text-white">{race.grandPrixName}</td>
+                    <td className="max-w-[12rem] py-3 pe-2 font-medium text-white">
+                      <GrandPrixName
+                        name={race.grandPrixName}
+                        countryAlpha2={race.countryAlpha2}
+                        countryName={race.countryName}
+                      />
+                    </td>
                     <td className="py-3 pe-2">
                       <span className="flex items-center gap-2">
                         <DriverAvatar
@@ -93,7 +100,13 @@ export function ConstructorRaceLog({ view }: ConstructorRaceLogProps) {
                     <p className="text-[10px] font-black uppercase tracking-[0.14em] text-red-400/90">
                       R{race.round}
                     </p>
-                    <p className="mt-1 font-semibold text-white">{race.grandPrixName}</p>
+                    <p className="mt-1 font-semibold text-white">
+                      <GrandPrixName
+                        name={race.grandPrixName}
+                        countryAlpha2={race.countryAlpha2}
+                        countryName={race.countryName}
+                      />
+                    </p>
                   </div>
                   <p className="text-xl font-black text-white">{race.points} pts</p>
                 </div>

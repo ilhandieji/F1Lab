@@ -1,3 +1,4 @@
+import { GrandPrixName } from "@/components/chrome/grand-prix-name";
 import { ResultMarks } from "@/components/chrome/result-marks";
 import { TeamLogo } from "@/components/grid/team-logo";
 import type { DriverSeasonView } from "@/lib/driver/types";
@@ -43,7 +44,13 @@ export function DriverRaceLog({ view }: DriverRaceLogProps) {
                 {races.map((race) => (
                   <tr key={race.round} className="border-t border-white/10">
                     <td className="py-3 pe-2 font-black tabular-nums text-white/80">{race.round}</td>
-                    <td className="max-w-[12rem] py-3 pe-2 font-medium text-white">{race.grandPrixName}</td>
+                    <td className="max-w-[14rem] py-3 pe-2 font-medium text-white">
+                      <GrandPrixName
+                        name={race.grandPrixName}
+                        countryAlpha2={race.countryAlpha2}
+                        countryName={race.countryName}
+                      />
+                    </td>
                     <td className="py-3 pe-2">
                       <div className="flex items-center gap-2">
                         <TeamLogo team={race.team} size="compact" />
@@ -78,7 +85,13 @@ export function DriverRaceLog({ view }: DriverRaceLogProps) {
                     <p className="text-xs font-bold uppercase tracking-[0.14em] text-red-300">
                       R{race.round}
                     </p>
-                    <p className="mt-1 font-semibold text-white">{race.grandPrixName}</p>
+                    <p className="mt-1 font-semibold text-white">
+                      <GrandPrixName
+                        name={race.grandPrixName}
+                        countryAlpha2={race.countryAlpha2}
+                        countryName={race.countryName}
+                      />
+                    </p>
                   </div>
                   <p className="text-xl font-black tabular-nums text-white">{race.points} pts</p>
                 </div>
@@ -121,8 +134,13 @@ export function DriverRaceLog({ view }: DriverRaceLogProps) {
               >
                 <div className="flex items-center gap-2">
                   <TeamLogo team={sprint.team} size="compact" />
-                  <span className="text-sm text-white">
-                    R{sprint.round} · {sprint.grandPrixName}
+                  <span className="inline-flex items-center gap-2 text-sm text-white">
+                    <span>R{sprint.round}</span>
+                    <GrandPrixName
+                      name={sprint.grandPrixName}
+                      countryAlpha2={sprint.countryAlpha2}
+                      countryName={sprint.countryName}
+                    />
                   </span>
                 </div>
                 <span className="text-sm font-black tabular-nums text-white">

@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { circuitCountryFor, loadCircuitCountries } from "@/lib/race/circuit-country";
 
 export async function getConstructorProfileRecords(constructorId: string) {
   const record = await prisma["constructor"].findUnique({
@@ -112,6 +113,7 @@ export async function getConstructorSeasonRecords(constructorId: string, year: n
         round: true,
         official_name: true,
         grand_prix: { select: { short_name: true } },
+        circuit_id: true,
       },
       orderBy: { round: "asc" },
     }),
@@ -209,7 +211,10 @@ export async function getConstructorSeasonRecords(constructorId: string, year: n
   const engineManufacturerById = new Map(engineManufacturers.map((entry) => [entry.id, entry]));
   const tyreManufacturerById = new Map(tyreManufacturers.map((entry) => [entry.id, entry]));
   const countryById = new Map(countries.map((entry) => [entry.id, entry.name]));
-  const raceById = new Map(races.map((race) => [race.id, race]));
+  const circuitCountries = await loadCircuitCountries(races.map((race) => race.circuit_id));
+  const raceById = new Map(
+    races.map((race) => [race.id, { ...race, ...circuitCountryFor(circuitCountries, race.circuit_id) }]),
+  );
 
   const entrantCountryById = new Map(
     seasonEntrants.map((entry) => [entry.entrant_id, countryById.get(entry.country_id) ?? "—"]),

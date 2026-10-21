@@ -49,27 +49,31 @@ export function ConstructorStandings({
           </div>
           <ol className="grid gap-1.5" aria-label={`${year} Constructors' Championship standings`}>
             {standings.map(({ team, position, points }) => (
-              <li key={team.id}>
+              <li
+                key={team.id}
+                className="grid min-h-12 grid-cols-[2.25rem_auto_minmax(0,1fr)_auto] items-center rounded-lg border border-white/10 bg-[linear-gradient(105deg,rgba(28,28,31,0.94),rgba(20,20,22,0.94)_75%)] transition hover:border-red-500/40 md:grid-cols-[2.75rem_auto_minmax(0,1fr)_auto]"
+              >
+                <strong className="text-center text-sm font-black tabular-nums text-white">
+                  {position}
+                </strong>
+                <TeamLogo team={team} size="compact" />
                 <Link
                   href={constructorHref(team.id, year)}
-                  className={`group grid min-h-12 grid-cols-[2.25rem_minmax(0,1fr)_auto] items-center rounded-lg border border-white/10 bg-[linear-gradient(105deg,rgba(28,28,31,0.94),rgba(20,20,22,0.94)_75%)] transition hover:border-red-500/40 md:grid-cols-[2.75rem_minmax(0,1fr)_auto] ${focusRing}`}
+                  className={`flex min-w-0 items-center gap-2 px-2 py-2 ${focusRing}`}
                 >
-                  <strong className="text-center text-sm font-black tabular-nums text-white">
-                    {position}
+                  <CountryFlag alpha2={team.countryAlpha2} name={team.countryName} />
+                  <h3 className="truncate text-base font-black uppercase tracking-[-0.04em] text-white">
+                    {team.name}
+                  </h3>
+                </Link>
+                <Link
+                  href={constructorHref(team.id, year)}
+                  className={`flex items-baseline gap-1 pe-3 ${focusRing}`}
+                >
+                  <strong className="text-lg font-black tabular-nums tracking-[-0.04em] text-white">
+                    {points.toLocaleString("en-US", { maximumFractionDigits: 2 })}
                   </strong>
-                  <div className="flex min-w-0 items-center gap-2 px-2 py-2">
-                    <TeamLogo team={team} size="compact" />
-                    <CountryFlag alpha2={team.countryAlpha2} name={team.countryName} />
-                    <h3 className="truncate text-base font-black uppercase tracking-[-0.04em] text-white">
-                      {team.name}
-                    </h3>
-                  </div>
-                  <div className="flex items-baseline gap-1 pe-3">
-                    <strong className="text-lg font-black tabular-nums tracking-[-0.04em] text-white">
-                      {points.toLocaleString("en-US", { maximumFractionDigits: 2 })}
-                    </strong>
-                    <span className="text-[11px] uppercase tracking-[0.14em] text-white/65">Pts</span>
-                  </div>
+                  <span className="text-[11px] uppercase tracking-[0.14em] text-white/65">Pts</span>
                 </Link>
               </li>
             ))}

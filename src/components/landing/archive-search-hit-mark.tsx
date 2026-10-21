@@ -18,6 +18,7 @@ export function DriverSearchMark({
       abbreviation={abbreviation}
       fullName={fullName}
       variant="thumb"
+      zoomable={false}
     />
   );
 }

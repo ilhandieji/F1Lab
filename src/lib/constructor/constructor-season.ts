@@ -4,7 +4,7 @@ import {
   getPortraitMapForDriverIds,
   portraitUrlFromMap,
 } from "@/lib/driver/driver-portrait-records";
-import { grandPrixDisplayName } from "@/lib/race/grand-prix-display";
+import { circuitCountry, grandPrixDisplayName } from "@/lib/race/grand-prix-display";
 import { getTeamLogo } from "@/lib/team-logos";
 import { getConstructorSeasonRecords } from "./constructor-records";
 import type { ConstructorSeasonView } from "./types";
@@ -104,15 +104,20 @@ class ConstructorSeasonService {
 
     const championshipProgression = records.raceStandings
       .filter((row) => row.race && row.engineManufacturer)
-      .map((row) => ({
-        round: row.race!.round,
-        grandPrixName: grandPrixDisplayName(row.race!),
-        position: row.position_text,
-        positionNumber: row.position_number,
-        points: pointsToNumber(row.points),
-        championshipWon: row.championship_won,
-        engineManufacturerName: row.engineManufacturer!.name,
-      }));
+      .map((row) => {
+        const country = circuitCountry(row.race!);
+        return {
+          round: row.race!.round,
+          grandPrixName: grandPrixDisplayName(row.race!),
+          countryAlpha2: country.alpha2,
+          countryName: country.name,
+          position: row.position_text,
+          positionNumber: row.position_number,
+          points: pointsToNumber(row.points),
+          championshipWon: row.championship_won,
+          engineManufacturerName: row.engineManufacturer!.name,
+        };
+      });
 
     const races = records.raceResults
       .filter(
@@ -122,9 +127,12 @@ class ConstructorSeasonService {
       .map((result) => {
         const finishPosition = result.position_text;
         const retired = isRetirement(finishPosition, result.race_reason_retired);
+        const country = circuitCountry(result.race!);
         return {
           round: result.race!.round,
           grandPrixName: grandPrixDisplayName(result.race!),
+          countryAlpha2: country.alpha2,
+          countryName: country.name,
           driverId: result.driver_id,
           driverName: result.driver!.full_name,
           nationalityAlpha2:

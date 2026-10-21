@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { focusRing } from "@/components/chrome/focus";
+import { GrandPrixName } from "@/components/chrome/grand-prix-name";
 import { driverHref } from "@/lib/driver/routes";
 import type { ActivityChangeKind, ActivityEvent } from "@/lib/grid/types";
 import { DriverNameList } from "./driver-name-link";
@@ -43,7 +44,13 @@ export function ActivityTimeline({ events, year }: { events: ActivityEvent[]; ye
             {event.round}
           </span>
           <div className="mb-2 flex flex-col justify-between gap-1 sm:flex-row sm:items-start">
-            <h3 className="text-sm font-extrabold text-white">{event.name}</h3>
+            <h3 className="text-sm font-extrabold text-white">
+              <GrandPrixName
+                name={event.name}
+                countryAlpha2={event.countryAlpha2}
+                countryName={event.countryName}
+              />
+            </h3>
             <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-white/65">
               {event.changes.length} seat {event.changes.length === 1 ? "change" : "changes"}
             </span>

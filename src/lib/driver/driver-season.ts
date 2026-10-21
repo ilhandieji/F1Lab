@@ -1,6 +1,6 @@
 import { cacheLife } from "next/cache";
 import { pointsToNumber } from "@/lib/decimal";
-import { grandPrixDisplayName } from "@/lib/race/grand-prix-display";
+import { circuitCountry, grandPrixDisplayName } from "@/lib/race/grand-prix-display";
 import { TeamCatalog } from "@/lib/grid/team-catalog";
 import { getSeasonRecords } from "@/lib/grid/season-records";
 import { getDriverSeasonRecords } from "./driver-records";
@@ -42,9 +42,12 @@ class DriverSeasonService {
       .map((result) => {
         const finishPosition = result.position_text;
         const retired = isRetirement(finishPosition, result.race_reason_retired);
+        const country = circuitCountry(result.race!);
         return {
           round: result.race!.round,
           grandPrixName: grandPrixDisplayName(result.race!),
+          countryAlpha2: country.alpha2,
+          countryName: country.name,
           team: teams.register(result.constructor!),
           gridPosition: result.race_grid_position_text,
           finishPosition,
@@ -61,13 +64,18 @@ class DriverSeasonService {
 
     const sprints: DriverSprintResult[] = records.sprintResults
       .filter((result) => result.race && result.constructor)
-      .map((result) => ({
-        round: result.race!.round,
-        grandPrixName: result.race!.official_name,
-        team: teams.register(result.constructor!),
-        finishPosition: result.position_text,
-        points: racePointsToNumber(result.race_points),
-      }))
+      .map((result) => {
+        const country = circuitCountry(result.race!);
+        return {
+          round: result.race!.round,
+          grandPrixName: grandPrixDisplayName(result.race!),
+          countryAlpha2: country.alpha2,
+          countryName: country.name,
+          team: teams.register(result.constructor!),
+          finishPosition: result.position_text,
+          points: racePointsToNumber(result.race_points),
+        };
+      })
       .sort((a, b) => a.round - b.round);
 
     const seasonDriver = records.seasonDriver;

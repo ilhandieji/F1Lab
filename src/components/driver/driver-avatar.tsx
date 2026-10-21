@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { ImageZoom } from "@/components/chrome/image-zoom";
 import {
   driverDisplayInitials,
   resolveDriverPortraitUrl,
@@ -27,6 +28,8 @@ type DriverAvatarProps = {
   abbreviation?: string | null;
   fullName?: string;
   variant?: DriverAvatarVariant;
+  /** Turn off inside another button, such as a search option. */
+  zoomable?: boolean;
   className?: string;
 };
 
@@ -37,6 +40,7 @@ export function DriverAvatar({
   abbreviation,
   fullName = "",
   variant = "row",
+  zoomable = true,
   className = "",
 }: DriverAvatarProps) {
   const photoUrl =
@@ -49,11 +53,25 @@ export function DriverAvatar({
     abbreviation?.trim() ||
     (fullName ? driverDisplayInitials(fullName) : "?");
 
+  const frameClass = `relative grid place-items-center overflow-hidden border border-white/10 bg-[linear-gradient(145deg,rgba(40,40,45,0.95),rgba(18,18,22,0.98))] font-black uppercase tracking-tight text-white/90 ${variantClass[variant]} ${className}`;
+
+  if (showImage && zoomable) {
+    return (
+      <ImageZoom src={photoUrl!} alt={fullName || fallbackLabel} className={frameClass}>
+        <Image
+          src={photoUrl!}
+          alt=""
+          fill
+          sizes={variant === "thumb" ? "2rem" : "3rem"}
+          className={imageObjectClass[variant]}
+          onError={() => setFailedUrl(photoUrl)}
+        />
+      </ImageZoom>
+    );
+  }
+
   return (
-    <span
-      className={`relative grid place-items-center overflow-hidden border border-white/10 bg-[linear-gradient(145deg,rgba(40,40,45,0.95),rgba(18,18,22,0.98))] font-black uppercase tracking-tight text-white/90 ${variantClass[variant]} ${className}`}
-      aria-hidden={showImage ? true : undefined}
-    >
+    <span className={frameClass} aria-hidden={showImage ? true : undefined}>
       {showImage ? (
         <Image
           src={photoUrl!}

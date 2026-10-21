@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { CountryFlag } from "@/components/chrome/country-flag";
+import { GrandPrixName } from "@/components/chrome/grand-prix-name";
 import { TeamLogo } from "@/components/grid/team-logo";
 import { DriverAvatar } from "@/components/driver/driver-avatar";
 import { driverHref } from "@/lib/driver/routes";
@@ -226,7 +227,13 @@ export function ConstructorSeasonPanel({ view }: ConstructorSeasonPanelProps) {
                 {championshipProgression.map((row) => (
                   <tr key={row.round} className="border-t border-white/10">
                     <td className="py-2 pe-2 font-black text-white/70">{row.round}</td>
-                    <td className="max-w-[12rem] py-2 pe-2 text-white">{row.grandPrixName}</td>
+                    <td className="max-w-[14rem] py-2 pe-2 text-white">
+                      <GrandPrixName
+                        name={row.grandPrixName}
+                        countryAlpha2={row.countryAlpha2}
+                        countryName={row.countryName}
+                      />
+                    </td>
                     <td className="py-2 pe-2 font-semibold text-white">{row.position}</td>
                     <td className="py-2 pe-2 text-white/60">{row.engineManufacturerName}</td>
                     <td className="py-2 text-end tabular-nums text-white">{row.points}</td>
