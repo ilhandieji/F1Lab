@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { circuitCountryFor, loadCircuitCountries } from "@/lib/race/circuit-country";
 
 export async function getDriverProfileRecords(driverId: string) {
   return prisma.driver.findUnique({
@@ -61,6 +62,7 @@ export async function getDriverSeasonRecords(driverId: string, year: number) {
         round: true,
         official_name: true,
         grand_prix: { select: { short_name: true } },
+        circuit_id: true,
       },
       orderBy: { round: "asc" },
     }),
@@ -102,7 +104,10 @@ export async function getDriverSeasonRecords(driverId: string, year: number) {
       ] as const;
     }),
   );
-  const raceById = new Map(races.map((race) => [race.id, race]));
+  const circuitCountries = await loadCircuitCountries(races.map((race) => race.circuit_id));
+  const raceById = new Map(
+    races.map((race) => [race.id, { ...race, ...circuitCountryFor(circuitCountries, race.circuit_id) }]),
+  );
 
   return {
     seasonDriver,

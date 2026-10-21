@@ -83,6 +83,8 @@ export type ActivityChange = {
 export type ActivityEvent = {
   round: number;
   name: string;
+  countryAlpha2: string | null;
+  countryName: string | null;
   changes: ActivityChange[];
 };
 

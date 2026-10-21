@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { circuitCountryFor, loadCircuitCountries } from "@/lib/race/circuit-country";
 
 const driverSelect = {
   id: true,
@@ -11,6 +12,7 @@ const raceSelect = {
   round: true,
   official_name: true,
   grand_prix: { select: { short_name: true } },
+  circuit_id: true,
 } as const;
 
 type DriverRecord = {
@@ -152,7 +154,10 @@ export async function getSeasonRecords(year: number) {
       ];
     }),
   );
-  const raceById = new Map(races.map((race) => [race.id, race]));
+  const circuitCountries = await loadCircuitCountries(races.map((race) => race.circuit_id));
+  const raceById = new Map(
+    races.map((race) => [race.id, { ...race, ...circuitCountryFor(circuitCountries, race.circuit_id) }]),
+  );
 
   return {
     driverStandings: driverStandings.map((standing) => ({

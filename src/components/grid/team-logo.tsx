@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { ImageZoom } from "@/components/chrome/image-zoom";
 import type { TeamInfo } from "@/lib/grid/types";
 
 type TeamLogoProps = {
@@ -29,13 +30,13 @@ export function TeamLogo({ team, size = "default", className = "" }: TeamLogoPro
   }
 
   return (
-    <span className={boxClass}>
+    <ImageZoom src={team.logoPath} alt={`${team.name} logo`} light={team.lightLogo} className={boxClass}>
       <Image
         src={team.logoPath}
-        alt={`${team.name} logo`}
+        alt=""
         fill
         className={`object-contain ${team.lightLogo ? "brightness-0 invert" : ""}`}
       />
-    </span>
+    </ImageZoom>
   );
 }

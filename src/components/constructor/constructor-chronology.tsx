@@ -34,22 +34,24 @@ export function ConstructorChronology({ links }: ConstructorChronologyProps) {
           };
           return (
             <li key={`${link.otherConstructorId}-${link.yearFrom}`}>
-              <Link
-                href={constructorHref(link.otherConstructorId, link.yearFrom)}
-                className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 transition hover:border-red-500/50 hover:bg-red-500/5"
-              >
-                <span className="flex min-w-0 items-center gap-2.5">
-                  <TeamLogo team={team} size="compact" />
-                  <CountryFlag
-                    alpha2={link.otherConstructorCountryAlpha2}
-                    name={link.otherConstructorCountryName}
-                  />
-                  <span className="truncate font-semibold text-white">{link.otherConstructorName}</span>
-                </span>
-                <span className="shrink-0 text-[10px] font-black uppercase tracking-[0.14em] text-white/50">
-                  {formatYears(link.yearFrom, link.yearTo)}
-                </span>
-              </Link>
+              <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 transition hover:border-red-500/50 hover:bg-red-500/5">
+                <TeamLogo team={team} size="compact" />
+                <Link
+                  href={constructorHref(link.otherConstructorId, link.yearFrom)}
+                  className="flex min-w-0 flex-1 items-center justify-between gap-3"
+                >
+                  <span className="flex min-w-0 items-center gap-2.5">
+                    <CountryFlag
+                      alpha2={link.otherConstructorCountryAlpha2}
+                      name={link.otherConstructorCountryName}
+                    />
+                    <span className="truncate font-semibold text-white">{link.otherConstructorName}</span>
+                  </span>
+                  <span className="shrink-0 text-[10px] font-black uppercase tracking-[0.14em] text-white/50">
+                    {formatYears(link.yearFrom, link.yearTo)}
+                  </span>
+                </Link>
+              </div>
             </li>
           );
         })}

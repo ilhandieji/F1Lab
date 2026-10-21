@@ -111,6 +111,8 @@ export type ConstructorTyreEntry = {
 export type ConstructorChampionshipSnapshot = {
   round: number;
   grandPrixName: string;
+  countryAlpha2: string | null;
+  countryName: string | null;
   position: string;
   positionNumber: number | null;
   points: number;
@@ -121,6 +123,8 @@ export type ConstructorChampionshipSnapshot = {
 export type ConstructorRaceResult = {
   round: number;
   grandPrixName: string;
+  countryAlpha2: string | null;
+  countryName: string | null;
   driverId: string;
   driverName: string;
   nationalityAlpha2: string | null;

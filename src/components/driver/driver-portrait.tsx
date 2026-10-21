@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { ImageZoom } from "@/components/chrome/image-zoom";
 import { resolveDriverPortraitUrl } from "@/lib/driver/driver-photos";
 import type { DriverProfile } from "@/lib/driver/types";
 
@@ -20,14 +21,16 @@ export function DriverPortrait({ profile, season, className = "" }: DriverPortra
       className={`relative overflow-hidden rounded-2xl border border-white/10 bg-[linear-gradient(145deg,rgba(40,40,45,0.95),rgba(18,18,22,0.98))] ${className}`}
     >
       {photoUrl && failedUrl !== photoUrl ? (
-        <Image
-          src={photoUrl}
-          alt=""
-          fill
-          sizes="(min-width: 768px) 12rem, 100vw"
-          className="object-cover object-[center_22%] scale-[1.05]"
-          onError={() => setFailedUrl(photoUrl)}
-        />
+        <ImageZoom src={photoUrl} alt={profile.fullName} className="absolute inset-0 overflow-hidden">
+          <Image
+            src={photoUrl}
+            alt=""
+            fill
+            sizes="(min-width: 768px) 12rem, 100vw"
+            className="object-cover object-[center_22%] scale-[1.05]"
+            onError={() => setFailedUrl(photoUrl)}
+          />
+        </ImageZoom>
       ) : (
         <div className="flex h-full min-h-[12rem] flex-col items-center justify-center gap-2 p-6">
           <span className="text-4xl font-black tracking-tight text-white/90">{profile.abbreviation}</span>

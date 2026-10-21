@@ -43,39 +43,40 @@ export function DriverGrid({ year, drivers }: DriverGridProps) {
           </div>
           <ol className="grid gap-2" aria-label={`${year} season-start driver grid`}>
             {drivers.map((driver) => (
-              <li key={driver.id}>
+              <li
+                key={driver.id}
+                className="grid min-h-[4.25rem] grid-cols-[2.25rem_minmax(0,1fr)_auto] items-stretch rounded-xl border border-white/10 bg-[linear-gradient(105deg,rgba(28,28,31,0.94),rgba(20,20,22,0.94)_75%)] py-1 transition hover:border-red-500/40 md:min-h-12 md:grid-cols-[2.75rem_minmax(0,1fr)_auto] md:items-center md:py-0"
+              >
+                <strong className="flex items-center justify-center text-sm font-black tabular-nums text-white">
+                  {driver.position}
+                </strong>
+                <div className="flex min-w-0 items-center gap-2.5 px-2 py-2">
+                  <DriverAvatar
+                    photoUrl={driver.portraitUrl}
+                    fullName={`${driver.firstName} ${driver.lastName}`}
+                    variant="row"
+                  />
+                  <TeamLogo team={driver.team} size="compact" />
+                  <Link href={driverHref(driver.id, year)} className={`min-w-0 flex-1 ${focusRing}`}>
+                    <h3 className="text-base font-black uppercase leading-tight tracking-[-0.04em] text-white line-clamp-2 md:truncate md:line-clamp-none">
+                      {driver.lastName}
+                    </h3>
+                    <p className="mt-0.5 text-xs leading-snug text-white/70 line-clamp-2 md:truncate md:line-clamp-none">
+                      {driver.firstName} · {driver.team.name}
+                    </p>
+                  </Link>
+                </div>
                 <Link
                   href={driverHref(driver.id, year)}
-                  className={`group grid min-h-[4.25rem] grid-cols-[2.25rem_minmax(0,1fr)_auto] items-stretch rounded-xl border border-white/10 bg-[linear-gradient(105deg,rgba(28,28,31,0.94),rgba(20,20,22,0.94)_75%)] py-1 transition hover:border-red-500/40 md:min-h-12 md:grid-cols-[2.75rem_minmax(0,1fr)_auto] md:items-center md:py-0 ${focusRing}`}
+                  className={`flex flex-col items-end justify-center gap-1 pe-3 text-end ${focusRing}`}
                 >
-                  <strong className="flex items-center justify-center text-sm font-black tabular-nums text-white">
-                    {driver.position}
-                  </strong>
-                  <div className="flex min-w-0 items-center gap-2.5 px-2 py-2">
-                    <DriverAvatar
-                      photoUrl={driver.portraitUrl}
-                      fullName={`${driver.firstName} ${driver.lastName}`}
-                      variant="row"
-                    />
-                    <TeamLogo team={driver.team} size="compact" />
-                    <div className="min-w-0 flex-1">
-                      <h3 className="text-base font-black uppercase leading-tight tracking-[-0.04em] text-white line-clamp-2 md:truncate md:line-clamp-none">
-                        {driver.lastName}
-                      </h3>
-                      <p className="mt-0.5 text-xs leading-snug text-white/70 line-clamp-2 md:truncate md:line-clamp-none">
-                        {driver.firstName} · {driver.team.name}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-end justify-center gap-1 pe-3 text-end">
-                    <CountryFlag alpha2={driver.nationalityAlpha2} name={driver.nationalityName} />
-                    <div className="flex items-baseline gap-1">
-                      <strong className="text-lg font-black tabular-nums tracking-[-0.04em] text-white">
-                        {driver.points}
-                      </strong>
-                      <span className="text-[11px] uppercase tracking-[0.14em] text-white/65">Pts</span>
-                    </div>
-                  </div>
+                  <CountryFlag alpha2={driver.nationalityAlpha2} name={driver.nationalityName} />
+                  <span className="flex items-baseline gap-1">
+                    <strong className="text-lg font-black tabular-nums tracking-[-0.04em] text-white">
+                      {driver.points}
+                    </strong>
+                    <span className="text-[11px] uppercase tracking-[0.14em] text-white/65">Pts</span>
+                  </span>
                 </Link>
               </li>
             ))}

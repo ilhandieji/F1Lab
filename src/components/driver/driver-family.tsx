@@ -21,25 +21,27 @@ export function DriverFamily({ family, season }: DriverFamilyProps) {
       <ul className="grid gap-2">
         {family.map((link) => (
           <li key={`${link.otherDriverId}-${link.type}`}>
-            <Link
-              href={driverHref(link.otherDriverId, season)}
-              className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 transition hover:border-red-500/50 hover:bg-red-500/5"
-            >
-              <span className="flex min-w-0 items-center gap-3">
-                <DriverAvatar
-                  portraits={link.portraits}
-                  season={season}
-                  abbreviation={link.otherDriverAbbreviation}
-                  fullName={link.otherDriverName}
-                  variant="row"
-                />
-                <CountryFlag alpha2={link.nationalityAlpha2} name={link.nationalityName} />
-                <span className="truncate font-semibold text-white">{link.otherDriverName}</span>
-              </span>
-              <span className="text-[10px] font-black uppercase tracking-[0.14em] text-white/50">
-                {link.type.replace(/_/g, " ")}
-              </span>
-            </Link>
+            <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 transition hover:border-red-500/50 hover:bg-red-500/5">
+              <DriverAvatar
+                portraits={link.portraits}
+                season={season}
+                abbreviation={link.otherDriverAbbreviation}
+                fullName={link.otherDriverName}
+                variant="row"
+              />
+              <Link
+                href={driverHref(link.otherDriverId, season)}
+                className="flex min-w-0 flex-1 items-center justify-between gap-3"
+              >
+                <span className="flex min-w-0 items-center gap-3">
+                  <CountryFlag alpha2={link.nationalityAlpha2} name={link.nationalityName} />
+                  <span className="truncate font-semibold text-white">{link.otherDriverName}</span>
+                </span>
+                <span className="text-[10px] font-black uppercase tracking-[0.14em] text-white/50">
+                  {link.type.replace(/_/g, " ")}
+                </span>
+              </Link>
+            </div>
           </li>
         ))}
       </ul>

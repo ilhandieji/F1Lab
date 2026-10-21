@@ -82,6 +82,8 @@ export type DriverTeamStint = {
 export type DriverRaceResult = {
   round: number;
   grandPrixName: string;
+  countryAlpha2: string | null;
+  countryName: string | null;
   team: TeamInfo;
   gridPosition: string | null;
   finishPosition: string;
@@ -97,6 +99,8 @@ export type DriverRaceResult = {
 export type DriverSprintResult = {
   round: number;
   grandPrixName: string;
+  countryAlpha2: string | null;
+  countryName: string | null;
   team: TeamInfo;
   finishPosition: string;
   points: number;

@@ -134,6 +134,7 @@ function DriverSearchField() {
                     abbreviation={hit.abbreviation}
                     fullName={hit.fullName}
                     variant="thumb"
+                    zoomable={false}
                   />
                   <span className="min-w-0 flex-1 font-semibold text-white">{hit.fullName}</span>
                   <span className="shrink-0 text-[10px] font-black uppercase tracking-[0.12em] text-white/45">
