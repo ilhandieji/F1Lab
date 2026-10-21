@@ -53,4 +53,3 @@ qodana.yaml
 
 # Local portrait and flag sources (uploaded to object storage separately)
 /headshots-webp/
-/svg/
