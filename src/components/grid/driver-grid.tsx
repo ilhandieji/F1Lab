@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { CountryFlag } from "@/components/chrome/country-flag";
 import { focusRing } from "@/components/chrome/focus";
 import { DriverAvatar } from "@/components/driver/driver-avatar";
@@ -12,6 +13,9 @@ type DriverGridProps = {
 };
 
 export function DriverGrid({ year, drivers }: DriverGridProps) {
+  const t = useTranslations("Grid");
+  const common = useTranslations("Common");
+
   return (
     <section
       id="grid-drivers-panel"
@@ -21,13 +25,13 @@ export function DriverGrid({ year, drivers }: DriverGridProps) {
     >
       <div className="mb-4 flex flex-col gap-2 border-b border-white/10 pb-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <span className="text-[11px] font-black uppercase tracking-[0.18em] text-red-400">WDC</span>
+          <span className="text-[11px] font-black uppercase tracking-[0.18em] text-red-400">{t("wdc")}</span>
           <h2 className="text-xl font-black tracking-[-0.04em] text-white md:text-2xl">
-            Drivers&apos; standings
+            {t("driversStandings")}
           </h2>
         </div>
         <p className="max-w-xl text-sm text-white/70">
-          Points in championship order.
+          {t("pointsOrder")}
         </p>
       </div>
 
@@ -37,17 +41,17 @@ export function DriverGrid({ year, drivers }: DriverGridProps) {
             className="grid grid-cols-[2.25rem_minmax(0,1fr)_auto] gap-x-1 px-1 py-2 text-xs font-bold uppercase tracking-[0.14em] text-white/70 md:grid-cols-[2.75rem_minmax(0,1fr)_auto] md:gap-x-2 md:px-3"
             aria-hidden="true"
           >
-            <span>Pos</span>
-            <span>Driver</span>
-            <span className="text-end">Pts</span>
+            <span>{common("pos")}</span>
+            <span>{common("driver")}</span>
+            <span className="text-end">{common("pts")}</span>
           </div>
-          <ol className="grid gap-2" aria-label={`${year} season-start driver grid`}>
+          <ol className="grid gap-2" aria-label={t("driverGrid", { year })}>
             {drivers.map((driver) => (
               <li
                 key={driver.id}
                 className="grid min-h-[4.25rem] grid-cols-[2.25rem_minmax(0,1fr)_auto] items-stretch rounded-xl border border-white/10 bg-[linear-gradient(105deg,rgba(28,28,31,0.94),rgba(20,20,22,0.94)_75%)] py-1 transition hover:border-red-500/40 md:min-h-12 md:grid-cols-[2.75rem_minmax(0,1fr)_auto] md:items-center md:py-0"
               >
-                <strong className="flex items-center justify-center text-sm font-black tabular-nums text-white">
+                <strong dir="ltr" className="flex items-center justify-center text-sm font-black tabular-nums text-white">
                   {driver.position}
                 </strong>
                 <div className="flex min-w-0 items-center gap-2.5 px-2 py-2">
@@ -58,7 +62,7 @@ export function DriverGrid({ year, drivers }: DriverGridProps) {
                   />
                   <TeamLogo team={driver.team} size="compact" />
                   <Link href={driverHref(driver.id, year)} className={`min-w-0 flex-1 ${focusRing}`}>
-                    <h3 className="text-base font-black uppercase leading-tight tracking-[-0.04em] text-white line-clamp-2 md:truncate md:line-clamp-none">
+                    <h3 lang="en" className="text-base font-black uppercase leading-tight tracking-[-0.04em] text-white line-clamp-2 md:truncate md:line-clamp-none">
                       {driver.lastName}
                     </h3>
                     <p className="mt-0.5 text-xs leading-snug text-white/70 line-clamp-2 md:truncate md:line-clamp-none">
@@ -72,10 +76,10 @@ export function DriverGrid({ year, drivers }: DriverGridProps) {
                 >
                   <CountryFlag alpha2={driver.nationalityAlpha2} name={driver.nationalityName} />
                   <span className="flex items-baseline gap-1">
-                    <strong className="text-lg font-black tabular-nums tracking-[-0.04em] text-white">
+                    <strong dir="ltr" className="text-lg font-black tabular-nums tracking-[-0.04em] text-white">
                       {driver.points}
                     </strong>
-                    <span className="text-[11px] uppercase tracking-[0.14em] text-white/65">Pts</span>
+                    <span className="text-[11px] uppercase tracking-[0.14em] text-white/65">{common("pts")}</span>
                   </span>
                 </Link>
               </li>
@@ -84,13 +88,13 @@ export function DriverGrid({ year, drivers }: DriverGridProps) {
         </>
       ) : (
         <p className="rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm leading-6 text-white/70">
-          No standings for {year} yet. Pick another season or check back later.
+          {t("noStandings", { year })}
         </p>
       )}
 
       <footer className="mt-4 flex flex-wrap items-center justify-between gap-2 text-xs font-bold uppercase tracking-[0.14em] text-white/65">
-        <span>Drivers&apos; standings</span>
-        <span>{drivers.length} drivers</span>
+        <span>{t("driversStandings")}</span>
+        <span dir="ltr">{t("driverCount", { count: drivers.length })}</span>
         <span>{year}</span>
       </footer>
     </section>

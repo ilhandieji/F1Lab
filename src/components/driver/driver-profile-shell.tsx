@@ -8,6 +8,7 @@ import {
   type ReactNode,
   type TouchEvent,
 } from "react";
+import { useTranslations } from "next-intl";
 import { DriverProfileFocusBar } from "@/components/chrome/profile-focus-bar";
 import type { DriverProfile, DriverTabId } from "@/lib/driver/types";
 import { archiveMainClass } from "@/lib/layout";
@@ -25,6 +26,7 @@ type DriverProfileShellProps = {
 };
 
 function DriverProfileShellBody({ profile, season, activeTab, children }: DriverProfileShellProps) {
+  const common = useTranslations("Common");
   const resultsOnly = activeTab === "races";
   const { previous, next, navigate } = useDriverNavigation(profile.id, profile.careerYears, season);
   const [announcement, setAnnouncement] = useState("");
@@ -32,10 +34,10 @@ function DriverProfileShellBody({ profile, season, activeTab, children }: Driver
 
   const goTo = useCallback(
     (targetSeason: number) => {
-      setAnnouncement(`Season ${targetSeason}`);
+      setAnnouncement(common("seasonAnnouncement", { year: targetSeason }));
       navigate(targetSeason);
     },
-    [navigate],
+    [common, navigate],
   );
 
   useEffect(() => {

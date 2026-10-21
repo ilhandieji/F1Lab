@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { constructorHref } from "@/lib/constructor/routes";
 import type { TeamInfo } from "@/lib/grid/types";
 

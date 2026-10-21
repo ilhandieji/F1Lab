@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import type { ReactNode } from "react";
 import { CountryFlag } from "@/components/chrome/country-flag";
 import { GrandPrixName } from "@/components/chrome/grand-prix-name";
@@ -27,6 +28,8 @@ function DetailSection({
 }
 
 export function ConstructorSeasonPanel({ view }: ConstructorSeasonPanelProps) {
+  const t = useTranslations("Common");
+  const teamText = useTranslations("Constructor");
   const { standing, totals, entrantRegistrations, lineup, chassis, engines, tyres, championshipProgression } =
     view;
 
@@ -42,42 +45,42 @@ export function ConstructorSeasonPanel({ view }: ConstructorSeasonPanelProps) {
           <TeamLogo team={view.team} size="featured" />
           <div>
             <span className="text-[10px] font-black uppercase tracking-[0.18em] text-red-400">
-              {view.year} season
+              {t("seasonLabel", { year: view.year })}
             </span>
-            <h2 className="text-xl font-black tracking-[-0.04em] text-white">Entry list</h2>
+            <h2 className="text-xl font-black tracking-[-0.04em] text-white">{teamText("entryList")}</h2>
           </div>
         </div>
         {standing ? (
           <div className="text-end">
-            <p className="text-xs font-bold uppercase tracking-[0.12em] text-white/70">Standing</p>
+            <p className="text-xs font-bold uppercase tracking-[0.12em] text-white/70">{t("standing")}</p>
             <p className="text-2xl font-black text-white">
-              P{standing.position}
+              <span dir="ltr">{t("position", { position: standing.position })}</span>
               {standing.championshipWon ? (
-                <span className="ms-2 text-sm text-red-400">Champion</span>
+                <span className="ms-2 text-sm text-red-400">{t("champion")}</span>
               ) : null}
             </p>
             <p className="text-sm text-white/60">
-              {standing.points} pts · {standing.engineManufacturerName}
+              {t("pointsValue", { points: standing.points })} · <span lang="en">{standing.engineManufacturerName}</span>
             </p>
           </div>
         ) : (
-          <p className="text-sm text-white/50">No championship standing for this year.</p>
+          <p className="text-sm text-white/50">{t("noStanding")}</p>
         )}
       </div>
 
       {totals ? (
         <div className="mb-6 grid grid-cols-2 gap-2 sm:grid-cols-4">
           {[
-            { label: "Wins", value: totals.wins },
-            { label: "Podiums", value: totals.podiums },
-            { label: "Poles", value: totals.polePositions },
-            { label: "Points", value: totals.points },
-            { label: "1–2s", value: totals.oneTwoFinishes },
-            { label: "Fastest laps", value: totals.fastestLaps },
-            { label: "Sprint wins", value: totals.sprintRaceWins },
+            { label: t("wins"), value: totals.wins },
+            { label: t("podiums"), value: totals.podiums },
+            { label: t("poles"), value: totals.polePositions },
+            { label: t("points"), value: totals.points },
+            { label: teamText("oneTwoShort"), value: totals.oneTwoFinishes },
+            { label: t("fastestLaps"), value: totals.fastestLaps },
+            { label: teamText("sprintWins"), value: totals.sprintRaceWins },
             {
-              label: "Best result",
-              value: totals.bestRaceResult ? `P${totals.bestRaceResult}` : "—",
+              label: teamText("bestResult"),
+              value: totals.bestRaceResult ? t("position", { position: totals.bestRaceResult }) : "—",
             },
           ].map((stat) => (
             <div key={stat.label} className="rounded-xl border border-white/10 bg-white/5 px-3 py-2">
@@ -88,7 +91,7 @@ export function ConstructorSeasonPanel({ view }: ConstructorSeasonPanelProps) {
         </div>
       ) : null}
 
-      <DetailSection title="Entrant registrations">
+      <DetailSection title={teamText("entrants")}>
         {entrantRegistrations.length > 0 ? (
           <ul className="grid gap-2">
             {entrantRegistrations.map((entry) => (
@@ -98,17 +101,17 @@ export function ConstructorSeasonPanel({ view }: ConstructorSeasonPanelProps) {
               >
                 <p className="font-semibold text-white">{entry.entrantName}</p>
                 <p className="mt-1 text-white/55">
-                  {entry.entrantCountry} · Engine: {entry.engineManufacturerName}
+                  <span lang="en">{entry.entrantCountry}</span> · {t("engineLabel", { name: entry.engineManufacturerName })}
                 </p>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="text-sm text-white/50">No entrant registration recorded.</p>
+          <p className="text-sm text-white/50">{teamText("noEntrants")}</p>
         )}
       </DetailSection>
 
-      <DetailSection title="Drivers">
+      <DetailSection title={t("drivers")}>
         {lineup.length > 0 ? (
           <ul className="grid gap-2">
             {lineup.map((driver) => (
@@ -133,19 +136,21 @@ export function ConstructorSeasonPanel({ view }: ConstructorSeasonPanelProps) {
                 <div className="text-end text-xs text-white/55">
                   <p>{driver.entrantName}</p>
                   <p>
-                    {driver.roundsText ?? driver.rounds ?? "Full season"}
-                    {driver.testDriver ? " · Test" : ""} · {driver.engineManufacturerName}
+                    <span lang={driver.roundsText || driver.rounds ? "en" : undefined} dir="ltr">
+                      {driver.roundsText ?? driver.rounds ?? t("fullSeason")}
+                    </span>
+                    {driver.testDriver ? t("testShort") : ""} · <span lang="en">{driver.engineManufacturerName}</span>
                   </p>
                 </div>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="text-sm text-white/50">No drivers entered for this constructor.</p>
+          <p className="text-sm text-white/50">{teamText("noDrivers")}</p>
         )}
       </DetailSection>
 
-      <DetailSection title="Chassis">
+      <DetailSection title={teamText("chassis")}>
         {chassis.length > 0 ? (
           <ul className="grid gap-2 sm:grid-cols-2">
             {chassis.map((entry, index) => (
@@ -161,11 +166,11 @@ export function ConstructorSeasonPanel({ view }: ConstructorSeasonPanelProps) {
             ))}
           </ul>
         ) : (
-          <p className="text-sm text-white/50">No chassis on record.</p>
+          <p className="text-sm text-white/50">{teamText("noChassis")}</p>
         )}
       </DetailSection>
 
-      <DetailSection title="Engines">
+      <DetailSection title={teamText("engines")}>
         {engines.length > 0 ? (
           <ul className="grid gap-2">
             {engines.map((entry, index) => (
@@ -188,11 +193,11 @@ export function ConstructorSeasonPanel({ view }: ConstructorSeasonPanelProps) {
             ))}
           </ul>
         ) : (
-          <p className="text-sm text-white/50">No engine specification on record.</p>
+          <p className="text-sm text-white/50">{teamText("noEngines")}</p>
         )}
       </DetailSection>
 
-      <DetailSection title="Tyres">
+      <DetailSection title={t("tyres")}>
         {tyres.length > 0 ? (
           <ul className="grid gap-2 sm:grid-cols-2">
             {tyres.map((entry, index) => (
@@ -206,21 +211,21 @@ export function ConstructorSeasonPanel({ view }: ConstructorSeasonPanelProps) {
             ))}
           </ul>
         ) : (
-          <p className="text-sm text-white/50">No tyre supplier on record.</p>
+          <p className="text-sm text-white/50">{teamText("noTyres")}</p>
         )}
       </DetailSection>
 
       {championshipProgression.length > 0 ? (
-        <DetailSection title="Points after each round">
+        <DetailSection title={teamText("progression")}>
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[28rem] border-collapse text-left text-sm">
+            <table dir="ltr" className="w-full min-w-[28rem] border-collapse text-start text-sm">
               <thead>
                 <tr className="text-xs font-bold uppercase tracking-[0.12em] text-white/70">
-                  <th className="pb-2 pe-2">Rnd</th>
-                  <th className="pb-2 pe-2">Grand Prix</th>
-                  <th className="pb-2 pe-2">Pos</th>
-                  <th className="pb-2 pe-2">Engine</th>
-                  <th className="pb-2 text-end">Pts</th>
+                  <th className="pb-2 pe-2">{t("round")}</th>
+                  <th className="pb-2 pe-2">{t("grandPrix")}</th>
+                  <th className="pb-2 pe-2">{t("pos")}</th>
+                  <th className="pb-2 pe-2">{t("engine")}</th>
+                  <th className="pb-2 text-end">{t("pts")}</th>
                 </tr>
               </thead>
               <tbody>

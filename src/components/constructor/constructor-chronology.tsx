@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { CountryFlag } from "@/components/chrome/country-flag";
 import { TeamLogo } from "@/components/grid/team-logo";
 import { constructorHref } from "@/lib/constructor/routes";
@@ -14,14 +15,15 @@ function formatYears(from: number, to: number | null): string {
 }
 
 export function ConstructorChronology({ links }: ConstructorChronologyProps) {
+  const t = useTranslations("Constructor");
   if (links.length === 0) return null;
 
   return (
     <section className="mt-6 rounded-3xl border border-white/10 bg-white/3 p-4 md:p-5">
       <div className="mb-4 border-b border-white/10 pb-3">
-        <span className="text-[10px] font-black uppercase tracking-[0.18em] text-red-400">Heritage</span>
-        <h2 className="text-lg font-black tracking-[-0.04em] text-white">Previous names</h2>
-        <p className="mt-1 text-sm text-white/65">Earlier constructor identities in the archive.</p>
+        <span className="text-[10px] font-black uppercase tracking-[0.18em] text-red-400">{t("heritage")}</span>
+        <h2 className="text-lg font-black tracking-[-0.04em] text-white">{t("previousNames")}</h2>
+        <p className="mt-1 text-sm text-white/65">{t("previousNamesDescription")}</p>
       </div>
       <ul className="grid gap-2">
         {links.map((link) => {

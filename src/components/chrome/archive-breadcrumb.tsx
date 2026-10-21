@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { focusRing } from "./focus";
 
 type Crumb = {
@@ -8,9 +9,11 @@ type Crumb = {
 };
 
 export function ArchiveBreadcrumb({ items }: { items: Crumb[] }) {
+  const t = useTranslations("Common");
+
   return (
     <nav
-      aria-label="Breadcrumb"
+      aria-label={t("breadcrumb")}
       className="flex min-w-0 items-center gap-2 text-[11px] font-bold uppercase tracking-[0.14em] text-white/70"
     >
       {items.map((item, index) => (

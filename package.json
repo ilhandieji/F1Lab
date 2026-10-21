@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test src/lib/driver/driver-photos.test.ts src/lib/search/name-query.test.ts",
+    "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test src/i18n/locale-href.test.ts src/lib/driver/driver-photos.test.ts src/lib/search/name-query.test.ts",
     "portraits:sync": "node scripts/sync-driver-portraits.mjs",
     "portraits:sync:dry-run": "node scripts/sync-driver-portraits.mjs --dry-run"
   },
@@ -20,6 +20,7 @@
     "dotenv": "^18.0.7",
     "lucide-react": "^1.57.0",
     "next": "16.4.0",
+    "next-intl": "^4.14.9",
     "pg": "^8.23.1",
     "react": "19.3.0",
     "react-dom": "19.3.0",

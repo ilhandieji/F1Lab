@@ -1,7 +1,8 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { useLayoutEffect, useRef, type MouseEvent } from "react";
 import { focusRing } from "@/components/chrome/focus";
 
@@ -19,6 +20,8 @@ type ConstructorSeasonRailProps = {
 };
 
 export function ConstructorSeasonRail({ season, marks, hrefFor, navigate }: ConstructorSeasonRailProps) {
+  const t = useTranslations("Constructor");
+  const common = useTranslations("Common");
   const yearsDescending = [...marks].sort((a, b) => b.year - a.year);
   const navRef = useRef<HTMLElement>(null);
   const scrollLeftRef = useRef(0);
@@ -56,7 +59,8 @@ export function ConstructorSeasonRail({ season, marks, hrefFor, navigate }: Cons
     <nav
       ref={navRef}
       className="mt-6 -mx-4 overflow-x-auto px-4 [overflow-anchor:none] md:mx-0 md:px-0"
-      aria-label="Season timeline"
+      dir="ltr"
+      aria-label={t("timeline")}
       onScroll={captureScroll}
     >
       <ul className="flex min-w-min gap-2 pb-1">
@@ -68,7 +72,7 @@ export function ConstructorSeasonRail({ season, marks, hrefFor, navigate }: Cons
                 href={hrefFor(mark.year)}
                 scroll={false}
                 aria-current={active ? "true" : undefined}
-                aria-label={`${mark.year} season`}
+                aria-label={common("seasonLabel", { year: mark.year })}
                 onClick={(event) => onYearClick(event, mark.year)}
                 className={`flex min-h-11 min-w-[4.5rem] flex-col items-center justify-center gap-1 rounded-xl border px-3 py-2 no-underline transition ${focusRing} ${
                   active

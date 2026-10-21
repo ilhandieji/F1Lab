@@ -131,3 +131,11 @@
     @apply font-sans;
   }
 }
+
+html[lang="fa"] :where([class*="tracking-"]):not(.brand-mark) {
+  letter-spacing: normal;
+}
+
+html[lang="fa"] .brand-mark {
+  letter-spacing: 0.34em;
+}

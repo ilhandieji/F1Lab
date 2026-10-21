@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { CountryFlag } from "@/components/chrome/country-flag";
 import { DriverAvatar } from "@/components/driver/driver-avatar";
 import { focusRing } from "@/components/chrome/focus";

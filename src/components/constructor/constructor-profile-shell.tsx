@@ -8,6 +8,7 @@ import {
   type ReactNode,
   type TouchEvent,
 } from "react";
+import { useTranslations } from "next-intl";
 import { ConstructorProfileFocusBar } from "@/components/chrome/profile-focus-bar";
 import type { ConstructorProfile, ConstructorTabId } from "@/lib/constructor/types";
 import { archiveMainClass } from "@/lib/layout";
@@ -33,6 +34,7 @@ function ConstructorProfileShellBody({
   activeTab,
   children,
 }: ConstructorProfileShellProps) {
+  const common = useTranslations("Common");
   const resultsOnly = activeTab === "races";
   const { previous, next, hrefFor, navigate } = useConstructorNavigation(
     profile.id,
@@ -44,10 +46,10 @@ function ConstructorProfileShellBody({
 
   const goTo = useCallback(
     (targetSeason: number) => {
-      setAnnouncement(`Season ${targetSeason}`);
+      setAnnouncement(common("seasonAnnouncement", { year: targetSeason }));
       navigate(targetSeason);
     },
-    [navigate],
+    [common, navigate],
   );
 
   useEffect(() => {

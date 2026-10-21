@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Suspense, type ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
 import { isGridTabId, type GridTabId } from "@/lib/grid/types";
@@ -67,8 +68,9 @@ function ColumnHeadersSkeleton() {
 const ROW_COUNT = 12;
 
 export function DriverGridSkeleton() {
+  const t = useTranslations("Grid");
   return (
-    <GridPanelFrame aria-label="Loading drivers' standings">
+    <GridPanelFrame aria-label={t("loadingDrivers")}>
       <ColumnHeadersSkeleton />
       <div className="grid gap-2">
         {Array.from({ length: ROW_COUNT }, (_, index) => (
@@ -80,8 +82,9 @@ export function DriverGridSkeleton() {
 }
 
 export function ConstructorStandingsSkeleton() {
+  const t = useTranslations("Grid");
   return (
-    <GridPanelFrame aria-label="Loading constructors' standings">
+    <GridPanelFrame aria-label={t("loadingConstructors")}>
       <ColumnHeadersSkeleton />
       <div className="grid gap-2">
         {Array.from({ length: ROW_COUNT }, (_, index) => (
@@ -113,11 +116,12 @@ function TimelineItemSkeleton() {
 }
 
 export function ActivityViewSkeleton() {
+  const t = useTranslations("Grid");
   return (
     <section
       className="mt-6 space-y-9 rounded-3xl border border-white/10 bg-white/3 p-3 shadow-lg shadow-black/10 md:p-5"
       aria-busy="true"
-      aria-label="Loading driver changes"
+      aria-label={t("loadingChanges")}
     >
       <div className="space-y-4">
         <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">

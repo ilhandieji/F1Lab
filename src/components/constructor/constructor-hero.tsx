@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { CountryFlag } from "@/components/chrome/country-flag";
 import { TeamLogo } from "@/components/grid/team-logo";
@@ -10,6 +11,8 @@ type ConstructorHeroProps = {
 };
 
 export function ConstructorHero({ profile, season }: ConstructorHeroProps) {
+  const t = useTranslations("Common");
+  const teamText = useTranslations("Constructor");
   const logo = getTeamLogo(profile.id, season);
   const team = {
     id: profile.id,
@@ -29,7 +32,7 @@ export function ConstructorHero({ profile, season }: ConstructorHeroProps) {
             src={team.logoPath}
             alt=""
             fill
-            className={`object-contain object-right-top ${team.lightLogo ? "brightness-0 invert" : ""}`}
+            className={`object-contain object-right-top rtl:object-left-top ${team.lightLogo ? "brightness-0 invert" : ""}`}
           />
         </div>
       ) : null}
@@ -39,26 +42,29 @@ export function ConstructorHero({ profile, season }: ConstructorHeroProps) {
         </div>
         <div className="min-w-0">
           <span className="text-[10px] font-black uppercase tracking-[0.18em] text-red-400">
-            Team
+            {teamText("kicker")}
           </span>
-          <h1 className="mt-1 text-4xl font-black uppercase leading-[0.9] tracking-[-0.06em] text-white md:text-5xl">
+          <h1 lang="en" className="mt-1 text-4xl font-black uppercase leading-[0.9] tracking-[-0.06em] text-white md:text-5xl">
             {profile.name}
           </h1>
-          <p className="mt-2 text-sm text-white/60">{profile.fullName}</p>
+          <p lang="en" className="mt-2 text-sm text-white/60">{profile.fullName}</p>
           <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-white/50">
             <CountryFlag alpha2={profile.countryAlpha2} name={profile.country} labelled={false} />
             <span>
-              {profile.country} · Active {profile.debutYear}–{profile.careerYears.at(-1) ?? profile.debutYear}
+              <span lang="en">{profile.country}</span> · {t("active", {
+                from: profile.debutYear,
+                to: profile.careerYears.at(-1) ?? profile.debutYear,
+              })}
             </span>
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             {profile.careerTotals.championshipWins > 0 ? (
               <span className="rounded-full border border-red-500/40 bg-red-500/15 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-red-300">
-                {profile.careerTotals.championshipWins}× Constructors&apos; Champion
+                {t("constructorsChampion", { count: profile.careerTotals.championshipWins })}
               </span>
             ) : null}
             <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-white/70">
-              Debut {profile.debutYear}
+              {t("debut", { year: profile.debutYear })}
             </span>
           </div>
         </div>

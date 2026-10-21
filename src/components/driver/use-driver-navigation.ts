@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { adjacentCareerYears, driverHref } from "@/lib/driver/routes";
 
 export function useDriverNavigation(
