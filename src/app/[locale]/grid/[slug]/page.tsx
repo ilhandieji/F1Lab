@@ -1,30 +1,36 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { hasLocale } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { GridExplorer } from "@/components/grid/grid-explorer";
 import { GridContentSkeleton } from "@/components/grid/grid-skeleton";
+import { routing } from "@/i18n/routing";
 import { getSeasonGrid } from "@/lib/grid/season-grid";
 import { parseSeasonYear } from "@/lib/grid/seasons";
 import { isGridTabId } from "@/lib/grid/types";
 
 export async function generateMetadata({
   params,
-}: PageProps<"/grid/[slug]">): Promise<Metadata> {
-  const year = parseSeasonYear((await params).slug);
+}: PageProps<"/[locale]/grid/[slug]">): Promise<Metadata> {
+  const { locale, slug } = await params;
+  const resolved = hasLocale(routing.locales, locale) ? locale : routing.defaultLocale;
+  const t = await getTranslations({ locale: resolved, namespace: "Metadata" });
+  const year = parseSeasonYear(slug);
   if (!year) {
     return {
-      title: "Season not found",
-      description: "This Formula 1 season is not in the supported archive range.",
+      title: t("seasonNotFound"),
+      description: t("seasonNotFoundDescription"),
     };
   }
 
   return {
-    title: `${year} season archive`,
-    description: `Drivers' standings, constructors' standings, and driver changes for the ${year} Formula 1 season.`,
+    title: t("seasonTitle", { year }),
+    description: t("seasonDescription", { year }),
   };
 }
 
-export default function SeasonPage(props: PageProps<"/grid/[slug]">) {
+export default function SeasonPage(props: PageProps<"/[locale]/grid/[slug]">) {
   return (
     <Suspense fallback={<GridContentSkeleton />}>
       <SeasonPageContent {...props} />
@@ -35,7 +41,7 @@ export default function SeasonPage(props: PageProps<"/grid/[slug]">) {
 async function SeasonPageContent({
   params,
   searchParams,
-}: PageProps<"/grid/[slug]">) {
+}: PageProps<"/[locale]/grid/[slug]">) {
   const year = parseSeasonYear((await params).slug);
   if (!year) notFound();
 

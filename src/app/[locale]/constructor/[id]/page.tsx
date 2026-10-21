@@ -1,5 +1,8 @@
+import { hasLocale } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { ConstructorSeasonContent } from "@/components/constructor/constructor-season-content";
+import { routing } from "@/i18n/routing";
 import { getConstructorProfile } from "@/lib/constructor/constructor-profile";
 import { getConstructorSeasonView } from "@/lib/constructor/constructor-season";
 import {
@@ -9,17 +12,19 @@ import {
 import { isConstructorTabId } from "@/lib/constructor/types";
 
 type ConstructorPageProps = {
-  params: Promise<{ id: string }>;
+  params: Promise<{ locale: string; id: string }>;
   searchParams: Promise<{ season?: string | string[]; tab?: string | string[] }>;
 };
 
 export async function generateMetadata({ params }: ConstructorPageProps) {
-  const { id } = await params;
+  const { locale, id } = await params;
+  const resolved = hasLocale(routing.locales, locale) ? locale : routing.defaultLocale;
+  const t = await getTranslations({ locale: resolved, namespace: "Metadata" });
   const profile = await getConstructorProfile(id);
-  if (!profile) return { title: "Constructor not found" };
+  if (!profile) return { title: t("constructorNotFound") };
   return {
     title: profile.fullName,
-    description: `Team archive for ${profile.fullName}: WCC titles, entry lists, engines, tyres, and race-by-race results.`,
+    description: t("constructorDescription", { name: profile.fullName }),
   };
 }
 

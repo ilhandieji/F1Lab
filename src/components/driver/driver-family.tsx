@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { CountryFlag } from "@/components/chrome/country-flag";
 import { DriverAvatar } from "@/components/driver/driver-avatar";
 import { driverHref } from "@/lib/driver/routes";
@@ -10,13 +11,14 @@ type DriverFamilyProps = {
 };
 
 export function DriverFamily({ family, season }: DriverFamilyProps) {
+  const t = useTranslations("Family");
   if (family.length === 0) return null;
 
   return (
     <section className="mt-6 rounded-3xl border border-white/10 bg-white/3 p-4 md:p-5">
       <div className="mb-4 border-b border-white/10 pb-3">
-        <span className="text-[10px] font-black uppercase tracking-[0.18em] text-red-400">Lineage</span>
-        <h2 className="text-lg font-black tracking-[-0.04em] text-white">Racing family</h2>
+        <span className="text-[10px] font-black uppercase tracking-[0.18em] text-red-400">{t("kicker")}</span>
+        <h2 className="text-lg font-black tracking-[-0.04em] text-white">{t("title")}</h2>
       </div>
       <ul className="grid gap-2">
         {family.map((link) => (
@@ -38,7 +40,9 @@ export function DriverFamily({ family, season }: DriverFamilyProps) {
                   <span className="truncate font-semibold text-white">{link.otherDriverName}</span>
                 </span>
                 <span className="text-[10px] font-black uppercase tracking-[0.14em] text-white/50">
-                  {link.type.replace(/_/g, " ")}
+                  {t.has(link.type) ? t(link.type) : (
+                    <span lang="en" dir="ltr">{link.type.replace(/_/g, " ")}</span>
+                  )}
                 </span>
               </Link>
             </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useRef, useState, type ReactNode } from "react";
 import { focusRing } from "@/components/chrome/focus";
 import { useRetryingImage } from "@/components/chrome/use-retrying-image";
@@ -30,7 +31,8 @@ export function ImageZoom({ src, alt, light = false, className = "", children }:
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [visible, setVisible] = useState(false);
   const { attempt, onError, reset } = useRetryingImage(src);
-  const label = alt.trim() || "photo";
+  const t = useTranslations("Common");
+  const label = alt.trim() || t("photo");
 
   const open = () => {
     reset();
@@ -43,7 +45,7 @@ export function ImageZoom({ src, alt, light = false, className = "", children }:
       <button
         type="button"
         className={`cursor-zoom-in border-0 bg-transparent p-0 text-inherit ${className} ${focusRing}`}
-        aria-label={`View original ${label}`}
+        aria-label={t("viewOriginal", { label })}
         onClick={open}
       >
         {children}
@@ -53,7 +55,7 @@ export function ImageZoom({ src, alt, light = false, className = "", children }:
         className={`fixed inset-0 z-50 m-0 h-dvh max-h-none w-screen max-w-none overflow-hidden border-0 p-0 backdrop:bg-black/80 ${
           light ? "bg-white" : "bg-black"
         }`}
-        aria-label={`Original ${label}`}
+        aria-label={t("original", { label })}
         onClose={() => setVisible(false)}
         onClick={(event) => {
           if (event.target === event.currentTarget) event.currentTarget.close();
@@ -83,7 +85,7 @@ export function ImageZoom({ src, alt, light = false, className = "", children }:
           } ${focusRing}`}
           onClick={() => dialogRef.current?.close()}
         >
-          Close
+          {t("close")}
         </button>
       </dialog>
     </>

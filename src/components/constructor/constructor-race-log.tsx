@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { CountryFlag } from "@/components/chrome/country-flag";
 import { GrandPrixName } from "@/components/chrome/grand-prix-name";
 import { ResultMarks } from "@/components/chrome/result-marks";
@@ -11,6 +12,7 @@ type ConstructorRaceLogProps = {
 };
 
 export function ConstructorRaceLog({ view }: ConstructorRaceLogProps) {
+  const t = useTranslations("Common");
   const { races } = view;
 
   return (
@@ -24,24 +26,24 @@ export function ConstructorRaceLog({ view }: ConstructorRaceLogProps) {
         <span className="text-[10px] font-black uppercase tracking-[0.18em] text-red-400">
           {view.year}
         </span>
-        <h2 className="text-xl font-black tracking-[-0.04em] text-white">Results</h2>
+        <h2 className="text-xl font-black tracking-[-0.04em] text-white">{t("results")}</h2>
       </div>
 
       {races.length === 0 ? (
-        <p className="text-sm text-white/50">No race results recorded for this season.</p>
+        <p className="text-sm text-white/50">{t("noRaceResults")}</p>
       ) : (
         <>
           <div className="hidden overflow-x-auto md:block">
-            <table className="w-full min-w-[40rem] border-collapse text-left text-sm">
+            <table dir="ltr" className="w-full min-w-[40rem] border-collapse text-start text-sm">
               <thead>
                 <tr className="text-xs font-bold uppercase tracking-[0.12em] text-white/70">
-                  <th className="pb-2 pe-2">Rnd</th>
-                  <th className="pb-2 pe-2">Grand Prix</th>
-                  <th className="pb-2 pe-2">Driver</th>
-                  <th className="pb-2 pe-2">Grid</th>
-                  <th className="pb-2 pe-2">Finish</th>
-                  <th className="pb-2 pe-2">Tyres</th>
-                  <th className="pb-2 text-end">Pts</th>
+                  <th className="pb-2 pe-2">{t("round")}</th>
+                  <th className="pb-2 pe-2">{t("grandPrix")}</th>
+                  <th className="pb-2 pe-2">{t("driver")}</th>
+                  <th className="pb-2 pe-2">{t("gridCol")}</th>
+                  <th className="pb-2 pe-2">{t("finish")}</th>
+                  <th className="pb-2 pe-2">{t("tyres")}</th>
+                  <th className="pb-2 text-end">{t("pts")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -78,7 +80,7 @@ export function ConstructorRaceLog({ view }: ConstructorRaceLogProps) {
                       </span>
                       <ResultMarks pole={race.pole} fastestLap={race.fastestLap} />
                       {race.retirementReason ? (
-                        <span className="mt-0.5 block text-xs text-white/65">{race.retirementReason}</span>
+                        <span lang="en" dir="ltr" className="mt-0.5 block text-xs text-white/65">{race.retirementReason}</span>
                       ) : null}
                     </td>
                     <td className="py-3 pe-2 text-white/60">{race.tyreManufacturerName}</td>
@@ -108,7 +110,7 @@ export function ConstructorRaceLog({ view }: ConstructorRaceLogProps) {
                       />
                     </p>
                   </div>
-                  <p className="text-xl font-black text-white">{race.points} pts</p>
+                  <p dir="ltr" className="text-xl font-black text-white">{t("pointsValue", { points: race.points })}</p>
                 </div>
                 <div className="mt-3 flex items-center gap-2">
                   <DriverAvatar
@@ -126,18 +128,18 @@ export function ConstructorRaceLog({ view }: ConstructorRaceLogProps) {
                 </div>
                 <dl className="mt-3 grid grid-cols-2 gap-2 text-xs text-white/60">
                   <div>
-                    <dt className="uppercase tracking-[0.12em] text-white/65">Grid</dt>
+                    <dt className="uppercase tracking-[0.12em] text-white/65">{t("gridCol")}</dt>
                     <dd className="mt-0.5 font-semibold text-white">{race.gridPosition ?? "—"}</dd>
                   </div>
                   <div>
-                    <dt className="uppercase tracking-[0.12em] text-white/65">Finish</dt>
+                    <dt className="uppercase tracking-[0.12em] text-white/65">{t("finish")}</dt>
                     <dd className="mt-0.5 font-semibold text-white">
                       {race.finishPosition}
                       <ResultMarks pole={race.pole} fastestLap={race.fastestLap} />
                     </dd>
                   </div>
                   <div className="col-span-2">
-                    <dt className="uppercase tracking-[0.12em] text-white/65">Tyres · Engine</dt>
+                    <dt className="uppercase tracking-[0.12em] text-white/65">{t("tyresEngine")}</dt>
                     <dd className="mt-0.5">
                       {race.tyreManufacturerName} · {race.engineManufacturerName}
                     </dd>

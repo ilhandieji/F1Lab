@@ -1,6 +1,8 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { ArchiveBreadcrumb } from "@/components/chrome/archive-breadcrumb";
 import { ArchiveHeader } from "@/components/chrome/archive-header";
 import { CareerYearNavigation } from "@/components/chrome/career-year-navigation";
@@ -20,6 +22,8 @@ type ConstructorNavbarProps = {
 };
 
 export function ConstructorNavbar({ profile, season }: ConstructorNavbarProps) {
+  const t = useTranslations("Common");
+  const constructorText = useTranslations("Constructor");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -45,18 +49,21 @@ export function ConstructorNavbar({ profile, season }: ConstructorNavbarProps) {
       breadcrumb={
         <ArchiveBreadcrumb
           items={[
-            { href: seasonHref(season), label: "Grid" },
+            { href: seasonHref(season), label: t("grid") },
             { label: profile.name, title: profile.fullName },
           ]}
         />
       }
       tabs={
         <UnderlineTabs
-          tabs={CONSTRUCTOR_TABS}
+          tabs={CONSTRUCTOR_TABS.map((tab) => ({
+            id: tab.id,
+            label: tab.id === "season" ? t("season") : t("results"),
+          }))}
           activeId={activeTab}
           onSelect={onSelectTab}
           idPrefix="constructor"
-          label="Constructor profile views"
+          label={constructorText("views")}
         />
       }
       yearControl={
@@ -67,7 +74,7 @@ export function ConstructorNavbar({ profile, season }: ConstructorNavbarProps) {
           next={next}
           hrefFor={hrefFor}
           navigate={navigate}
-          listLabel="Active seasons"
+          listLabel={t("activeSeasons")}
         />
       }
     />

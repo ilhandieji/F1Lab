@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { focusRing } from "@/components/chrome/focus";
 import { allSeasonsDescending, FIRST_SEASON, LAST_SEASON } from "@/lib/grid/seasons";
 
@@ -16,6 +16,7 @@ type YearNavigationProps = {
 };
 
 export function YearNavigation({ year, previous, next, hrefFor, navigate }: YearNavigationProps) {
+  const t = useTranslations("Common");
   const router = useRouter();
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
@@ -46,12 +47,12 @@ export function YearNavigation({ year, previous, next, hrefFor, navigate }: Year
     <div className="flex items-center gap-2 self-end md:self-auto">
       <div
         className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-1.5 py-1"
-        aria-label="Season navigation"
+        aria-label={t("seasonNavigation")}
       >
         <button
           type="button"
           className={`inline-flex h-11 w-11 items-center justify-center rounded-md border border-transparent text-white/80 transition hover:border-white/10 hover:bg-white/5 hover:text-white disabled:cursor-not-allowed disabled:opacity-30 ${focusRing}`}
-          aria-label={previous ? `Previous season: ${previous}` : "No earlier season"}
+          aria-label={previous ? t("previousSeason", { year: previous }) : t("noEarlierSeason")}
           disabled={previous === null}
           onClick={() => previous !== null && navigate(previous)}
         >
@@ -65,7 +66,7 @@ export function YearNavigation({ year, previous, next, hrefFor, navigate }: Year
         <button
           type="button"
           className={`inline-flex h-11 w-11 items-center justify-center rounded-md border border-transparent text-white/80 transition hover:border-white/10 hover:bg-white/5 hover:text-white disabled:cursor-not-allowed disabled:opacity-30 ${focusRing}`}
-          aria-label={next ? `Next season: ${next}` : "No later season"}
+          aria-label={next ? t("nextSeason", { year: next }) : t("noLaterSeason")}
           disabled={next === null}
           onClick={() => next !== null && navigate(next)}
         >
@@ -77,7 +78,7 @@ export function YearNavigation({ year, previous, next, hrefFor, navigate }: Year
         <button
           type="button"
           className={`inline-flex h-11 w-11 items-center justify-center rounded-md border border-white/10 bg-white/5 text-white/80 transition hover:border-red-500/50 hover:bg-red-500/10 hover:text-white ${focusRing}`}
-          aria-label="Jump to any season"
+          aria-label={t("jumpSeason")}
           aria-expanded={open}
           aria-haspopup="dialog"
           onClick={() => setOpen((value) => !value)}
@@ -89,10 +90,10 @@ export function YearNavigation({ year, previous, next, hrefFor, navigate }: Year
           <div
             className="absolute end-0 top-full z-50 mt-3 w-[min(22rem,calc(100vw-2rem))] rounded-2xl border border-white/10 bg-[#111417]/95 p-3 shadow-[0_24px_70px_rgba(0,0,0,0.45)] backdrop-blur-md"
             role="dialog"
-            aria-label="Choose a Formula 1 season"
+            aria-label={t("chooseSeason")}
           >
             <p className="mb-3 text-[10px] font-black uppercase tracking-[0.2em] text-white/60">
-              Every season, {FIRST_SEASON}–{LAST_SEASON}
+              {t("everySeasonRange", { from: FIRST_SEASON, to: LAST_SEASON })}
             </p>
             <div className="grid max-h-64 grid-cols-6 gap-1.5 overflow-y-auto pe-1">
               {allSeasonsDescending().map((candidate) => (

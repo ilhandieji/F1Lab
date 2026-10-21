@@ -1,9 +1,12 @@
+import { useTranslations } from "next-intl";
+
 export function DriverSeasonSkeleton() {
+  const t = useTranslations("Common");
   return (
     <section
       className="animate-pulse rounded-3xl border border-white/10 bg-white/3 p-4 md:p-5"
       aria-busy="true"
-      aria-label="Loading season data"
+      aria-label={t("loadingSeason")}
     >
       <div className="mb-4 flex items-end justify-between gap-3 border-b border-white/10 pb-3">
         <div>

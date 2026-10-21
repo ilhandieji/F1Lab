@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import createNextIntlPlugin from "next-intl/plugin";
 
 function driverImageRemotePatterns(): NonNullable<NextConfig["images"]>["remotePatterns"] {
   const raw = process.env.NEXT_PUBLIC_DRIVER_IMAGE_BASE_URL?.trim();
@@ -38,4 +39,6 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+const withNextIntl = createNextIntlPlugin();
+
+export default withNextIntl(nextConfig);

@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { ChevronRight } from "lucide-react";
 import { focusRing } from "@/components/chrome/focus";
 import { GrandPrixName } from "@/components/chrome/grand-prix-name";
@@ -6,13 +7,6 @@ import { driverHref } from "@/lib/driver/routes";
 import type { ActivityChangeKind, ActivityEvent } from "@/lib/grid/types";
 import { DriverNameList } from "./driver-name-link";
 import { TeamLogo } from "./team-logo";
-
-const changeLabel: Record<ActivityChangeKind, string> = {
-  transfer: "Team swap",
-  return: "Back in seat",
-  substitution: "Sub",
-  "lineup-change": "Line-up change",
-};
 
 const changeColor: Record<ActivityChangeKind, string> = {
   transfer: "text-amber-200",
@@ -22,10 +16,12 @@ const changeColor: Record<ActivityChangeKind, string> = {
 };
 
 export function ActivityTimeline({ events, year }: { events: ActivityEvent[]; year: number }) {
+  const t = useTranslations("Grid");
+
   if (events.length === 0) {
     return (
       <p className="rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm leading-6 text-white/70">
-        This season kept a settled race lineup — no seat changes are recorded between Grands Prix.
+        {t("settledLineup")}
       </p>
     );
   }
@@ -33,7 +29,7 @@ export function ActivityTimeline({ events, year }: { events: ActivityEvent[]; ye
   return (
     <ol
       className="ms-2 grid list-none gap-5 border-s border-white/15 py-1 ps-4 md:ms-4 md:ps-6"
-      aria-label="Chronological driver changes"
+      aria-label={t("timelineLabel")}
     >
       {events.map((event) => (
         <li className="relative min-w-0" key={event.round}>
@@ -52,7 +48,7 @@ export function ActivityTimeline({ events, year }: { events: ActivityEvent[]; ye
               />
             </h3>
             <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-white/65">
-              {event.changes.length} seat {event.changes.length === 1 ? "change" : "changes"}
+              {t("seatChangeCount", { count: event.changes.length })}
             </span>
           </div>
           <div className="grid gap-2 lg:grid-cols-2">
@@ -69,32 +65,32 @@ export function ActivityTimeline({ events, year }: { events: ActivityEvent[]; ye
                   <span
                     className={`shrink-0 text-[11px] font-bold uppercase tracking-[0.08em] ${changeColor[change.kind]}`}
                   >
-                    {changeLabel[change.kind]}
+                    {t(`changes.${change.kind}`)}
                   </span>
                 </div>
                 <div className="mt-3 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2">
                   <div className="grid min-w-0 gap-1">
                     <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-white/60">
-                      Out
+                      {t("out")}
                     </span>
                     <strong className="break-words text-xs leading-5 text-white/85">
                       {change.outgoing.length > 0 ? (
                         <DriverNameList drivers={change.outgoing} year={year} />
                       ) : (
-                        "No prior race seat"
+                        t("noPriorSeat")
                       )}
                     </strong>
                   </div>
                   <ChevronRight className="text-red-400 rtl:rotate-180" size={14} aria-hidden="true" />
                   <div className="grid min-w-0 gap-1">
                     <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-white/60">
-                      In
+                      {t("in")}
                     </span>
                     <strong className="break-words text-xs leading-5 text-white/85">
                       {change.incoming.length > 0 ? (
                         <DriverNameList drivers={change.incoming} year={year} />
                       ) : (
-                        "Seat vacant"
+                        t("seatVacant")
                       )}
                     </strong>
                   </div>
@@ -114,9 +110,13 @@ export function ActivityTimeline({ events, year }: { events: ActivityEvent[]; ye
                           >
                             {driverName}:
                           </Link>{" "}
-                          Raced rounds {stint.startRound}
-                          {stint.endRound !== stint.startRound ? `–${stint.endRound}` : ""} ·{" "}
-                          {stint.weekends} GP {stint.weekends === 1 ? "weekend" : "weekends"}
+                          <span dir="ltr">
+                            {stint.endRound !== stint.startRound
+                              ? t("racedRounds", { start: stint.startRound, end: stint.endRound })
+                              : t("racedRound", { round: stint.startRound })}
+                            {" · "}
+                            {t("gpWeekends", { count: stint.weekends })}
+                          </span>
                         </p>
                       );
                     })}

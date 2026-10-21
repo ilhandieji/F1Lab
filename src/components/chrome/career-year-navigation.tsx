@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { focusRing } from "./focus";
 
 type CareerYearNavigationProps = {
@@ -25,6 +25,7 @@ export function CareerYearNavigation({
   navigate,
   listLabel,
 }: CareerYearNavigationProps) {
+  const t = useTranslations("Common");
   const router = useRouter();
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
@@ -50,12 +51,12 @@ export function CareerYearNavigation({
     <div className="flex items-center gap-2">
       <div
         className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-1.5 py-1"
-        aria-label="Season navigation"
+        aria-label={t("seasonNavigation")}
       >
         <button
           type="button"
           className={`inline-flex h-11 w-11 items-center justify-center rounded-md border border-transparent text-white/80 transition hover:border-white/10 hover:bg-white/5 hover:text-white disabled:cursor-not-allowed disabled:opacity-30 ${focusRing}`}
-          aria-label={previous ? `Previous season: ${previous}` : "No earlier season"}
+          aria-label={previous ? t("previousSeason", { year: previous }) : t("noEarlierSeason")}
           disabled={previous === null}
           onClick={() => previous !== null && navigate(previous)}
         >
@@ -70,7 +71,7 @@ export function CareerYearNavigation({
         <button
           type="button"
           className={`inline-flex h-11 w-11 items-center justify-center rounded-md border border-transparent text-white/80 transition hover:border-white/10 hover:bg-white/5 hover:text-white disabled:cursor-not-allowed disabled:opacity-30 ${focusRing}`}
-          aria-label={next ? `Next season: ${next}` : "No later season"}
+          aria-label={next ? t("nextSeason", { year: next }) : t("noLaterSeason")}
           disabled={next === null}
           onClick={() => next !== null && navigate(next)}
         >
@@ -82,7 +83,7 @@ export function CareerYearNavigation({
         <button
           type="button"
           className={`inline-flex h-11 w-11 items-center justify-center rounded-md border border-white/10 bg-white/5 text-white/80 transition hover:border-red-500/50 hover:bg-red-500/10 hover:text-white ${focusRing}`}
-          aria-label="Jump to any season"
+          aria-label={t("jumpSeason")}
           aria-expanded={open}
           aria-haspopup="dialog"
           onClick={() => setOpen((value) => !value)}

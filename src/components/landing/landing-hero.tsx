@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { ArchiveHeader } from "@/components/chrome/archive-header";
 import { focusRing } from "@/components/chrome/focus";
 import { archiveMaxWidthClass } from "@/lib/layout";
@@ -9,39 +10,17 @@ import { driverHref } from "@/lib/driver/routes";
 import { FEATURED_SEASON } from "@/lib/grid/seasons";
 
 const paths = [
-  {
-    href: `/grid/${FEATURED_SEASON}?tab=drivers`,
-    kicker: "WDC",
-    title: "Drivers' standings",
-    copy: "Championship order, points, and who started the season in each seat",
-  },
-  {
-    href: `/grid/${FEATURED_SEASON}?tab=activity`,
-    kicker: "Changes",
-    title: "Driver changes",
-    copy: "Substitutions, seat swaps, and mid-season moves as they happened",
-  },
-  {
-    href: `/grid/${FEATURED_SEASON}?tab=constructors`,
-    kicker: "WCC",
-    title: "Constructors' standings",
-    copy: "The WCC table, team points, and how each constructor finished the year",
-  },
-  {
-    href: driverHref(FEATURED_DRIVER_ID, FEATURED_SEASON),
-    kicker: "Driver",
-    title: "Drivers",
-    copy: "Career stats, family links, and season-by-season results",
-  },
-  {
-    href: constructorHref(FEATURED_CONSTRUCTOR_ID, FEATURED_SEASON),
-    kicker: "Team",
-    title: "Teams",
-    copy: "Entry lists, engines, tyres, and every race result by constructor",
-  },
+  { id: "drivers", href: `/grid/${FEATURED_SEASON}?tab=drivers` },
+  { id: "changes", href: `/grid/${FEATURED_SEASON}?tab=activity` },
+  { id: "constructors", href: `/grid/${FEATURED_SEASON}?tab=constructors` },
+  { id: "driver", href: driverHref(FEATURED_DRIVER_ID, FEATURED_SEASON) },
+  { id: "team", href: constructorHref(FEATURED_CONSTRUCTOR_ID, FEATURED_SEASON) },
 ] as const;
 
 export function LandingHero() {
+  const t = useTranslations("Landing");
+  const common = useTranslations("Common");
+
   return (
     <main className="relative isolate min-h-screen overflow-hidden bg-[#07080c] text-white">
       <div
@@ -67,7 +46,7 @@ export function LandingHero() {
             href={`/grid/${FEATURED_SEASON}?tab=drivers`}
             className={`min-h-10 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-white/90 transition hover:border-red-500/60 hover:bg-red-500/15 ${focusRing}`}
           >
-            {FEATURED_SEASON} season
+            {common("seasonLabel", { year: FEATURED_SEASON })}
           </Link>
         }
       />
@@ -78,18 +57,17 @@ export function LandingHero() {
         <section className="flex flex-1 flex-col justify-center py-8 md:py-12">
           <span className="mb-5 inline-flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.22em] text-white/60">
             <span className="h-2.5 w-2.5 rounded-full bg-red-500 shadow-[0_0_12px_rgba(239,68,68,0.8)]" />
-            Formula 1 archive · 1950 onward
+            {t("kicker")}
           </span>
 
           <h1 className="max-w-3xl text-5xl font-black uppercase leading-[0.85] tracking-[-0.08em] text-white md:text-7xl xl:text-[7rem]">
-            Every season
+            {t("titleLine1")}
             <br />
-            <span className="text-red-500">Every detail</span>
+            <span className="text-red-500">{t("titleLine2")}</span>
           </h1>
 
           <p className="mt-5 max-w-2xl text-base leading-7 text-white/70 md:text-lg">
-            Driver and team standings, seat changes, and season results from 1950
-            onward, search above or jump into {FEATURED_SEASON}
+            {t("intro", { year: FEATURED_SEASON })}
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
@@ -97,14 +75,14 @@ export function LandingHero() {
               href={`/grid/${FEATURED_SEASON}?tab=drivers`}
               className={`inline-flex min-h-11 items-center rounded-md bg-red-500 px-5 py-3 text-[11px] font-black uppercase tracking-[0.18em] text-white transition hover:bg-red-400 motion-reduce:transition-none ${focusRing}`}
             >
-              {FEATURED_SEASON} drivers&apos; standings
+              {t("cta", { year: FEATURED_SEASON })}
             </Link>
           </div>
         </section>
 
         <nav
           className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5"
-          aria-label="Explore the archive"
+          aria-label={t("explore")}
         >
           {paths.map((path) => (
             <Link
@@ -113,11 +91,13 @@ export function LandingHero() {
               className={`flex min-h-[9.5rem] flex-col justify-between rounded-2xl border border-white/10 bg-white/[0.03] p-4 transition hover:border-red-500/40 motion-reduce:transition-none ${focusRing}`}
             >
               <span className="text-[10px] font-black uppercase tracking-[0.18em] text-red-400">
-                {path.kicker}
+                {t(`cards.${path.id}.kicker`)}
               </span>
               <div>
-                <h2 className="text-lg font-black tracking-[-0.04em] text-white">{path.title}</h2>
-                <p className="mt-2 text-sm leading-6 text-white/70">{path.copy}</p>
+                <h2 className="text-lg font-black tracking-[-0.04em] text-white">
+                  {t(`cards.${path.id}.title`)}
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-white/70">{t(`cards.${path.id}.copy`)}</p>
               </div>
             </Link>
           ))}

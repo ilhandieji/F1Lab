@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { ArchiveHeaderSkeleton } from "@/components/chrome/archive-header-skeleton";
 import { archiveMainClass } from "@/lib/layout";
 import { ConstructorSeasonSkeleton } from "./constructor-season-skeleton";
@@ -12,8 +13,9 @@ function CareerTileSkeleton() {
 }
 
 export function ConstructorProfileSkeleton() {
+  const t = useTranslations("Common");
   return (
-    <div className="relative min-h-screen bg-[#07080c] text-white" aria-busy="true" aria-label="Loading team">
+    <div className="relative min-h-screen bg-[#07080c] text-white" aria-busy="true" aria-label={t("loadingTeam")}>
       <ArchiveHeaderSkeleton />
       <main className={`${archiveMainClass} animate-pulse`}>
         <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/3 p-5 md:p-8">

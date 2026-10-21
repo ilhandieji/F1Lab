@@ -1,22 +1,27 @@
+import { hasLocale } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { DriverSeasonContent } from "@/components/driver/driver-season-content";
+import { routing } from "@/i18n/routing";
 import { getDriverProfile } from "@/lib/driver/driver-profile";
 import { getDriverSeasonView } from "@/lib/driver/driver-season";
 import { parseDriverSeasonParam, resolveDriverSeason } from "@/lib/driver/routes";
 import { isDriverTabId } from "@/lib/driver/types";
 
 type DriverPageProps = {
-  params: Promise<{ id: string }>;
+  params: Promise<{ locale: string; id: string }>;
   searchParams: Promise<{ season?: string | string[]; tab?: string | string[] }>;
 };
 
 export async function generateMetadata({ params }: DriverPageProps) {
-  const { id } = await params;
+  const { locale, id } = await params;
+  const resolved = hasLocale(routing.locales, locale) ? locale : routing.defaultLocale;
+  const t = await getTranslations({ locale: resolved, namespace: "Metadata" });
   const profile = await getDriverProfile(id);
-  if (!profile) return { title: "Driver not found" };
+  if (!profile) return { title: t("driverNotFound") };
   return {
     title: profile.fullName,
-    description: `Career archive for ${profile.fullName}: championships, seasons, and race results from the F1DB dataset.`,
+    description: t("driverDescription", { name: profile.fullName }),
   };
 }
 

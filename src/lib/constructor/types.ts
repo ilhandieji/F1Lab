@@ -157,8 +157,8 @@ export type ConstructorSeasonView = {
 };
 
 export const CONSTRUCTOR_TABS = [
-  { id: "season", label: "Season" },
-  { id: "races", label: "Results" },
+  { id: "season" },
+  { id: "races" },
 ] as const;
 
 export type ConstructorTabId = (typeof CONSTRUCTOR_TABS)[number]["id"];

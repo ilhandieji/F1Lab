@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { GrandPrixName } from "@/components/chrome/grand-prix-name";
 import { ResultMarks } from "@/components/chrome/result-marks";
 import { TeamLogo } from "@/components/grid/team-logo";
@@ -51,11 +52,11 @@ function resultRows(races: DriverRaceResult[], sprints: DriverSprintResult[]): R
   return rows;
 }
 
-function SprintMark({ sprint }: { sprint: DriverSprintResult | null }) {
+function SprintMark({ sprint, pointsLabel }: { sprint: DriverSprintResult | null; pointsLabel: (points: number) => string }) {
   if (!sprint) return <span className="text-white/40">—</span>;
   return (
-    <span className="font-semibold tabular-nums text-white">
-      {sprint.finishPosition} · {sprint.points} pts
+    <span dir="ltr" className="font-semibold tabular-nums text-white">
+      {sprint.finishPosition} · {pointsLabel(sprint.points)}
     </span>
   );
 }
@@ -78,8 +79,10 @@ const thBase = "pb-2 pe-3 text-start align-bottom font-bold";
 const tdBase = "py-3 pe-3 align-top";
 
 export function DriverRaceLog({ view }: DriverRaceLogProps) {
+  const t = useTranslations("Common");
   const rows = resultRows(view.races, view.sprints);
   const showSprint = view.sprints.length > 0;
+  const pointsLabel = (points: number) => t("pointsValue", { points });
 
   return (
     <section
@@ -92,25 +95,25 @@ export function DriverRaceLog({ view }: DriverRaceLogProps) {
         <span className="text-[11px] font-black uppercase tracking-[0.18em] text-red-400">
           {view.year}
         </span>
-        <h2 className="text-xl font-black tracking-[-0.04em] text-white">Results</h2>
+        <h2 className="text-xl font-black tracking-[-0.04em] text-white">{t("results")}</h2>
       </div>
 
       {rows.length === 0 ? (
-        <p className="text-sm text-white/70">No race results recorded for this season.</p>
+        <p className="text-sm text-white/70">{t("noRaceResults")}</p>
       ) : (
         <>
           <div className="hidden overflow-x-auto md:block">
-            <table className="w-full min-w-[40rem] table-fixed border-collapse text-start text-sm">
+            <table dir="ltr" className="w-full min-w-[40rem] table-fixed border-collapse text-start text-sm">
               <ResultsTableColgroup showSprint={showSprint} />
               <thead>
                 <tr className="text-xs font-bold uppercase tracking-[0.12em] text-white/70">
-                  <th className={thBase}>Rnd</th>
-                  <th className={thBase}>Grand Prix</th>
-                  <th className={thBase}>Team</th>
-                  <th className={`${thBase} text-end`}>Grid</th>
-                  <th className={thBase}>Finish</th>
-                  {showSprint ? <th className={thBase}>Sprint</th> : null}
-                  <th className={`${thBase} text-end`}>Pts</th>
+                  <th className={thBase}>{t("round")}</th>
+                  <th className={thBase}>{t("grandPrix")}</th>
+                  <th className={thBase}>{t("team")}</th>
+                  <th className={`${thBase} text-end`}>{t("gridCol")}</th>
+                  <th className={thBase}>{t("finish")}</th>
+                  {showSprint ? <th className={thBase}>{t("sprint")}</th> : null}
+                  <th className={`${thBase} text-end`}>{t("pts")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -141,7 +144,7 @@ export function DriverRaceLog({ view }: DriverRaceLogProps) {
                           </span>
                           <ResultMarks pole={row.race.pole} fastestLap={row.race.fastestLap} />
                           {row.race.retirementReason ? (
-                            <span className="w-full text-xs text-white/65">{row.race.retirementReason}</span>
+                            <span lang="en" dir="ltr" className="w-full text-xs text-white/65">{row.race.retirementReason}</span>
                           ) : null}
                         </div>
                       ) : (
@@ -150,7 +153,7 @@ export function DriverRaceLog({ view }: DriverRaceLogProps) {
                     </td>
                     {showSprint ? (
                       <td className={`${tdBase} whitespace-nowrap`}>
-                        <SprintMark sprint={row.sprint} />
+                        <SprintMark sprint={row.sprint} pointsLabel={pointsLabel} />
                       </td>
                     ) : null}
                     <td className={`${tdBase} text-end font-black tabular-nums text-white`}>
@@ -182,7 +185,7 @@ export function DriverRaceLog({ view }: DriverRaceLogProps) {
                     </p>
                   </div>
                   <p className="text-xl font-black tabular-nums text-white">
-                    {row.race ? `${row.race.points} pts` : "—"}
+                    {row.race ? pointsLabel(row.race.points) : "—"}
                   </p>
                 </div>
                 <div className="mt-3 flex items-center gap-2 text-sm text-white/80">
@@ -191,11 +194,11 @@ export function DriverRaceLog({ view }: DriverRaceLogProps) {
                 </div>
                 <dl className={`mt-3 grid gap-2 text-xs text-white/70 ${showSprint ? "grid-cols-3" : "grid-cols-2"}`}>
                   <div>
-                    <dt className="uppercase tracking-[0.12em] text-white/65">Grid</dt>
+                    <dt className="uppercase tracking-[0.12em] text-white/65">{t("gridCol")}</dt>
                     <dd className="mt-0.5 font-semibold text-white">{row.race?.gridPosition ?? "—"}</dd>
                   </div>
                   <div>
-                    <dt className="uppercase tracking-[0.12em] text-white/65">Finish</dt>
+                    <dt className="uppercase tracking-[0.12em] text-white/65">{t("finish")}</dt>
                     <dd className="mt-0.5 font-semibold text-white">
                       {row.race ? (
                         <>
@@ -209,15 +212,15 @@ export function DriverRaceLog({ view }: DriverRaceLogProps) {
                   </div>
                   {showSprint ? (
                     <div>
-                      <dt className="uppercase tracking-[0.12em] text-white/65">Sprint</dt>
+                      <dt className="uppercase tracking-[0.12em] text-white/65">{t("sprint")}</dt>
                       <dd className="mt-0.5">
-                        <SprintMark sprint={row.sprint} />
+                        <SprintMark sprint={row.sprint} pointsLabel={pointsLabel} />
                       </dd>
                     </div>
                   ) : null}
                 </dl>
                 {row.race?.retirementReason ? (
-                  <p className="mt-2 text-xs text-white/65">{row.race.retirementReason}</p>
+                  <p lang="en" dir="ltr" className="mt-2 text-xs text-white/65">{row.race.retirementReason}</p>
                 ) : null}
               </li>
             ))}

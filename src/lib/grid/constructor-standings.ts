@@ -81,8 +81,8 @@ export class ConstructorStandingsBuilder {
         zeroPointTeams.length === 0 && hasOneRowPerTeam
           ? null
           : zeroPointTeams.length > 0
-            ? "Official standings are filled out with season entrants that scored no points."
-            : "Official points are grouped by constructor; recorded order breaks remaining ties.",
+            ? "official-plus-zero"
+            : "grouped-ties",
       constructorStandingsEmptyMessage: null,
     };
   }
@@ -110,8 +110,8 @@ export class ConstructorStandingsBuilder {
         constructorStandingsNote: null,
         constructorStandingsEmptyMessage:
           this.teams.all().length > 0
-            ? `Teams are on the ${this.year} entry list, but race and sprint points have not been recorded yet.`
-            : `No constructor data is recorded for ${this.year}.`,
+            ? "entry-list-no-points"
+            : "no-data",
       };
     }
 
@@ -131,7 +131,7 @@ export class ConstructorStandingsBuilder {
     return {
       constructorStandings,
       constructorStandingsNote:
-        "Built from recorded Grand Prix and sprint-result points for this season.",
+        "built-from-results",
       constructorStandingsEmptyMessage: null,
     };
   }

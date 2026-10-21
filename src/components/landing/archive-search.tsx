@@ -1,7 +1,8 @@
 "use client";
 
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import { constructorHref } from "@/lib/constructor/routes";
 import type { ConstructorSearchHit } from "@/lib/constructor/types";
 import { driverHref } from "@/lib/driver/routes";
@@ -33,6 +34,7 @@ export function ArchiveSearchField({
   variant = "hero",
   inputId = "archive-search",
 }: ArchiveSearchFieldProps) {
+  const t = useTranslations("Search");
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<ArchiveHit[]>([]);
@@ -213,7 +215,7 @@ export function ArchiveSearchField({
                   entry.kind === "driver" ? "text-red-300" : "text-white/55"
                 }`}
               >
-                {entry.hit.championshipWins}× {entry.kind === "driver" ? "WDC" : "WCC"}
+                {t("titles", { count: entry.hit.championshipWins, code: entry.kind === "driver" ? "WDC" : "WCC" })}
               </span>
             ) : null}
           </span>
@@ -230,13 +232,13 @@ export function ArchiveSearchField({
       className={`relative w-full ${isNav ? "z-50 max-w-none" : "mt-8 max-w-xl"}`}
     >
       <label htmlFor={inputId} className="sr-only">
-        Search drivers and teams
+        {t("label")}
       </label>
       <input
         id={inputId}
         type="search"
         value={query}
-        placeholder={isNav ? "Search drivers or teams…" : "Find a driver or team…"}
+        placeholder={isNav ? t("placeholderNav") : t("placeholderHero")}
         autoComplete="off"
         className={`w-full border border-white/15 bg-white/5 text-white placeholder:text-white/40 outline-none ring-red-500/40 transition focus:border-red-500/50 focus:ring-2 ${
           isNav
@@ -267,29 +269,29 @@ export function ArchiveSearchField({
           }`}
         >
           {loading ? (
-            <p className="px-3 py-2 text-sm text-white/50">Searching…</p>
+            <p className="px-3 py-2 text-sm text-white/50">{t("searching")}</p>
           ) : (
             <div className="grid max-h-80 md:grid-cols-2 md:divide-x md:divide-white/10">
               <div className="min-w-0 overflow-y-auto p-2">
                 <p className="px-3 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-white/70">
-                  Drivers
+                  {t("drivers")}
                 </p>
                 {driverResults.length === 0 ? (
-                  <p className="px-3 py-2 text-sm text-white/50">No drivers</p>
+                  <p className="px-3 py-2 text-sm text-white/50">{t("noDrivers")}</p>
                 ) : (
-                  <ul role="group" aria-label="Drivers">
+                  <ul role="group" aria-label={t("drivers")}>
                     {driverResults.map((entry) => renderOption(entry))}
                   </ul>
                 )}
               </div>
               <div className="min-w-0 overflow-y-auto border-t border-white/10 p-2 md:border-t-0">
                 <p className="px-3 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-white/70">
-                  Teams
+                  {t("teams")}
                 </p>
                 {teamResults.length === 0 ? (
-                  <p className="px-3 py-2 text-sm text-white/50">No teams</p>
+                  <p className="px-3 py-2 text-sm text-white/50">{t("noTeams")}</p>
                 ) : (
-                  <ul role="group" aria-label="Teams">
+                  <ul role="group" aria-label={t("teams")}>
                     {teamResults.map((entry) => renderOption(entry))}
                   </ul>
                 )}

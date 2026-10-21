@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { CountryFlag } from "@/components/chrome/country-flag";
 import { focusRing } from "@/components/chrome/focus";
 import { DriverAvatar } from "@/components/driver/driver-avatar";
@@ -41,6 +42,8 @@ function CompactTeam({ team }: { team: TeamInfo }) {
 }
 
 export function ActivityView({ activity, year }: { activity: SeasonActivity; year: number }) {
+  const t = useTranslations("Grid");
+
   return (
     <section
       id="grid-activity-panel"
@@ -51,38 +54,37 @@ export function ActivityView({ activity, year }: { activity: SeasonActivity; yea
       <section className="space-y-4" aria-labelledby="activity-overview-title">
         <SectionHeading
           id="activity-overview-title"
-          kicker="Season overview"
-          title="Seat changes"
-          description="Who swapped teams, who subbed in, and when line-ups shifted."
+          kicker={t("overviewKicker")}
+          title={t("seatChanges")}
+          description={t("seatChangesDescription")}
         />
 
         <div className="grid grid-cols-1 divide-y divide-white/10 overflow-hidden rounded-xl border border-white/10 bg-white/[0.03] sm:grid-cols-3 sm:divide-x sm:divide-y-0">
           <article className="grid gap-1.5 p-3 md:p-4">
-            <span className="text-xs font-bold uppercase tracking-[0.14em] text-white/70">Race drivers</span>
+            <span className="text-xs font-bold uppercase tracking-[0.14em] text-white/70">{t("raceDrivers")}</span>
             <strong className="mt-2 block text-2xl font-black tracking-[-0.05em] text-white">{activity.summary.uniqueRaceDrivers}</strong>
           </article>
           <article className="grid gap-1.5 p-3 md:p-4">
-            <span className="text-xs font-bold uppercase tracking-[0.14em] text-white/70">Sub stints</span>
+            <span className="text-xs font-bold uppercase tracking-[0.14em] text-white/70">{t("subStints")}</span>
             <strong className="mt-2 block text-2xl font-black tracking-[-0.05em] text-white">{activity.summary.substitutions}</strong>
           </article>
           <article className="grid gap-1.5 p-3 md:p-4">
-            <span className="text-xs font-bold uppercase tracking-[0.14em] text-white/70">Teams with changes</span>
+            <span className="text-xs font-bold uppercase tracking-[0.14em] text-white/70">{t("teamsWithChanges")}</span>
             <strong className="mt-2 block text-2xl font-black tracking-[-0.05em] text-white">{activity.summary.changedTeams}</strong>
           </article>
         </div>
 
         <p className="text-sm leading-6 text-white/65">
-          A sub stint is when a stand-in races and the regular driver comes back later. Swaps and
-          returns are listed in the timeline below.
+          {t("subStintExplainer")}
         </p>
       </section>
 
       <section className="space-y-4" aria-labelledby="activity-changes-title">
         <SectionHeading
           id="activity-changes-title"
-          kicker="Chronology"
-          title="Weekend by weekend"
-          description="Who left each seat and who took over, round by round."
+          kicker={t("chronology")}
+          title={t("weekendByWeekend")}
+          description={t("weekendDescription")}
         />
         <ActivityTimeline events={activity.events} year={year} />
       </section>
@@ -90,9 +92,9 @@ export function ActivityView({ activity, year }: { activity: SeasonActivity; yea
       <section className="space-y-4" aria-labelledby="race-drivers-title">
         <SectionHeading
           id="race-drivers-title"
-          kicker="Race results"
-          title="Who raced"
-          description="Everyone who scored a race result this year."
+          kicker={t("raceResults")}
+          title={t("whoRaced")}
+          description={t("whoRacedDescription")}
         />
         {activity.drivers.length > 0 ? (
           <ul className="grid gap-2 sm:grid-cols-2">
@@ -109,27 +111,27 @@ export function ActivityView({ activity, year }: { activity: SeasonActivity; yea
                     {driver.name}
                   </Link>
                   <span className="truncate text-xs leading-4 text-white/65">
-                    {driver.openedSeason ? "From round 1" : "Joined mid-season"}
+                    {driver.openedSeason ? t("fromRound1") : t("joinedMidSeason")}
                     {driver.teams.length > 0
                       ? ` · ${driver.teams.map((team) => team.name).join(" / ")}`
                       : ""}
                   </span>
                 </div>
-                <span className="shrink-0 text-xs font-bold text-white/70">{driver.weekends} GP</span>
+                <span dir="ltr" className="shrink-0 text-xs font-bold text-white/70">{t("gpCount", { count: driver.weekends })}</span>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm leading-6 text-white/60">No race-driver appearances are recorded for this season.</p>
+          <p className="rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm leading-6 text-white/60">{t("noRaceDrivers")}</p>
         )}
       </section>
 
       <section className="space-y-4" aria-labelledby="test-drivers-title">
         <SectionHeading
           id="test-drivers-title"
-          kicker="Season assignments"
-          title="Test drivers"
-          description="Roles written into the official season entry list."
+          kicker={t("assignments")}
+          title={t("testDrivers")}
+          description={t("testDriversDescription")}
         />
         {activity.testDrivers.length > 0 ? (
           <ul className="grid gap-2 sm:grid-cols-2">
@@ -155,11 +157,11 @@ export function ActivityView({ activity, year }: { activity: SeasonActivity; yea
           </ul>
         ) : (
           <p className="rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm leading-6 text-white/60">
-            No test-driver designations are recorded for this championship.
+            {t("noTestDrivers")}
           </p>
         )}
         <p className="text-sm leading-6 text-white/65">
-          Reserve-driver roles and private test sessions sit outside this dataset.
+          {t("reserveNote")}
         </p>
       </section>
     </section>

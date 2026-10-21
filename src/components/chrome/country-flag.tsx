@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { countryFlagUrl } from "@/lib/country-flag";
 
 type CountryFlagProps = {
@@ -13,10 +14,11 @@ export function CountryFlag({
   className = "",
   labelled = true,
 }: CountryFlagProps) {
+  const t = useTranslations("Common");
   const src = countryFlagUrl(alpha2);
   if (!src) return null;
 
-  const label = name?.trim() || alpha2?.toUpperCase() || "Country";
+  const label = name?.trim() || alpha2?.toUpperCase() || t("country");
 
   return (
     <span className={`inline-flex shrink-0 ${className}`} title={label}>

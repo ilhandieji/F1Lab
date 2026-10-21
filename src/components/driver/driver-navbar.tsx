@@ -1,6 +1,8 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { ArchiveBreadcrumb } from "@/components/chrome/archive-breadcrumb";
 import { ArchiveHeader } from "@/components/chrome/archive-header";
 import { CareerYearNavigation } from "@/components/chrome/career-year-navigation";
@@ -16,6 +18,8 @@ type DriverNavbarProps = {
 };
 
 export function DriverNavbar({ profile, season }: DriverNavbarProps) {
+  const t = useTranslations("Common");
+  const driverText = useTranslations("Driver");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -41,18 +45,21 @@ export function DriverNavbar({ profile, season }: DriverNavbarProps) {
       breadcrumb={
         <ArchiveBreadcrumb
           items={[
-            { href: seasonHref(season), label: "Grid" },
+            { href: seasonHref(season), label: t("grid") },
             { label: profile.abbreviation, title: profile.fullName },
           ]}
         />
       }
       tabs={
         <UnderlineTabs
-          tabs={DRIVER_TABS}
+          tabs={DRIVER_TABS.map((tab) => ({
+            id: tab.id,
+            label: tab.id === "season" ? t("season") : t("results"),
+          }))}
           activeId={activeTab}
           onSelect={onSelectTab}
           idPrefix="driver"
-          label="Driver profile views"
+          label={driverText("views")}
         />
       }
       yearControl={
@@ -63,7 +70,7 @@ export function DriverNavbar({ profile, season }: DriverNavbarProps) {
           next={next}
           hrefFor={hrefFor}
           navigate={navigate}
-          listLabel="Career seasons"
+          listLabel={t("careerSeasons")}
         />
       }
     />

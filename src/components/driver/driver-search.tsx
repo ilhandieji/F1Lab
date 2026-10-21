@@ -1,7 +1,8 @@
 "use client";
 
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import { DriverAvatar } from "@/components/driver/driver-avatar";
 import { driverHref } from "@/lib/driver/routes";
 import type { DriverSearchHit } from "@/lib/driver/types";
@@ -17,6 +18,7 @@ function SearchFieldSkeleton() {
 }
 
 function DriverSearchField() {
+  const t = useTranslations("Search");
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<DriverSearchHit[]>([]);
@@ -74,12 +76,12 @@ function DriverSearchField() {
 
   return (
     <div ref={wrapperRef} className="relative mt-8 max-w-xl">
-      <label htmlFor="driver-search" className="sr-only">Search drivers</label>
+      <label htmlFor="driver-search" className="sr-only">{t("driverSearchLabel")}</label>
       <input
         id="driver-search"
         type="search"
         value={query}
-        placeholder="Search drivers by name…"
+        placeholder={t("driverSearchPlaceholder")}
         autoComplete="off"
         className="w-full rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/40 outline-none ring-red-500/40 transition focus:border-red-500/50 focus:ring-2"
         onChange={(event) => onChange(event.target.value)}
@@ -102,9 +104,9 @@ function DriverSearchField() {
           className="absolute z-50 mt-2 max-h-64 w-full overflow-y-auto rounded-2xl border border-white/10 bg-[#0c0d12] p-2 shadow-xl"
         >
           {loading ? (
-            <li className="px-3 py-2 text-sm text-white/50">Searching…</li>
+            <li className="px-3 py-2 text-sm text-white/50">{t("searching")}</li>
           ) : results.length === 0 ? (
-            <li className="px-3 py-2 text-sm text-white/50">No drivers found.</li>
+            <li className="px-3 py-2 text-sm text-white/50">{t("noDriversFound")}</li>
           ) : (
             results.map((hit) => (
               <li key={hit.id}>

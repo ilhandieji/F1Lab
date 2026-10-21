@@ -8,7 +8,9 @@ import {
   type ReactNode,
   type TouchEvent,
 } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { adjacentSeasons, seasonHref } from "@/lib/grid/seasons";
 import { isGridTabId, type GridTabId } from "@/lib/grid/types";
 import { SeasonNavbar } from "./season-navbar";
@@ -38,15 +40,18 @@ function GridShellBody({
   hrefFor,
   navigate,
 }: GridShellBodyProps) {
+  const t = useTranslations("Grid");
+  const common = useTranslations("Common");
+  const locale = useLocale();
   const [announcement, setAnnouncement] = useState("");
   const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
 
   const goTo = useCallback(
     (targetYear: number) => {
-      setAnnouncement(`Season ${targetYear}`);
+      setAnnouncement(common("seasonAnnouncement", { year: targetYear }));
       navigate(targetYear);
     },
-    [navigate],
+    [common, navigate],
   );
 
   useEffect(() => {
@@ -123,15 +128,22 @@ function GridShellBody({
         <header className="mt-6 md:mt-8">
           <div className="inline-flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.22em] text-white/60">
             <span className="h-2.5 w-2.5 rounded-full bg-red-500 shadow-[0_0_12px_rgba(239,68,68,0.8)]" />
-            Season archive
+            {t("archiveKicker")}
           </div>
           <h1 className="mt-4 text-4xl font-black uppercase tracking-[-0.08em] text-white md:text-6xl">
-            {year} <span className="text-red-500">season</span>
+            {locale === "fa" ? (
+              <>
+                <span className="text-red-500">{t("headingWord")}</span>{" "}
+                <span dir="ltr">{year}</span>
+              </>
+            ) : (
+              <>
+                <span dir="ltr">{year}</span> <span className="text-red-500">{t("headingWord")}</span>
+              </>
+            )}
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-white/70 md:text-base">
-            Driver and team standings, seat changes, and the full
-            championship year. Use the season controls to move between years. On a touch screen, a
-            horizontal swipe does the same.
+            {t("intro")}
           </p>
         </header>
 

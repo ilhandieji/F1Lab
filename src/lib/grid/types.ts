@@ -25,10 +25,17 @@ export type ConstructorStanding = {
   points: number;
 };
 
+export type ConstructorStandingsNoteCode =
+  | "official-plus-zero"
+  | "grouped-ties"
+  | "built-from-results";
+
+export type ConstructorStandingsEmptyCode = "entry-list-no-points" | "no-data";
+
 export type ConstructorStandingsView = {
   constructorStandings: ConstructorStanding[];
-  constructorStandingsNote: string | null;
-  constructorStandingsEmptyMessage: string | null;
+  constructorStandingsNote: ConstructorStandingsNoteCode | null;
+  constructorStandingsEmptyMessage: ConstructorStandingsEmptyCode | null;
 };
 
 export type ActivityDriver = {
@@ -104,15 +111,15 @@ export type SeasonGrid = {
   startingDrivers: GridDriver[];
   highestPoints: number;
   constructorStandings: ConstructorStanding[];
-  constructorStandingsNote: string | null;
-  constructorStandingsEmptyMessage: string | null;
+  constructorStandingsNote: ConstructorStandingsNoteCode | null;
+  constructorStandingsEmptyMessage: ConstructorStandingsEmptyCode | null;
   activity: SeasonActivity;
 };
 
 export const GRID_TABS = [
-  { id: "drivers", label: "Drivers" },
-  { id: "constructors", label: "Teams" },
-  { id: "activity", label: "Changes" },
+  { id: "drivers" },
+  { id: "constructors" },
+  { id: "activity" },
 ] as const;
 
 export type GridTabId = (typeof GRID_TABS)[number]["id"];

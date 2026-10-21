@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { ImageZoom } from "@/components/chrome/image-zoom";
 import type { TeamInfo } from "@/lib/grid/types";
@@ -17,6 +18,7 @@ const sizeMap = {
 } as const;
 
 export function TeamLogo({ team, size = "default", className = "" }: TeamLogoProps) {
+  const t = useTranslations("Common");
   const boxClass = `${sizeMap[size]} grid place-items-center rounded-md bg-white/0 ${className}`;
 
   if (!team.logoPath) {
@@ -24,13 +26,13 @@ export function TeamLogo({ team, size = "default", className = "" }: TeamLogoPro
       <span
         className={`${boxClass} border border-dashed border-white/20`}
         role="img"
-        aria-label={`${team.name} logo unavailable`}
+        aria-label={t("logoUnavailable", { name: team.name })}
       />
     );
   }
 
   return (
-    <ImageZoom src={team.logoPath} alt={`${team.name} logo`} light={team.lightLogo} className={boxClass}>
+    <ImageZoom src={team.logoPath} alt={t("logo", { name: team.name })} light={team.lightLogo} className={boxClass}>
       <Image
         src={team.logoPath}
         alt=""
