@@ -1,11 +1,12 @@
 "use client";
 
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { constructorHref } from "@/lib/constructor/routes";
 import type { ConstructorSearchHit } from "@/lib/constructor/types";
 import { driverHref } from "@/lib/driver/routes";
 import type { DriverSearchHit } from "@/lib/driver/types";
+import { distinctFullName } from "@/lib/search/name-query";
 import { DriverSearchMark, TeamSearchMark } from "./archive-search-hit-mark";
 import { CountryFlag } from "@/components/chrome/country-flag";
 import { focusRing } from "@/components/chrome/focus";
@@ -33,9 +34,7 @@ export function ArchiveSearchField({
   inputId = "archive-search",
 }: ArchiveSearchFieldProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const initialUrlQuery = searchParams.get("q") ?? "";
-  const [query, setQuery] = useState(initialUrlQuery);
+  const [query, setQuery] = useState("");
   const [results, setResults] = useState<ArchiveHit[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -63,18 +62,6 @@ export function ArchiveSearchField({
     window.addEventListener("pointerdown", onPointerDown);
     return () => window.removeEventListener("pointerdown", onPointerDown);
   }, [open]);
-
-  const syncUrl = useCallback(
-    (value: string) => {
-      const params = new URLSearchParams(searchParams.toString());
-      const trimmed = value.trim();
-      if (trimmed) params.set("q", trimmed);
-      else params.delete("q");
-      const queryString = params.toString();
-      router.replace(queryString ? `/?${queryString}` : "/", { scroll: false });
-    },
-    [router, searchParams],
-  );
 
   const fetchResults = useCallback((value: string) => {
     const trimmed = value.trim();
@@ -109,14 +96,13 @@ export function ArchiveSearchField({
   }, []);
 
   const scheduleSearch = useCallback(
-    (value: string, sync: boolean) => {
+    (value: string) => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
       debounceRef.current = setTimeout(() => {
         fetchResults(value);
-        if (sync) syncUrl(value);
       }, 220);
     },
-    [fetchResults, syncUrl],
+    [fetchResults],
   );
 
   const onChange = (value: string) => {
@@ -129,13 +115,13 @@ export function ArchiveSearchField({
     } else {
       setLoading(true);
     }
-    scheduleSearch(value, true);
+    scheduleSearch(value);
   };
 
   const onSelect = (entry: ArchiveHit) => {
     setOpen(false);
     if (entry.kind === "driver") {
-      setQuery(entry.hit.fullName);
+      setQuery(entry.hit.name);
       router.push(driverHref(entry.hit.id));
       return;
     }
@@ -186,6 +172,8 @@ export function ArchiveSearchField({
   const renderOption = (entry: ArchiveHit) => {
     const index = results.indexOf(entry);
     const selected = index === activeIndex;
+    const label = entry.hit.name;
+    const secondary = distinctFullName(entry.hit.name, entry.hit.fullName);
     return (
       <li key={`${entry.kind}-${entry.hit.id}`}>
         <button
@@ -201,7 +189,7 @@ export function ArchiveSearchField({
         >
           {entry.kind === "driver" ? (
             <DriverSearchMark
-              fullName={entry.hit.fullName}
+              fullName={entry.hit.name}
               abbreviation={entry.hit.abbreviation}
               portraitUrl={entry.hit.portraitUrl}
             />
@@ -214,10 +202,11 @@ export function ArchiveSearchField({
                 alpha2={entry.kind === "driver" ? entry.hit.nationalityAlpha2 : entry.hit.countryAlpha2}
                 name={entry.kind === "driver" ? entry.hit.nationality : entry.hit.country}
               />
-              <span className="truncate font-semibold text-white">
-                {entry.kind === "driver" ? entry.hit.fullName : entry.hit.name}
-              </span>
+              <span className="truncate font-semibold text-white">{label}</span>
             </span>
+            {secondary ? (
+              <span className="mt-0.5 block truncate text-xs text-white/55">{secondary}</span>
+            ) : null}
             {entry.hit.championshipWins > 0 ? (
               <span
                 className={`mt-0.5 block text-[10px] font-bold uppercase tracking-[0.12em] ${

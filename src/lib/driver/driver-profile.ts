@@ -26,6 +26,7 @@ class DriverProfileService {
 
     return {
       id: record.id,
+      name: record.name,
       fullName: record.full_name,
       firstName: record.first_name,
       lastName: record.last_name,

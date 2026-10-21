@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test src/lib/driver/driver-photos.test.ts",
+    "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test src/lib/driver/driver-photos.test.ts src/lib/search/name-query.test.ts",
     "portraits:sync": "node scripts/sync-driver-portraits.mjs",
     "portraits:sync:dry-run": "node scripts/sync-driver-portraits.mjs --dry-run"
   },

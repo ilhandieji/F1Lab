@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
 import { ImageZoom } from "@/components/chrome/image-zoom";
+import { useRetryingImage } from "@/components/chrome/use-retrying-image";
 import { resolveDriverPortraitUrl } from "@/lib/driver/driver-photos";
 import type { DriverProfile } from "@/lib/driver/types";
 
@@ -14,21 +14,28 @@ type DriverPortraitProps = {
 
 export function DriverPortrait({ profile, season, className = "" }: DriverPortraitProps) {
   const photoUrl = resolveDriverPortraitUrl(profile.portraits, season);
-  const [failedUrl, setFailedUrl] = useState<string | null>(null);
+  const image = useRetryingImage(photoUrl);
 
   return (
     <div
       className={`relative overflow-hidden rounded-2xl border border-white/10 bg-[linear-gradient(145deg,rgba(40,40,45,0.95),rgba(18,18,22,0.98))] ${className}`}
     >
-      {photoUrl && failedUrl !== photoUrl ? (
-        <ImageZoom src={photoUrl} alt={profile.fullName} className="absolute inset-0 overflow-hidden">
+      {image.show && photoUrl ? (
+        <ImageZoom
+          src={photoUrl}
+          alt={profile.fullName}
+          className="absolute inset-0 block h-full w-full overflow-hidden"
+        >
           <Image
+            key={`${photoUrl}-${image.attempt}`}
             src={photoUrl}
             alt=""
             fill
-            sizes="(min-width: 768px) 12rem, 100vw"
+            priority
+            unoptimized
+            sizes="(min-width: 768px) 12rem, calc(100vw - 2rem)"
             className="object-cover object-[center_22%] scale-[1.05]"
-            onError={() => setFailedUrl(photoUrl)}
+            onError={image.onError}
           />
         </ImageZoom>
       ) : (

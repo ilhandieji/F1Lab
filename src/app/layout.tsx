@@ -1,6 +1,8 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
+import { ScrollToTop } from "@/components/chrome/scroll-to-top";
 import { cn } from "@/lib/utils";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
@@ -38,7 +40,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         inter.variable,
       )}
     >
-      <body className="min-h-full bg-[#07080c] text-white">{children}</body>
+      <body className="min-h-full bg-[#07080c] text-white">
+        <Suspense fallback={null}>
+          <ScrollToTop />
+        </Suspense>
+        {children}
+      </body>
     </html>
   );
 }

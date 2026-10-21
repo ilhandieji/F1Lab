@@ -113,7 +113,12 @@ function ConstructorProfileShellBody({
         ) : (
           <>
             <ConstructorHero profile={profile} season={season} />
-            <ConstructorSeasonRail season={season} marks={seasonMarks} hrefFor={hrefFor} />
+            <ConstructorSeasonRail
+              season={season}
+              marks={seasonMarks}
+              hrefFor={hrefFor}
+              navigate={navigate}
+            />
             <ConstructorCareerStats totals={profile.careerTotals} />
             <ConstructorChronology links={profile.chronology} />
           </>

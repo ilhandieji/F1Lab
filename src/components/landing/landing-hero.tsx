@@ -13,31 +13,31 @@ const paths = [
     href: `/grid/${FEATURED_SEASON}?tab=drivers`,
     kicker: "WDC",
     title: "Drivers' standings",
-    copy: "Championship order, points, and who started the season in each seat.",
+    copy: "Championship order, points, and who started the season in each seat",
   },
   {
     href: `/grid/${FEATURED_SEASON}?tab=activity`,
     kicker: "Changes",
     title: "Driver changes",
-    copy: "Substitutions, seat swaps, and mid-season moves as they happened.",
+    copy: "Substitutions, seat swaps, and mid-season moves as they happened",
   },
   {
     href: `/grid/${FEATURED_SEASON}?tab=constructors`,
     kicker: "WCC",
     title: "Constructors' standings",
-    copy: "The WCC table, team points, and how each constructor finished the year.",
+    copy: "The WCC table, team points, and how each constructor finished the year",
   },
   {
     href: driverHref(FEATURED_DRIVER_ID, FEATURED_SEASON),
     kicker: "Driver",
     title: "Drivers",
-    copy: "Career stats, family links, and season-by-season results.",
+    copy: "Career stats, family links, and season-by-season results",
   },
   {
     href: constructorHref(FEATURED_CONSTRUCTOR_ID, FEATURED_SEASON),
     kicker: "Team",
     title: "Teams",
-    copy: "Entry lists, engines, tyres, and every race result by constructor.",
+    copy: "Entry lists, engines, tyres, and every race result by constructor",
   },
 ] as const;
 
@@ -82,14 +82,14 @@ export function LandingHero() {
           </span>
 
           <h1 className="max-w-3xl text-5xl font-black uppercase leading-[0.85] tracking-[-0.08em] text-white md:text-7xl xl:text-[7rem]">
-            Every season.
+            Every season
             <br />
-            <span className="text-red-500">Every detail.</span>
+            <span className="text-red-500">Every detail</span>
           </h1>
 
           <p className="mt-5 max-w-2xl text-base leading-7 text-white/70 md:text-lg">
             Driver and team standings, seat changes, and season results from 1950
-            onward. Search above or jump into {FEATURED_SEASON}.
+            onward, search above or jump into {FEATURED_SEASON}
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">

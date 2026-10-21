@@ -31,6 +31,7 @@ export type DriverCareerTotals = {
 
 export type DriverProfile = {
   id: string;
+  name: string;
   fullName: string;
   firstName: string;
   lastName: string;
@@ -128,6 +129,7 @@ export function isDriverTabId(value: string | null | undefined): value is Driver
 
 export type DriverSearchHit = {
   id: string;
+  name: string;
   fullName: string;
   abbreviation: string;
   nationality: string;

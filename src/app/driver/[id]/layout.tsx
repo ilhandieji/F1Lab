@@ -1,7 +1,7 @@
 import { Suspense, type ReactNode } from "react";
 import { notFound } from "next/navigation";
 import { DriverProfileLayout } from "@/components/driver/driver-profile-layout";
-import { DriverSeasonSkeleton } from "@/components/driver/driver-season-skeleton";
+import { DriverProfileSkeleton } from "@/components/driver/driver-profile-skeleton";
 import { getDriverProfile } from "@/lib/driver/driver-profile";
 
 type DriverLayoutProps = {
@@ -11,7 +11,7 @@ type DriverLayoutProps = {
 
 export default function DriverLayout({ children, params }: DriverLayoutProps) {
   return (
-    <Suspense fallback={<DriverSeasonSkeleton />}>
+    <Suspense fallback={<DriverProfileSkeleton />}>
       <DriverLayoutContent params={params}>{children}</DriverLayoutContent>
     </Suspense>
   );
